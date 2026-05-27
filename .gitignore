@@ -1,0 +1,6 @@
+.env
+.env.*
+Statements/
+*.pdf
+js/bankdash-data.private.js
+supabase/.temp/

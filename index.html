@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>BankDash - Financial Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="css/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="css/animation.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-select.min.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper-bundle.min.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" href="font/fonts.css">
+    <link rel="stylesheet" href="icon/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/bankdash.css">
+    <link rel="shortcut icon" href="images/favicon.png">
+    <link rel="apple-touch-icon-precomposed" href="images/favicon.png">
+</head>
+<body>
+    <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+    <div class="auth-gate" id="authGate" aria-live="polite">
+        <div class="auth-card">
+            <div>
+                <h3>BankDash</h3>
+                <p id="authStatus">Sign in to continue</p>
+            </div>
+            <form class="auth-form" id="authGateForm">
+                <input type="email" id="authEmail" autocomplete="email" placeholder="Email address" aria-label="Email address">
+                <input type="password" id="authPassword" autocomplete="current-password" placeholder="Password" aria-label="Password">
+                <button type="submit" class="tf-button f12-bold" id="authSubmit">Sign in</button>
+                <button type="button" class="tf-button style-4 f12-bold" id="authResetPassword">Reset password</button>
+            </form>
+            <form class="auth-form" id="passwordRecoveryForm" hidden>
+                <input type="password" id="newPassword" autocomplete="new-password" placeholder="New password" aria-label="New password">
+                <input type="password" id="confirmPassword" autocomplete="new-password" placeholder="Confirm password" aria-label="Confirm password">
+                <button type="submit" class="tf-button f12-bold">Save new password</button>
+            </form>
+        </div>
+    </div>
+    <div id="wrapper">
+        <div id="page" class="">
+            <div class="layout-wrap loader-off">
+                <div id="preload" class="preload-container">
+                    <div class="preloading"><span></span></div>
+                </div>
+
+                <div class="section-menu-left">
+                    <div class="box-logo">
+                        <a href="index.html" id="site-logo-inner">
+                            <img id="logo_header" alt="BankDash" src="images/logo/logo.svg" data-light="images/logo/logo.svg" data-dark="images/logo/logo-dark.svg">
+                        </a>
+                        <div class="button-show-hide"><i class="icon-back"></i></div>
+                    </div>
+                    <div class="section-menu-left-wrap">
+                        <div class="center">
+                            <div class="center-item">
+                                <div class="center-heading f14-regular text-Gray menu-heading mb-12">Navigation</div>
+                            </div>
+                            <div class="center-item">
+                                <ul>
+                                    <li class="menu-item active">
+                                        <a href="#overview" class="menu-item-button active">
+                                            <div class="icon"><i class="icon-category"></i></div>
+                                            <div class="text">Overview</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a href="#uploadStatements" class="menu-item-button">
+                                            <div class="icon"><i class="icon-document"></i></div>
+                                            <div class="text">Statements</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a href="#priorityRules" class="menu-item-button">
+                                            <div class="icon"><i class="icon-tick-square"></i></div>
+                                            <div class="text">Priority Rules</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a href="#budget" class="menu-item-button">
+                                            <div class="icon"><i class="icon-wallet1"></i></div>
+                                            <div class="text">Budget Plan</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a href="#payments" class="menu-item-button">
+                                            <div class="icon"><i class="icon-tick-square"></i></div>
+                                            <div class="text">Payments</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a href="#transactions" class="menu-item-button">
+                                            <div class="icon"><i class="icon-document"></i></div>
+                                            <div class="text">Transactions</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a href="#accountSettings" class="menu-item-button">
+                                            <div class="icon"><i class="icon-setting1"></i></div>
+                                            <div class="text">Account</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="wg-box mb-32 cockpit-panel">
+                            <div class="title"><div><h6>Action Alerts</h6><div class="f14-regular text-Gray">Leaks, overspends, and missing signals</div></div></div>
+                            <div id="actionAlerts" class="feature-list compact-list"></div>
+                        </div>
+                        <div class="user-controls">
+                            <div class="user-buttons button-user-logout" role="button" tabindex="0" aria-label="Sign out">
+                                <span class="icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+                            </div>
+                            <div class="user-buttons button-user-account" role="button" tabindex="0" aria-label="Open account">
+                                <span class="icon"><i class="fa-solid fa-user"></i></span>
+                                <span class="user-username f14-regular text-Gray" id="userFirstName">First Name</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-content-right">
+                    <div class="header-dashboard">
+                        <div class="wrap">
+                            <div class="header-left">
+                                <div class="button-show-hide"><i class="icon-menu"></i></div>
+                                <h6>BankDash</h6>
+                                <form class="form-search flex-grow" onsubmit="return false;">
+                                    <fieldset class="name">
+                                        <input id="transactionSearch" type="search" placeholder="Search merchant or category" class="show-search style-1" aria-label="Search transactions">
+                                    </fieldset>
+                                    <div class="button-submit">
+                                        <button type="submit"><i class="icon-search-normal1"></i></button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="header-grid">
+                                <div class="header-btn">
+                                    <button type="button" class="tf-button style-4 f12-bold privacy-toggle active" id="privacyToggle" aria-pressed="true" title="Toggle amount privacy">
+                                        <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+                                        <span>Privacy On</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="main-content">
+                        <div class="main-content-inner">
+                            <div class="main-content-wrap" id="overview">
+                                <div class="tf-container">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="mb-20 flex flex-wrap justify-between gap14 items-center">
+                                                <div>
+                                                    <h6>Financial Dashboard</h6>
+                                                    <div class="f14-regular text-Gray">Income, expenses, GoalSave, and priority planning.</div>
+                                                </div>
+                                                <button type="button" class="tf-button style-4 f12-bold priority-edit-button" id="editFinancialDashboard" title="Edit financial dashboard">
+                                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                    <span>Edit</span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="uploadStatements">
+                                            <div class="wg-box mb-32 workflow-panel">
+                                                <div class="title">
+                                                    <div>
+                                                        <h6>Statement Upload</h6>
+                                                        <div class="f14-regular text-Gray" id="uploadStatus">Ready for PDFs</div>
+                                                    </div>
+                                                </div>
+                                                <div class="workflow-grid">
+                                                    <form class="upload-form" id="statementUploadForm">
+                                                        <label class="settings-field">
+                                                            <span>PDF statements (max 3)</span>
+                                                            <input type="file" id="statementFiles" accept="application/pdf" multiple data-max-files="3">
+                                                        </label>
+                                                        <label class="settings-field">
+                                                            <span>PDF password</span>
+                                                            <input type="password" id="statementPassword" autocomplete="off" placeholder="Optional">
+                                                        </label>
+                                                        <button type="submit" class="tf-button f12-bold">Upload and Parse</button>
+                                                    </form>
+                                                    <div class="workflow-summary" id="uploadHistory">No uploads yet</div>
+                                                </div>
+                                                <div class="review-import-panel" id="reviewImportPanel" hidden>
+                                                    <div class="title">
+                                                        <div>
+                                                            <h6>Review Imported Transactions</h6>
+                                                            <div class="f14-regular text-Gray" id="reviewImportSummary">No transactions pending review</div>
+                                                        </div>
+                                                        <div class="account-actions">
+                                                            <button type="button" class="tf-button f12-bold" id="saveReviewedTransactions">Save reviewed transactions</button>
+                                                            <button type="button" class="tf-button style-4 f12-bold" id="discardReviewedTransactions">Discard</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="bankdash-table-wrap">
+                                                        <table class="table-list-transaction bankdash-table">
+                                                            <thead>
+                                                                <tr class="list-transaction-head">
+                                                                    <th>Date</th>
+                                                                    <th>Description</th>
+                                                                    <th>Category</th>
+                                                                    <th>Type</th>
+                                                                    <th>Amount</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="reviewImportRows"></tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="priorityRules">
+                                            <div class="wg-box mb-32 workflow-panel">
+                                                <div class="title">
+                                                    <div>
+                                                        <h6>Priority Rules</h6>
+                                                        <div class="f14-regular text-Gray" id="priorityRuleStatus">Rules and merchant matching</div>
+                                                    </div>
+                                                </div>
+                                                <form class="priority-rule-form" id="priorityRuleForm">
+                                                    <label class="settings-field">
+                                                        <span>Priority name</span>
+                                                        <input type="text" id="priorityRuleName" placeholder="Car, rent, internet">
+                                                    </label>
+                                                    <label class="settings-field">
+                                                        <span>Expected amount</span>
+                                                        <input type="number" id="priorityRuleAmount" min="0" step="0.01" placeholder="0.00">
+                                                    </label>
+                                                    <button type="submit" class="tf-button f12-bold">Save rule</button>
+                                                </form>
+                                                <div class="rule-builder-grid">
+                                                    <div>
+                                                        <div class="f14-bold text-Black">Suggested matches</div>
+                                                        <div id="prioritySuggestions" class="feature-list compact-list"></div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="f14-bold text-Black">Saved rules</div>
+                                                        <div id="savedPriorityRules" class="feature-list compact-list"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="financialDashboardEditor" hidden>
+                                            <div class="wg-box mb-32 manual-overview-panel">
+                                                <div class="title">
+                                                    <div>
+                                                        <h6>Current Cycle Setup</h6>
+                                                        <div class="f14-regular text-Gray" id="manualCycleLabel">25-to-24 manual overview</div>
+                                                    </div>
+                                                    <button type="button" class="tf-button style-4 f12-bold" id="cancelManualOverview">Cancel</button>
+                                                </div>
+                                                <div class="manual-overview-grid">
+                                                    <label class="settings-field">
+                                                        <span>Cycle month</span>
+                                                        <select id="manualCycleMonth" aria-label="Manual cycle month"></select>
+                                                    </label>
+                                                    <label class="settings-field">
+                                                        <span>Cycle year</span>
+                                                        <select id="manualCycleYear" aria-label="Manual cycle year"></select>
+                                                    </label>
+                                                    <label class="settings-field">
+                                                        <span>Salary</span>
+                                                        <input type="number" id="manualSalary" min="0" step="0.01" placeholder="0.00">
+                                                    </label>
+                                                </div>
+                                                <div class="priority-editor-actions">
+                                                    <button type="button" class="tf-button style-1 f12-bold" id="saveManualOverview">Save overview</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="my-card-item bg-1 bankdash-card cockpit-card mb-32">
+                                                <div class="number">
+                                                    <div class="f12-medium text-GrayDark" id="salaryCardLabel">Salary</div>
+                                                    <div class="label-01" id="availableNow">R0.00</div>
+                                                </div>
+                                                <div class="bot"><div class="f12-medium" id="availableDetail">Cycle salary</div></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="my-card-item bg-2 bankdash-card cockpit-card mb-32">
+                                                <div class="number">
+                                                    <div class="f12-medium text-GrayDark">Expenses Paid</div>
+                                                    <div class="label-01" id="safeDailySpend">R0.00</div>
+                                                </div>
+                                                <div class="bot"><div class="f12-medium" id="safeDailyDetail">Paid checklist items</div></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="my-card-item bg-3 bankdash-card cockpit-card mb-32">
+                                                <div class="number">
+                                                    <div class="f12-medium text-GrayDark">GoalSave</div>
+                                                    <div class="label-01" id="priorityRemaining">R0.00</div>
+                                                </div>
+                                                <div class="bot"><div class="f12-medium" id="priorityRemainingDetail">Savings checklist amount</div></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="my-card-item bg-4 bankdash-card cockpit-card mb-32">
+                                                <div class="number">
+                                                    <div class="f12-medium text-GrayDark">Total Left Over</div>
+                                                    <div class="label-01" id="goalSaveProgress">0%</div>
+                                                </div>
+                                                <div class="bot"><div class="f12-medium text-GrayDark" id="goalSaveDetail">Salary minus paid and GoalSave</div></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="wg-box mb-32 cockpit-panel">
+                                                <div class="title">
+                                                    <div>
+                                                        <h6>Priority Checklist</h6>
+                                                        <div class="f14-regular text-Gray">Monthly Priority Items</div>
+                                                    </div>
+                                                    <button type="button" class="tf-button style-4 f12-bold priority-edit-button" id="editPriorityItems" title="Edit priority checklist">
+                                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                        <span>Edit</span>
+                                                    </button>
+                                                </div>
+                                                <div id="priorityItems" class="priority-items-grid">
+                                                    <div class="priority-item priority-rent" data-priority-key="rent">
+                                                        <i class="fa-solid fa-house"></i>
+                                                        <strong class="priority-name">Rent</strong>
+                                                        <span class="priority-transaction-name">Landlord</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-vehicle" data-priority-key="vehicle">
+                                                        <i class="fa-solid fa-car"></i>
+                                                        <strong class="priority-name">Vehicle</strong>
+                                                        <span class="priority-transaction-name">Vehicle Finance</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-petrol" data-priority-key="petrol">
+                                                        <i class="fa-solid fa-gas-pump"></i>
+                                                        <strong class="priority-name">Petrol</strong>
+                                                        <span class="priority-transaction-name">Multiple Stations</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-internet" data-priority-key="internet">
+                                                        <i class="fa-solid fa-globe"></i>
+                                                        <strong class="priority-name">Internet & Fibre</strong>
+                                                        <span class="priority-transaction-name">Internet Provider</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-loans" data-priority-key="loans">
+                                                        <i class="fa-solid fa-building-columns"></i>
+                                                        <strong class="priority-name">Loans</strong>
+                                                        <span class="priority-transaction-name">Loan Provider</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-gym" data-priority-key="gym">
+                                                        <i class="fa-solid fa-dumbbell"></i>
+                                                        <strong class="priority-name">Gym</strong>
+                                                        <span class="priority-transaction-name">Fitness Provider</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-groceries" data-priority-key="groceries">
+                                                        <i class="fa-solid fa-cart-shopping"></i>
+                                                        <strong class="priority-name">Groceries</strong>
+                                                        <span class="priority-transaction-name">Multiple Stores</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-airtime" data-priority-key="airtime">
+                                                        <i class="fa-solid fa-mobile-screen-button"></i>
+                                                        <strong class="priority-name">Airtime/Data</strong>
+                                                        <span class="priority-transaction-name">Mobile & Data</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-lunch" data-priority-key="lunch">
+                                                        <i class="fa-solid fa-utensils"></i>
+                                                        <strong class="priority-name">Lunch</strong>
+                                                        <span class="priority-transaction-name">Food & Work Meals</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-leisure" data-priority-key="leisure">
+                                                        <i class="fa-solid fa-beer-mug-empty"></i>
+                                                        <strong class="priority-name">Leisure</strong>
+                                                        <span class="priority-transaction-name">Various</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-coffee" data-priority-key="coffee">
+                                                        <i class="fa-solid fa-mug-hot"></i>
+                                                        <strong class="priority-name">Coffee</strong>
+                                                        <span class="priority-transaction-name">Coffee Shops</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-savings" data-priority-key="savings">
+                                                        <i class="fa-solid fa-vault"></i>
+                                                        <strong class="priority-name">Savings</strong>
+                                                        <span class="priority-transaction-name">GoalSave</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-openai" data-priority-key="openai">
+                                                        <i class="fa-brands fa-openai"></i>
+                                                        <strong class="priority-name">ChatGPT</strong>
+                                                        <span class="priority-transaction-name">OpenAI</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-google" data-priority-key="google">
+                                                        <i class="fa-brands fa-google"></i>
+                                                        <strong class="priority-name">Google</strong>
+                                                        <span class="priority-transaction-name">Google One</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-youtube" data-priority-key="youtube">
+                                                        <i class="fa-brands fa-youtube"></i>
+                                                        <strong class="priority-name">YouTube</strong>
+                                                        <span class="priority-transaction-name">YouTube Premium</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                </div>
+                                                <div id="priorityChecklistEditor" class="priority-checklist-editor" hidden></div>
+                                                <div id="priorityChecklist" class="feature-list compact-list priority-status-list"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-7">
+                                            <div class="wg-box mb-32 cockpit-panel">
+                                                <div class="title"><div><h6>Quick Budget Meters</h6><div class="f14-regular text-Gray">Caps and safe spend</div></div></div>
+                                                <div id="cockpitBudgetMeters" class="budget-meter-grid"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="wg-box mb-32 bankdash-section-panel">
+                                                <div class="title"><div><h6>Income & Cashflow</h6><div class="f14-regular text-Gray">Salary, true spend, GoalSave movement, and forecast</div></div></div>
+                                                <div class="section-grid section-grid-cashflow">
+                                                    <div class="bankdash-total-pair">
+                                                        <div><span>Average salary</span><strong id="avgIncome">R0.00</strong><small id="salaryRange">Confirmed salary deposits</small></div>
+                                                        <div><span>Total expenses</span><strong id="totalExpenses">R0.00</strong><small id="avgExpenses">Average monthly spend</small></div>
+                                                        <div><span>Net savings drawn</span><strong id="netSavings">R0.00</strong><small id="savingsDetail">GoalSave movement</small></div>
+                                                    </div>
+                                                    <div id="estimatePanel" class="estimate-list"></div>
+                                                    <div id="salaryList" class="stack-list"></div>
+                                                    <div id="monthComparison" class="feature-list compact-list"></div>
+                                                    <div id="savingsPressure" class="feature-list compact-list"></div>
+                                                </div>
+                                                <div id="monthlyChart" class="chart"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="payments">
+                                            <div class="wg-box mb-32 bankdash-section-panel">
+                                                <div class="title"><div><h6>Spending Breakdown</h6><div class="f14-regular text-Gray">Category split, top signals, and payment detail</div></div></div>
+                                                <div class="section-grid section-grid-spending">
+                                                    <div>
+                                                        <div id="priorityChart" class="chart compact"></div>
+                                                        <div class="bankdash-total-pair">
+                                                            <div><span>Priority payments</span><strong id="priorityTotal">R0.00</strong><small id="priorityShare">Share of expenses</small></div>
+                                                            <div><span>Non-priority payments</span><strong id="nonPriorityTotal">R0.00</strong><small id="nonPriorityShare">Share of expenses</small></div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="spendInsights" class="insight-grid"></div>
+                                                    <div>
+                                                        <h6 class="section-subtitle">Priority Payments</h6>
+                                                        <div id="priorityPayments" class="payment-list"></div>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="section-subtitle">Non-priority Payments</h6>
+                                                        <div id="nonPriorityPayments" class="payment-list"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="budget">
+                                            <div class="wg-box mb-32 bankdash-section-panel">
+                                                <div class="title">
+                                                    <div><h6>Budget Plan</h6><div class="f14-regular text-Gray">Recommended spend after GoalSave and target caps</div></div>
+                                                    <button type="button" class="tf-button f12-bold" data-open-settings="budgets"><i class="icon-edit"></i>Edit</button>
+                                                </div>
+                                                <div class="planner-control">
+                                                    <label for="goalSaveTarget">GoalSave target</label>
+                                                    <input type="number" min="0" step="100" id="goalSaveTarget" value="0">
+                                                </div>
+                                                <div class="section-grid section-grid-budget">
+                                                    <div id="budgetPlanner" class="feature-list"></div>
+                                                    <div id="budgetTargets" class="feature-list"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="wg-box mb-32 bankdash-section-panel">
+                                                <div class="title"><div><h6>Recurring & Essential Payments</h6><div class="f14-regular text-Gray">Automatic deductions, subscriptions, and expected fixed costs</div></div></div>
+                                                <div class="section-grid section-grid-recurring">
+                                                    <div id="essentialPayments" class="payment-list"></div>
+                                                    <div id="subscriptionDetector" class="feature-list"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="wg-box settings-panel mb-32" id="settingsPanel" hidden>
+                                                <div class="title">
+                                                    <div><h6 id="settingsTitle">Dashboard settings</h6><div class="f14-regular text-Gray">Saved in this browser</div></div>
+                                                    <button type="button" class="tf-button f12-bold" id="closeSettings">Close</button>
+                                                </div>
+                                                <div id="settingsContent"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="accountSettings">
+                                            <div class="wg-box mb-32 supabase-panel" id="supabasePanel">
+                                                <div class="title">
+                                                    <div>
+                                                        <h6>Account</h6>
+                                                        <div class="f14-regular text-Gray" id="supabaseStatus">Checking connection...</div>
+                                                    </div>
+                                                    <button type="button" class="tf-button style-4 f12-bold" id="supabaseSignOut">Sign out</button>
+                                                </div>
+                                                <div class="account-layout">
+                                                    <div class="account-profile-card">
+                                                        <div class="account-avatar" id="accountInitials">JD</div>
+                                                        <div>
+                                                            <h4 id="accountDisplayName">Jonathan</h4>
+                                                            <p id="accountEmail">Signed in email</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <form class="account-form" id="accountForm">
+                                                        <div class="account-section">
+                                                            <div>
+                                                                <h6>Personal Details</h6>
+                                                                <p class="f14-regular text-Gray">Used for your dashboard profile only.</p>
+                                                            </div>
+                                                            <div class="account-grid">
+                                                                <label class="settings-field">
+                                                                    <span>First name</span>
+                                                                    <input type="text" id="accountFirstName" autocomplete="given-name">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Last name</span>
+                                                                    <input type="text" id="accountLastName" autocomplete="family-name">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Display name</span>
+                                                                    <input type="text" id="accountDisplayNameInput" autocomplete="name">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Phone</span>
+                                                                    <input type="tel" id="accountPhone" autocomplete="tel">
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="account-section">
+                                                            <div>
+                                                                <h6>Dashboard Preferences</h6>
+                                                                <p class="f14-regular text-Gray">Defaults used for monthly planning and reports.</p>
+                                                            </div>
+                                                            <div class="account-grid">
+                                                                <label class="settings-field">
+                                                                    <span>Currency</span>
+                                                                    <select id="accountCurrency">
+                                                                        <option value="ZAR">ZAR</option>
+                                                                    </select>
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Timezone</span>
+                                                                    <select id="accountTimezone">
+                                                                        <option value="Africa/Johannesburg">Africa/Johannesburg</option>
+                                                                        <option value="UTC">UTC</option>
+                                                                    </select>
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Financial cycle start day</span>
+                                                                    <input type="number" id="accountCycleDay" min="1" max="28" step="1">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Monthly income target</span>
+                                                                    <input type="number" id="accountIncomeTarget" min="0" step="0.01">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Default GoalSave target</span>
+                                                                    <input type="number" id="accountGoalSaveTarget" min="0" step="0.01">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Coffee cap</span>
+                                                                    <input type="number" id="accountCoffeeCap" min="0" step="0.01">
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="account-section">
+                                                            <div>
+                                                                <h6>Primary Bank Account</h6>
+                                                                <p class="f14-regular text-Gray">Labels used to identify your imported statement data.</p>
+                                                            </div>
+                                                            <div class="account-grid">
+                                                                <label class="settings-field">
+                                                                    <span>Account name</span>
+                                                                    <input type="text" id="accountBankName">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Institution</span>
+                                                                    <input type="text" id="accountInstitution">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Account ending</span>
+                                                                    <input type="text" id="accountMask" maxlength="8" placeholder="Last 4 digits">
+                                                                </label>
+                                                                <label class="settings-field">
+                                                                    <span>Statement password hint</span>
+                                                                    <input type="text" id="accountPasswordHint" placeholder="Do not store the actual password">
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="account-actions">
+                                                            <button type="submit" class="tf-button f12-bold" id="saveAccountSettings">Save Account</button>
+                                                            <button type="button" class="tf-button style-4 f12-bold" id="reloadAccountSettings">Reload</button>
+                                                        </div>
+                                                    </form>
+
+                                                    <div class="account-side-panel">
+                                                        <div class="account-stat">
+                                                            <span>Database</span>
+                                                            <strong id="supabaseDbStats">Not signed in</strong>
+                                                        </div>
+                                                        <div class="account-stat">
+                                                            <span>Import check</span>
+                                                            <strong id="importCheckStatus">Not checked</strong>
+                                                        </div>
+                                                        <div class="feature-list compact-list" id="importCheckDetails"></div>
+                                                        <div class="account-stat">
+                                                            <span>Local import source</span>
+                                                            <strong id="supabaseLocalStats">Local data ready</strong>
+                                                        </div>
+                                                        <div class="account-stat">
+                                                            <span>Project URL</span>
+                                                            <strong id="supabaseUrlDisplay">Loading...</strong>
+                                                        </div>
+                                                        <div class="account-maintenance">
+                                                            <button type="button" class="tf-button f12-bold" id="supabaseImport" disabled>Import current data</button>
+                                                            <button type="button" class="tf-button style-4 f12-bold" id="clearImportedData">Clear imported statement data</button>
+                                                            <p class="f12-regular text-Gray">Use this only when you need to seed Supabase from the existing local data file.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12" id="transactions">
+                                            <div class="wg-box mb-32 bankdash-section-panel">
+                                                <div class="title">
+                                                    <div><h6>Transactions</h6><div class="f14-regular text-Gray">Statement detail, cashflow calendar, and merchant tools</div></div>
+                                                    <button type="button" class="tf-button f12-bold" data-open-settings="overrides"><i class="icon-edit"></i>Edit Merchants</button>
+                                                </div>
+                                                <div class="section-grid section-grid-transactions">
+                                                    <div id="cashflowCalendar" class="calendar-list"></div>
+                                                    <div id="merchantEditorSummary" class="feature-list"></div>
+                                                </div>
+                                                <div class="bankdash-table-wrap">
+                                                    <table class="table-list-transaction bankdash-table">
+                                                        <thead>
+                                                            <tr class="list-transaction-head">
+                                                                <th>Date</th>
+                                                                <th>Merchant</th>
+                                                                <th>Category</th>
+                                                                <th>Type</th>
+                                                                <th>Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="transactionRows"></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/swiper-bundle.min.js"></script>
+    <script src="js/carousel.js"></script>
+    <script src="js/bootstrap-select.min.js"></script>
+    <script src="js/apexcharts/apexcharts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js" integrity="sha512-gBYquPLlR76UWqCwD06/xwal4so02RjIR0oyG1TIhSGwmBTRrIkQbaPehPF8iwuY9jFikDHMGEelt0DtY7jtvQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/bankdash-supabase-config.js"></script>
+    <script src="js/bankdash-data.js"></script>
+    <script src="js/bankdash.js"></script>
+    <script src="js/bankdash-supabase.js"></script>
+    <script src="js/bankdash-router.js"></script>
+    <script defer src="js/theme-settings.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
