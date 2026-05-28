@@ -1127,7 +1127,6 @@
         byId('goalSaveDetail').innerHTML = `${moneyHtml(salary)} salary - ${moneyHtml(expensesPaid)} paid - ${moneyHtml(goalSave)} GoalSave`;
 
         renderPriorityCards(statuses);
-        renderPriorityChecklistEditor(statuses);
         renderCockpitBudgetMeters();
         renderActionAlerts(statuses);
     }
@@ -1793,7 +1792,7 @@
         byId('editPriorityItems')?.addEventListener('click', () => {
             const editor = byId('priorityChecklistEditor');
             editor.hidden = !editor.hidden;
-            if (!editor.hidden) renderDashboard();
+            if (!editor.hidden) renderPriorityChecklistEditor(priorityPlanStatus());
         });
 
         byId('priorityChecklistEditor')?.addEventListener('click', (event) => {
