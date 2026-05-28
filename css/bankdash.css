@@ -1223,6 +1223,21 @@ body:not(.supabase-signed-in) #supabaseSignOut {
     color: var(--White);
 }
 
+.priority-status-chip.under {
+    background: #151325;
+    color: var(--White);
+}
+
+.priority-status-chip.over {
+    background: #151325;
+    color: var(--White);
+}
+
+.priority-status-chip.inactive {
+    background: #151325;
+    color: var(--White);
+}
+
 .priority-item.status-paid {
     border-color: rgba(21, 19, 37, 0.25);
 }
@@ -1266,11 +1281,22 @@ body:not(.supabase-signed-in) #supabaseSignOut {
 
 .priority-item.status-over {
     border-color: rgba(253, 121, 114, 0.45);
-    background: rgba(253, 121, 114, 0.11);
+    background: #ff554c40;
+}
+
+.priority-item.status-over svg,
+.priority-item.status-over .priority-amount {
+    background: #ffada8;
 }
 
 .priority-item.status-under {
     border-color: rgba(190, 255, 128, 0.6);
+    background: #f6ffe6;
+}
+
+.priority-item.status-under svg,
+.priority-item.status-under .priority-amount {
+    background: #dffaaa;
 }
 
 .priority-checklist-editor {

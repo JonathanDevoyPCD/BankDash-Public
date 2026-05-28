@@ -992,7 +992,7 @@
             const statusLabel = !item.active
                 ? 'Inactive'
                 : item.overspent
-                ? 'Over spent'
+                ? 'Over budget'
                 : item.amountLeft > 0
                     ? 'Under budget'
                     : item.status === 'paid'
@@ -1004,6 +1004,7 @@
             const amountDetail = item.overspent
                 ? `${formatMoney(item.overAmount)} over`
                 : `${formatMoney(item.amountLeft)} left`;
+            const chipState = !item.active ? 'inactive' : item.overspent ? 'over' : item.amountLeft > 0 ? 'under' : item.status;
             const iconClass = item.icon || 'fa-circle-check';
             return `
                 <div class="priority-item priority-${escapeHtml(item.key)} status-${budgetState} ${escapeHtml(item.status)} ${item.active ? '' : 'inactive'}" data-priority-key="${escapeHtml(item.key)}" title="${escapeHtml(item.label)}: ${formatMoney(item.actual)} spent, max ${formatMoney(item.target)}, ${amountDetail}">
@@ -1014,7 +1015,7 @@
                         <span>${formatMoney(item.actual)}</span>
                         <small>${item.active ? amountDetail : 'Not included'}</small>
                     </span>
-                    <span class="priority-status-chip ${item.overspent ? 'unpaid' : escapeHtml(item.status)}">${statusLabel}</span>
+                    <span class="priority-status-chip ${escapeHtml(chipState)}">${statusLabel}</span>
                 </div>
             `;
         }).join('');
