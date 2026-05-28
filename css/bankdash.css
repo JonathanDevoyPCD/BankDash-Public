@@ -1035,6 +1035,10 @@ body.card-secure-locked .secure-card-value {
     gap: 15px;
 }
 
+.virtual-card-choice {
+    border-radius: 8px;
+}
+
 .secure-card-value {
     transition: filter 160ms ease, opacity 160ms ease;
 }
@@ -1476,6 +1480,7 @@ body:not(.supabase-signed-in) #supabaseSignOut {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    padding: 0 20px;
 }
 
 .priority-editor-head > div {
