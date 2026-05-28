@@ -90,7 +90,7 @@
                 <div class="section-menu-left">
                     <div class="box-logo">
                         <a href="index.html" id="site-logo-inner">
-                            <img id="logo_header" alt="BankDash" src="images/logo/logo.svg" data-light="images/logo/logo.svg" data-dark="images/logo/logo-dark.svg">
+                            <h3>BANKDASH</h3>
                         </a>
                         <div class="button-show-hide"><i class="icon-back"></i></div>
                     </div>
@@ -148,24 +148,42 @@
                             <div class="center-item" style="margin-top: 30px">
                                 <div class="center-heading f14-regular text-Gray menu-heading mb-12">Tools</div>
                             </div>
-                            <div class="calculator-btn">
-                                <button type="button" class="tf-button style-4 f12-bold" id="CalculatorToggle" title="Open calculator">
-                                    <i class="fa-solid fa-calculator" aria-hidden="true"></i>
-                                    <span>Calculator</span>
-                                </button>
+                            <div class="tools-btns">
+                                <div class="calculator-btn">
+                                    <button type="button" class="tf-button style-4 f12-bold" id="CalculatorToggle" title="Open calculator">
+                                        <i class="fa-solid fa-calculator" aria-hidden="true"></i>
+                                        <span>Calculator</span>
+                                    </button>
+                                </div>
+                                <div class="shopping-list-btn">
+                                    <button type="button" class="tf-button style-4 f12-bold" id="ShoppingListToggle" title="Open shopping list">
+                                        <i class="fa-solid fa-list" aria-hidden="true"></i>
+                                        <span>Shopping List</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="wg-box mb-32 cockpit-panel">
+                        <div class="wg-box mb-32 cockpit-panel" hidden>
                             <div class="title"><div><h6>Action Alerts</h6><div class="f14-regular text-Gray">Leaks, overspends, and missing signals</div></div></div>
                             <div id="actionAlerts" class="feature-list compact-list"></div>
                         </div>
-                        <div class="user-controls">
-                            <div class="user-buttons button-user-logout" role="button" tabindex="0" aria-label="Sign out">
-                                <span class="icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+                        <div class="bottom-controls">
+                            <div class="user-controls">
+                                <div class="user-buttons button-user-account tf-button style-4 f12-bold" role="button" tabindex="0" aria-label="Open account">
+                                    <span class="icon"><i class="fa-solid fa-user"></i></span>
+                                    <span class="user-username" id="userFirstName">First Name</span>
+                                </div>
+                                <div class="user-buttons button-user-logout tf-button style-4 f12-bold" role="button" tabindex="0" aria-label="Sign out">
+                                    <span class="icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+                                    <span class="user-logout">Logout</span>
+                                </div>
                             </div>
-                            <div class="user-buttons button-user-account" role="button" tabindex="0" aria-label="Open account">
-                                <span class="icon"><i class="fa-solid fa-user"></i></span>
-                                <span class="user-username f14-regular text-Gray" id="userFirstName">First Name</span>
+                            <div class="version-controls">
+                                <div class="version-info f12-regular text-Gray">
+                                    <span>Version: <span class="version-number">1.0.0</span></span>
+                                    <br>
+                                    <span>Latest Update: <span class="latest-pushed-date"><i class="fa-solid fa-up-right-from-square"></i></span></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -176,7 +194,6 @@
                         <div class="wrap">
                             <div class="header-left">
                                 <div class="button-show-hide"><i class="icon-menu"></i></div>
-                                <h6>BankDash</h6>
                                 <form class="form-search flex-grow" onsubmit="return false;">
                                     <fieldset class="name">
                                         <input id="transactionSearch" type="search" placeholder="Search merchant or category" class="show-search style-1" aria-label="Search transactions">

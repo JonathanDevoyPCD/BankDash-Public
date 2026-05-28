@@ -13,10 +13,41 @@ textarea {
     background: whitesmoke !important;
 }
 
+.bottom-controls {
+    padding: 32px;
+    background: #0e0d17;
+    display: grid;
+    gap: 20px;
+}
+
 .user-controls {
-    padding: 24px 31px 32px;
+    /* padding: 24px 31px 32px; */
+    font-family: 'Font Awesome 5 free';
+    display: grid;
+    gap: 5px;
+}
+
+.version-controls {
+    /* padding: 0 32px 32px 32px; */
     font-family: 'Font Awesome 5 free';
     display: flex;
+    gap: 5px;
+}
+
+.version-controls .version-info {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 21px;
+    font-family: "Inter", sans-serif;
+}
+
+#site-logo-inner h3 {
+    color: #d3faa5;
+    letter-spacing: -0.02em;
+}
+
+.tools-btns {
+    display: grid;
     gap: 5px;
 }
 
@@ -25,6 +56,15 @@ textarea {
 }
 
 .calculator-btn .tf-button {
+    width: 100%;
+    justify-content: center;
+}
+
+.shopping-list-btn {
+    padding: 0px 32px;
+}
+
+.shopping-list-btn .tf-button {
     width: 100%;
     justify-content: center;
 }
@@ -130,56 +170,25 @@ textarea {
 }
 
 .user-buttons {
-    font-size: 12px;
     display: flex;
-    align-items: center;
     gap: 8px;
-    border: 1px solid white;
     border-radius: 6px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    color: rgb(10, 10, 12) !important;
+    background-color: rgb(246, 246, 246);
     cursor: pointer;
-}
-
-span.user-username {
-    color: white;
     font-family: "Inter", sans-serif;
     font-size: 12px;
-    padding-right: 8px;
+    padding: 10px;
+    transition: all 0.3s ease;
 }
 
-.user-buttons.button-user-logout span.icon {
-    position: relative;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    color: rgb(10, 10, 12);
-    border-radius: 4px;
-    background-color: rgb(246, 246, 246);
-    cursor: pointer;
-    transition: all 0.3s, background 0s ease;
-}
-
-.user-buttons.button-user-account span.icon{
-    position: relative;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    color: rgb(10, 10, 12);
-    border-radius: 4px;
-    background-color: rgb(246, 246, 246);
-    cursor: pointer;
-    transition: all 0.3s, background 0s ease;
+.user-buttons:hover {
+    background-color: #AFC0FF;
+    color: rgb(10, 10, 12) !important;
+    transition: all 0.3s ease;
 }
 
 .header-dashboard {
@@ -1121,7 +1130,7 @@ body:not(.supabase-signed-in) #supabaseSignOut {
 
 .priority-items-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 10px;
 }
 

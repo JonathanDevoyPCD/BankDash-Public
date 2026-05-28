@@ -3758,6 +3758,7 @@ input.tf-check:checked::after {
   gap: 4px;
   padding: 10px 16px;
   border-radius: 8px;
+  font-size: 14px !important;
   color: var(--Primary);
 }
 .tf-button.style-4:hover {
