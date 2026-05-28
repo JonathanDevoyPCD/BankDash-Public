@@ -19,6 +19,42 @@
 </head>
 <body>
     <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+    <div class="bankdash-modal" id="calculatorModal" hidden>
+        <div class="bankdash-modal-backdrop" data-calculator-close></div>
+        <div class="bankdash-modal-panel calculator-modal-panel" role="dialog" aria-modal="true" aria-labelledby="calculatorTitle">
+            <div class="bankdash-modal-head">
+                <div>
+                    <h6 id="calculatorTitle">Calculator</h6>
+                    <div class="f14-regular text-Gray">Quick calculations</div>
+                </div>
+                <button type="button" class="calculator-close" data-calculator-close aria-label="Close calculator">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="calculator-display" id="calculatorDisplay" aria-live="polite">0</div>
+            <div class="calculator-grid" aria-label="Calculator keypad">
+                <button type="button" data-calc-action="clear">C</button>
+                <button type="button" data-calc-action="backspace"><i class="fa-solid fa-delete-left" aria-hidden="true"></i></button>
+                <button type="button" data-calc-value="%">%</button>
+                <button type="button" data-calc-value="/">&divide;</button>
+                <button type="button" data-calc-value="7">7</button>
+                <button type="button" data-calc-value="8">8</button>
+                <button type="button" data-calc-value="9">9</button>
+                <button type="button" data-calc-value="*">&times;</button>
+                <button type="button" data-calc-value="4">4</button>
+                <button type="button" data-calc-value="5">5</button>
+                <button type="button" data-calc-value="6">6</button>
+                <button type="button" data-calc-value="-">&minus;</button>
+                <button type="button" data-calc-value="1">1</button>
+                <button type="button" data-calc-value="2">2</button>
+                <button type="button" data-calc-value="3">3</button>
+                <button type="button" data-calc-value="+">+</button>
+                <button type="button" data-calc-value="0" class="wide">0</button>
+                <button type="button" data-calc-value=".">.</button>
+                <button type="button" data-calc-action="equals" class="equals">=</button>
+            </div>
+        </div>
+    </div>
     <div class="auth-gate" id="authGate" aria-live="polite">
         <div class="auth-card">
             <div>
@@ -102,6 +138,15 @@
                                         </a>
                                     </li>
                                 </ul>
+                            </div>
+                            <div class="center-item" style="margin-top: 30px">
+                                <div class="center-heading f14-regular text-Gray menu-heading mb-12">Tools</div>
+                            </div>
+                            <div class="calculator-btn">
+                                <button type="button" class="tf-button style-4 f12-bold" id="CalculatorToggle" title="Open calculator">
+                                    <i class="fa-solid fa-calculator" aria-hidden="true"></i>
+                                    <span>Calculator</span>
+                                </button>
                             </div>
                         </div>
                         <div class="wg-box mb-32 cockpit-panel">

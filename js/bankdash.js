@@ -1764,9 +1764,118 @@
         showLocalToast('success', 'Overview saved', 'This cycle is saved and previous cycles are kept.');
     }
 
+    let calculatorValue = '0';
+    let calculatorJustEvaluated = false;
+
+    function updateCalculatorDisplay() {
+        const display = byId('calculatorDisplay');
+        if (display) display.textContent = calculatorValue || '0';
+    }
+
+    function openCalculator() {
+        const modal = byId('calculatorModal');
+        if (!modal) return;
+        modal.hidden = false;
+        updateCalculatorDisplay();
+        modal.querySelector('[data-calc-action="clear"]')?.focus();
+    }
+
+    function closeCalculator() {
+        const modal = byId('calculatorModal');
+        if (modal) modal.hidden = true;
+        byId('CalculatorToggle')?.focus();
+    }
+
+    function appendCalculatorValue(value) {
+        const operator = /[+\-*/]/.test(value);
+        if (calculatorValue === 'Error') calculatorValue = '0';
+        if (calculatorJustEvaluated && !operator) calculatorValue = '0';
+        calculatorJustEvaluated = false;
+
+        if (value === '%') {
+            calculatorValue = calculatorValue === '0' ? '0' : `${calculatorValue}/100`;
+            updateCalculatorDisplay();
+            return;
+        }
+
+        if (operator && /[+\-*/.]$/.test(calculatorValue)) {
+            calculatorValue = calculatorValue.slice(0, -1) + value;
+        } else if (calculatorValue === '0' && !operator && value !== '.') {
+            calculatorValue = value;
+        } else {
+            calculatorValue += value;
+        }
+        updateCalculatorDisplay();
+    }
+
+    function evaluateCalculator() {
+        try {
+            if (!/^[\d+\-*/().\s]+$/.test(calculatorValue)) throw new Error('Invalid expression');
+            const result = Function(`"use strict"; return (${calculatorValue})`)();
+            if (!Number.isFinite(result)) throw new Error('Invalid result');
+            calculatorValue = String(roundMoney(result));
+            calculatorJustEvaluated = true;
+        } catch (error) {
+            calculatorValue = 'Error';
+            calculatorJustEvaluated = true;
+        }
+        updateCalculatorDisplay();
+    }
+
+    function handleCalculatorAction(action, value) {
+        if (action === 'clear') {
+            calculatorValue = '0';
+            calculatorJustEvaluated = false;
+            updateCalculatorDisplay();
+            return;
+        }
+        if (action === 'backspace') {
+            calculatorValue = calculatorValue.length > 1 && calculatorValue !== 'Error' ? calculatorValue.slice(0, -1) : '0';
+            calculatorJustEvaluated = false;
+            updateCalculatorDisplay();
+            return;
+        }
+        if (action === 'equals') {
+            evaluateCalculator();
+            return;
+        }
+        if (value) appendCalculatorValue(value);
+    }
+
     function bindFilters() {
         document.querySelectorAll('[data-open-settings]').forEach((button) => {
             button.addEventListener('click', () => openSettings(button.dataset.openSettings));
+        });
+
+        byId('CalculatorToggle')?.addEventListener('click', openCalculator);
+        byId('calculatorModal')?.addEventListener('click', (event) => {
+            const closeButton = event.target.closest('[data-calculator-close]');
+            const calcButton = event.target.closest('[data-calc-action], [data-calc-value]');
+            if (closeButton) closeCalculator();
+            if (calcButton) handleCalculatorAction(calcButton.dataset.calcAction, calcButton.dataset.calcValue);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            const modal = byId('calculatorModal');
+            if (!modal || modal.hidden) return;
+            if (event.key === 'Escape') {
+                closeCalculator();
+                return;
+            }
+            if (/^[0-9+\-*/.]$/.test(event.key)) {
+                event.preventDefault();
+                appendCalculatorValue(event.key);
+                return;
+            }
+            if (event.key === 'Enter' || event.key === '=') {
+                event.preventDefault();
+                evaluateCalculator();
+                return;
+            }
+            if (event.key === 'Backspace') {
+                event.preventDefault();
+                handleCalculatorAction('backspace');
+            }
         });
 
         byId('closeSettings').addEventListener('click', () => {
