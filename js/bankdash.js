@@ -85,21 +85,37 @@
         { label: 'YouTube Premium', planned: 81.99, matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
     ];
     const priorityItemDefinitions = [
-        { key: 'rent', label: 'Rent', detail: 'Landlord', fallback: 1500, matcher: (item) => /rent|landlord/i.test(item.description) },
-        { key: 'vehicle', label: 'Vehicle', detail: 'Vehicle finance', fallback: 3000, matcher: (item) => /vehicle finance|car finance|auto finance/i.test(item.description) },
-        { key: 'petrol', label: 'Petrol', detail: 'Multiple Stations', fallback: 1500, category: 'Fuel/transport' },
-        { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1500, matcher: (item) => /internet|fibre|fiber|provider/i.test(item.description) },
-        { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 700, matcher: (item) => /loan|credit provider|finance provider/i.test(item.description) },
-        { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 250, matcher: (item) => /gym|fitness/i.test(item.description) },
-        { key: 'groceries', label: 'Groceries', detail: 'Multiple Stores', fallback: 1500, category: 'Groceries' },
-        { key: 'airtime', label: 'Airtime/Data', detail: 'Mobile & data', fallback: 450, category: 'Mobile/data' },
-        { key: 'lunch', label: 'Lunch', detail: 'Food & work meals', fallback: 0, matcher: (item) => /lunch|kfc|mcdonald|steers|nando|burger|restaurant|takealot foods|uber eats|mr d|food/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'leisure', label: 'Leisure', detail: 'Various', fallback: 1500, categories: ['Leisure', 'Dining & coffee'] },
-        { key: 'coffee', label: 'Coffee', detail: 'Coffee shops', fallback: 0, matcher: (item) => /coffee|seattle|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'savings', label: 'Savings', detail: 'GoalSave', fallback: 1500, savings: true },
-        { key: 'openai', label: 'ChatGPT', detail: 'OpenAI', fallback: 399, matcher: (item) => /OPENAI|ChatGPT/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'google', label: 'Google', detail: 'Google One', fallback: 34.99, matcher: (item) => /Google One/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'youtube', label: 'YouTube', detail: 'YouTube Premium', fallback: 81.99, matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'rent', label: 'Rent', detail: 'Landlord', fallback: 1500, icon: 'fa-house', matcher: (item) => /rent|landlord/i.test(item.description) },
+        { key: 'vehicle', label: 'Vehicle', detail: 'Vehicle finance', fallback: 3000, icon: 'fa-car', matcher: (item) => /vehicle finance|car finance|auto finance/i.test(item.description) },
+        { key: 'petrol', label: 'Petrol', detail: 'Multiple Stations', fallback: 1500, icon: 'fa-gas-pump', category: 'Fuel/transport' },
+        { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1500, icon: 'fa-globe', matcher: (item) => /internet|fibre|fiber|provider/i.test(item.description) },
+        { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 700, icon: 'fa-building-columns', matcher: (item) => /loan|credit provider|finance provider/i.test(item.description) },
+        { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 250, icon: 'fa-dumbbell', matcher: (item) => /gym|fitness/i.test(item.description) },
+        { key: 'groceries', label: 'Groceries', detail: 'Multiple Stores', fallback: 1500, icon: 'fa-cart-shopping', category: 'Groceries' },
+        { key: 'airtime', label: 'Airtime/Data', detail: 'Mobile & data', fallback: 450, icon: 'fa-mobile-screen-button', category: 'Mobile/data' },
+        { key: 'lunch', label: 'Lunch', detail: 'Food & work meals', fallback: 0, icon: 'fa-utensils', matcher: (item) => /lunch|kfc|mcdonald|steers|nando|burger|restaurant|takealot foods|uber eats|mr d|food/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'leisure', label: 'Leisure', detail: 'Various', fallback: 1500, icon: 'fa-beer-mug-empty', categories: ['Leisure', 'Dining & coffee'] },
+        { key: 'coffee', label: 'Coffee', detail: 'Coffee shops', fallback: 0, icon: 'fa-mug-saucer', matcher: (item) => /coffee|seattle|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'savings', label: 'Savings', detail: 'GoalSave', fallback: 1500, icon: 'fa-vault', savings: true },
+        { key: 'openai', label: 'ChatGPT', detail: 'OpenAI', fallback: 399, icon: 'fa-brands fa-openai', matcher: (item) => /OPENAI|ChatGPT/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'google', label: 'Google', detail: 'Google One', fallback: 34.99, icon: 'fa-brands fa-google', matcher: (item) => /Google One/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'youtube', label: 'YouTube', detail: 'YouTube Premium', fallback: 81.99, icon: 'fa-brands fa-youtube', matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'electricity', label: 'Electricity', detail: 'Power utilities', fallback: 0, icon: 'fa-bolt', defaultActive: false, matcher: (item) => /electricity|prepaid|easypay/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'water', label: 'Water', detail: 'Municipal water', fallback: 0, icon: 'fa-droplet', defaultActive: false, matcher: (item) => /water|municipal/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'security', label: 'Security', detail: 'Home security', fallback: 0, icon: 'fa-shield-halved', defaultActive: false, matcher: (item) => /security|armed response|adt|fidelity/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'insurance', label: 'Insurance', detail: 'Vehicle or personal', fallback: 0, icon: 'fa-file-shield', defaultActive: false, matcher: (item) => /insurance|insure|policy/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'medical', label: 'Medical', detail: 'Medical aid or medicine', fallback: 0, icon: 'fa-kit-medical', defaultActive: false, matcher: (item) => /medical|doctor|pharmacy|medicine/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'credit-card', label: 'Credit Card', detail: 'Card repayment', fallback: 0, icon: 'fa-credit-card', defaultActive: false, matcher: (item) => /credit card|card repayment/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'clothing', label: 'Clothing', detail: 'Clothing stores', fallback: 0, icon: 'fa-shirt', defaultActive: false, category: 'Shopping & online' },
+        { key: 'haircut', label: 'Haircut', detail: 'Grooming', fallback: 0, icon: 'fa-scissors', defaultActive: false, matcher: (item) => /hair|barber|salon/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'netflix', label: 'Netflix', detail: 'Streaming', fallback: 0, icon: 'fa-film', defaultActive: false, matcher: (item) => /netflix/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'spotify', label: 'Spotify', detail: 'Music', fallback: 0, icon: 'fa-brands fa-spotify', defaultActive: false, matcher: (item) => /spotify/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'emergency', label: 'Emergency Fund', detail: 'Savings buffer', fallback: 0, icon: 'fa-life-ring', defaultActive: false },
+        { key: 'investments', label: 'Investments', detail: 'Monthly investing', fallback: 0, icon: 'fa-chart-line', defaultActive: false },
+        { key: 'school-fees', label: 'School Fees', detail: 'Education', fallback: 0, icon: 'fa-graduation-cap', defaultActive: false, matcher: (item) => /school|tuition|education/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'gifts', label: 'Gifts', detail: 'Birthdays and giving', fallback: 0, icon: 'fa-gift', defaultActive: false, category: 'Leisure' },
+        { key: 'tax', label: 'Tax', detail: 'Tax payments', fallback: 0, icon: 'fa-receipt', defaultActive: false, matcher: (item) => /tax/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'bank-fees', label: 'Bank Fees', detail: 'Account fees', fallback: 0, icon: 'fa-landmark', defaultActive: false, matcher: (item) => /bank fee|monthly fee|service fee/i.test(`${item.merchant} ${item.description}`) },
     ];
     const juneInactiveCosts = [
         'Strava',
@@ -246,6 +262,7 @@
             cycleTargets: {},
             cycleSpent: {},
             statuses: {},
+            active: {},
         }));
         localStorage.setItem('bankdash.manualOverview', JSON.stringify(userSettings.manualOverview || {
             activeCycle: currentManualCycleStart(),
@@ -837,11 +854,12 @@
     }
 
     function ensurePriorityChecklistSettings() {
-        userSettings.priorityChecklist = userSettings.priorityChecklist || { targets: {}, cycleTargets: {}, cycleSpent: {}, statuses: {} };
+        userSettings.priorityChecklist = userSettings.priorityChecklist || { targets: {}, cycleTargets: {}, cycleSpent: {}, statuses: {}, active: {} };
         userSettings.priorityChecklist.targets = userSettings.priorityChecklist.targets || {};
         userSettings.priorityChecklist.cycleTargets = userSettings.priorityChecklist.cycleTargets || {};
         userSettings.priorityChecklist.cycleSpent = userSettings.priorityChecklist.cycleSpent || {};
         userSettings.priorityChecklist.statuses = userSettings.priorityChecklist.statuses || {};
+        userSettings.priorityChecklist.active = userSettings.priorityChecklist.active || {};
         return userSettings.priorityChecklist;
     }
 
@@ -888,21 +906,25 @@
         const periodTargets = checklist.cycleTargets[periodKey] || {};
         const periodSpent = checklist.cycleSpent[periodKey] || {};
         return priorityItemDefinitions.map((item) => {
+            const active = Object.prototype.hasOwnProperty.call(checklist.active, item.key)
+                ? checklist.active[item.key] !== false
+                : item.defaultActive !== false;
             const averageTarget = priorityAverageTarget(item);
             const target = roundMoney(Number(periodTargets[item.key] || checklist.targets[item.key] || averageTarget || item.fallback || 0));
             const actual = roundMoney(Number(periodSpent[item.key] || 0));
             const storedStatus = periodStatuses[item.key];
-            const overspent = actual > target && target > 0;
+            const overspent = active && actual > target && target > 0;
             const amountLeft = Math.max(0, roundMoney(target - actual));
             const overAmount = overspent ? roundMoney(actual - target) : 0;
             const inferredStatus = overspent ? 'unpaid' : actual > 0 && amountLeft <= 0 ? 'paid' : 'pending';
             const manualStatus = ['paid', 'unpaid', 'pending'].includes(storedStatus) ? storedStatus : '';
-            const status = manualStatus || inferredStatus;
+            const status = active ? manualStatus || inferredStatus : 'inactive';
             const paid = status === 'paid';
-            const remaining = paid ? 0 : amountLeft;
+            const remaining = active && !paid ? amountLeft : 0;
 
             return {
                 ...item,
+                active,
                 actual: roundMoney(actual),
                 target,
                 averageTarget,
@@ -937,7 +959,7 @@
                 : item.actual
                     ? `${moneyHtml(item.actual)} paid this cycle`
                     : 'Not seen in this cycle';
-            const state = item.status === 'paid' ? 'Paid' : item.status === 'unpaid' ? 'Unpaid' : 'Pending';
+            const state = !item.active ? 'Inactive' : item.status === 'paid' ? 'Paid' : item.status === 'unpaid' ? 'Unpaid' : 'Pending';
             const stateClass = item.status;
             return `
                 <div class="checklist-row ${stateClass}">
@@ -964,11 +986,12 @@
     }
 
     function renderPriorityCards(statuses) {
-        statuses.forEach((item) => {
-            const card = document.querySelector(`[data-priority-key="${item.key}"]`);
-            if (!card) return;
-            const amountNode = card.querySelector('.priority-amount');
-            const statusLabel = item.overspent
+        const grid = byId('priorityItems');
+        if (!grid) return;
+        grid.innerHTML = statuses.map((item) => {
+            const statusLabel = !item.active
+                ? 'Inactive'
+                : item.overspent
                 ? 'Over spent'
                 : item.amountLeft > 0
                     ? 'Under budget'
@@ -977,68 +1000,78 @@
                         : item.status === 'unpaid'
                             ? 'Unpaid'
                             : 'Pending';
-            const budgetState = item.overspent ? 'over' : item.amountLeft > 0 ? 'under' : item.status;
+            const budgetState = !item.active ? 'inactive' : item.overspent ? 'over' : item.amountLeft > 0 ? 'under' : item.status;
             const amountDetail = item.overspent
                 ? `${formatMoney(item.overAmount)} over`
                 : `${formatMoney(item.amountLeft)} left`;
-            card.classList.remove('status-paid', 'status-unpaid', 'status-pending', 'status-over', 'status-under', 'paid', 'unpaid', 'pending');
-            card.classList.add(`status-${budgetState}`);
-            card.classList.add(item.status);
-            card.title = `${item.label}: ${formatMoney(item.actual)} spent, max ${formatMoney(item.target)}, ${amountDetail}`;
-            if (amountNode) {
-                amountNode.innerHTML = `
-                    <span>${formatMoney(item.actual)}</span>
-                    <small>${amountDetail}</small>
-                `;
-            }
-
-            let statusNode = card.querySelector('.priority-status-chip');
-            if (!statusNode) {
-                statusNode = document.createElement('span');
-                statusNode.className = 'priority-status-chip';
-                card.appendChild(statusNode);
-            }
-            statusNode.className = `priority-status-chip ${item.overspent ? 'unpaid' : item.status}`;
-            statusNode.textContent = statusLabel;
-        });
+            const iconClass = item.icon || 'fa-circle-check';
+            return `
+                <div class="priority-item priority-${escapeHtml(item.key)} status-${budgetState} ${escapeHtml(item.status)} ${item.active ? '' : 'inactive'}" data-priority-key="${escapeHtml(item.key)}" title="${escapeHtml(item.label)}: ${formatMoney(item.actual)} spent, max ${formatMoney(item.target)}, ${amountDetail}">
+                    <i class="${iconClass.includes(' ') ? escapeHtml(iconClass) : `fa-solid ${escapeHtml(iconClass)}`}" aria-hidden="true"></i>
+                    <strong class="priority-name">${escapeHtml(item.label)}</strong>
+                    <span class="priority-transaction-name">${escapeHtml(item.detail || 'Monthly priority')}</span>
+                    <span class="priority-amount money-value">
+                        <span>${formatMoney(item.actual)}</span>
+                        <small>${item.active ? amountDetail : 'Not included'}</small>
+                    </span>
+                    <span class="priority-status-chip ${item.overspent ? 'unpaid' : escapeHtml(item.status)}">${statusLabel}</span>
+                </div>
+            `;
+        }).join('');
     }
 
     function renderPriorityChecklistEditor(statuses) {
         const editor = byId('priorityChecklistEditor');
-        if (!editor || editor.hidden) return;
+        if (!editor) return;
         const period = manualCycleLabelFor(activeManualCycleStart());
         editor.innerHTML = `
             <div class="priority-editor-head">
                 <div>
-                    <strong>Edit priority checklist</strong>
+                    <strong id="priorityEditorTitle">Edit priority checklist</strong>
                     <span>${escapeHtml(period)}. Amounts are monthly planning targets. Status is saved for this period.</span>
                 </div>
                 <button type="button" class="tf-button style-4 f12-bold" id="cancelPriorityEdit">Cancel</button>
             </div>
             <div class="priority-editor-grid">
                 ${statuses.map((item) => `
-                    <label class="priority-editor-row">
-                        <span class="priority-editor-copy">
-                            <strong>${escapeHtml(item.label)}</strong>
-                            <small>${escapeHtml(item.detail || 'Monthly priority')} - ${item.overspent ? `${formatMoney(item.overAmount)} over max` : `${formatMoney(item.amountLeft)} left`}</small>
-                        </span>
-                        <span class="priority-input-field">
-                            <small>Spent Amount</small>
-                            <input type="number" min="0" step="0.01" value="${item.actual || ''}" data-priority-spent="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} spent amount" placeholder="0.00">
-                        </span>
-                        <span class="priority-input-field">
-                            <small>Max Spend Amount</small>
-                            <input type="number" min="0" step="0.01" value="${item.target}" data-priority-target="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} max spend amount" placeholder="0.00">
-                        </span>
-                        <span class="priority-input-field">
-                            <small>Status</small>
-                            <select data-priority-status="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} status">
-                                <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>PENDING</option>
-                                <option value="paid" ${item.status === 'paid' ? 'selected' : ''}>PAID</option>
-                                <option value="unpaid" ${item.status === 'unpaid' ? 'selected' : ''}>UNPAID</option>
-                            </select>
-                        </span>
-                    </label>
+                    <details class="priority-editor-row ${item.active ? '' : 'inactive'}">
+                        <summary>
+                            <span class="priority-editor-copy">
+                                <strong>${escapeHtml(item.label)}</strong>
+                                <small>${escapeHtml(item.detail || 'Monthly priority')} - ${item.active ? item.overspent ? `${formatMoney(item.overAmount)} over max` : `${formatMoney(item.amountLeft)} left` : 'Inactive'}</small>
+                            </span>
+                            <span class="priority-editor-summary">
+                                <strong>${formatMoney(item.actual)}</strong>
+                                <small>Spent</small>
+                            </span>
+                            <span class="priority-editor-summary">
+                                <strong>${formatMoney(item.target)}</strong>
+                                <small>Max</small>
+                            </span>
+                        </summary>
+                        <div class="priority-editor-fields">
+                            <label class="priority-toggle-field">
+                                <input type="checkbox" data-priority-active="${escapeHtml(item.key)}" ${item.active ? 'checked' : ''}>
+                                <span>Active checklist item</span>
+                            </label>
+                            <label class="priority-input-field">
+                                <small>Spent Amount</small>
+                                <input type="number" min="0" step="0.01" value="${item.actual || ''}" data-priority-spent="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} spent amount" placeholder="0.00">
+                            </label>
+                            <label class="priority-input-field">
+                                <small>Max Spend Amount</small>
+                                <input type="number" min="0" step="0.01" value="${item.target}" data-priority-target="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} max spend amount" placeholder="0.00">
+                            </label>
+                            <label class="priority-input-field">
+                                <small>Status</small>
+                                <select data-priority-status="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} status">
+                                    <option value="pending" ${item.status === 'pending' || item.status === 'inactive' ? 'selected' : ''}>PENDING</option>
+                                    <option value="paid" ${item.status === 'paid' ? 'selected' : ''}>PAID</option>
+                                    <option value="unpaid" ${item.status === 'unpaid' ? 'selected' : ''}>UNPAID</option>
+                                </select>
+                            </label>
+                        </div>
+                    </details>
                 `).join('')}
             </div>
             <div class="priority-editor-actions">
@@ -1075,7 +1108,7 @@
     function renderActionAlerts(statuses) {
         const alerts = [];
         const manual = manualOverviewData();
-        const overBudgetItems = statuses.filter((item) => item.overspent);
+        const overBudgetItems = statuses.filter((item) => item.active && item.overspent);
         const inactive = currentData.transactions.filter(isInactiveJuneCost);
         const unapprovedGoogle = currentData.transactions
             .filter((item) => /google/i.test(`${item.merchant} ${item.description}`))
@@ -1083,7 +1116,7 @@
         const overspent = cockpitBudgetCategories()
             .map((item) => ({ ...item, spent: categorySpent(item.category), budget: Number(userSettings.budgets[item.category] || 0) }))
             .filter((item) => item.budget > 0 && item.spent > item.budget);
-        const unpaidKnown = statuses.filter((item) => item.remaining > 0);
+        const unpaidKnown = statuses.filter((item) => item.active && item.remaining > 0);
         const netSavingsDrawn = roundMoney(currentData.totals.savingsOut - currentData.totals.savingsIn);
 
         if (!Number(manual.salary || manual.availableUntilSalary || 0)) alerts.push({ label: 'Salary not set', detail: 'Add your salary in the current cycle setup', type: 'warn' });
@@ -1111,16 +1144,17 @@
         const manual = manualOverviewData();
         const salary = roundMoney(Number(manual.salary || manual.availableUntilSalary || 0));
         const expensesPaid = roundMoney(statuses
-            .filter((item) => item.key !== 'savings')
+            .filter((item) => item.active && item.key !== 'savings')
             .reduce((sum, item) => sum + item.actual, 0));
-        const goalSave = roundMoney(statuses.find((item) => item.key === 'savings')?.actual || 0);
+        const goalSaveItem = statuses.find((item) => item.key === 'savings');
+        const goalSave = roundMoney(goalSaveItem?.active ? goalSaveItem.actual : 0);
         const totalLeftOver = roundMoney(salary - expensesPaid - goalSave);
 
         setText('salaryCardLabel', `Salary for ${monthNames.find(([value]) => value === activeManualCycleStart().slice(5, 7))?.[1] || activeManualCycleStart().slice(5, 7)} ${activeManualCycleStart().slice(0, 4)}`);
         byId('availableNow').innerHTML = moneyHtml(salary);
         byId('availableDetail').innerHTML = manualCycleLabelFor(activeManualCycleStart());
         byId('safeDailySpend').innerHTML = moneyHtml(expensesPaid);
-        setText('safeDailyDetail', 'Total of paid checklist items');
+        setText('safeDailyDetail', 'Total spent from active checklist items');
         byId('priorityRemaining').innerHTML = moneyHtml(goalSave);
         setText('priorityRemainingDetail', 'Savings amount in checklist');
         byId('goalSaveProgress').innerHTML = moneyHtml(totalLeftOver);
@@ -1663,6 +1697,11 @@
         checklist.statuses[periodKey] = checklist.statuses[periodKey] || {};
         checklist.cycleTargets[periodKey] = checklist.cycleTargets[periodKey] || {};
         checklist.cycleSpent[periodKey] = checklist.cycleSpent[periodKey] || {};
+        checklist.active = checklist.active || {};
+
+        editor.querySelectorAll('[data-priority-active]').forEach((input) => {
+            checklist.active[input.dataset.priorityActive] = input.checked;
+        });
 
         editor.querySelectorAll('[data-priority-target]').forEach((input) => {
             const key = input.dataset.priorityTarget;
@@ -1686,7 +1725,7 @@
         });
 
         saveSettings();
-        editor.hidden = true;
+        closePriorityChecklistEditor();
         renderDashboard();
         showLocalToast('success', 'Checklist saved', 'Priority amounts and statuses were updated for this view.');
     }
@@ -1699,7 +1738,21 @@
         delete checklist.cycleSpent[periodKey];
         saveSettings();
         renderDashboard();
+        if (!byId('priorityChecklistModal')?.hidden) renderPriorityChecklistEditor(priorityPlanStatus());
         showLocalToast('basic', 'Checklist reset', 'Priority amounts are using statement averages again.');
+    }
+
+    function openPriorityChecklistEditor() {
+        const modal = byId('priorityChecklistModal');
+        if (!modal) return;
+        renderPriorityChecklistEditor(priorityPlanStatus());
+        modal.hidden = false;
+    }
+
+    function closePriorityChecklistEditor() {
+        const modal = byId('priorityChecklistModal');
+        if (modal) modal.hidden = true;
+        byId('editPriorityItems')?.focus();
     }
 
     function cycleStartFromManualControls() {
@@ -1857,6 +1910,11 @@
 
         document.addEventListener('keydown', (event) => {
             const modal = byId('calculatorModal');
+            const priorityModal = byId('priorityChecklistModal');
+            if (event.key === 'Escape' && priorityModal && !priorityModal.hidden) {
+                closePriorityChecklistEditor();
+                return;
+            }
             if (!modal || modal.hidden) return;
             if (event.key === 'Escape') {
                 closeCalculator();
@@ -1899,17 +1957,19 @@
         });
 
         byId('editPriorityItems')?.addEventListener('click', () => {
-            const editor = byId('priorityChecklistEditor');
-            editor.hidden = !editor.hidden;
-            if (!editor.hidden) renderPriorityChecklistEditor(priorityPlanStatus());
+            const modal = byId('priorityChecklistModal');
+            if (modal?.hidden) openPriorityChecklistEditor();
+            else closePriorityChecklistEditor();
         });
 
         byId('priorityChecklistEditor')?.addEventListener('click', (event) => {
             if (event.target.closest('#savePriorityEdit')) savePriorityChecklistEditor();
             if (event.target.closest('#resetPriorityEdit')) resetPriorityChecklistTargets();
-            if (event.target.closest('#cancelPriorityEdit')) {
-                byId('priorityChecklistEditor').hidden = true;
-            }
+            if (event.target.closest('#cancelPriorityEdit')) closePriorityChecklistEditor();
+        });
+
+        byId('priorityChecklistModal')?.addEventListener('click', (event) => {
+            if (event.target.closest('[data-priority-close]')) closePriorityChecklistEditor();
         });
 
         byId('manualCycleMonth')?.addEventListener('change', changeManualCycle);

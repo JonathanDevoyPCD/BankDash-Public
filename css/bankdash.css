@@ -1146,6 +1146,10 @@ body:not(.supabase-signed-in) #supabaseSignOut {
     text-align: center;
 }
 
+.priority-item.inactive {
+    opacity: 0.4;
+}
+
 .priority-item svg,
 .priority-item i {
     width: 25px;
@@ -1272,15 +1276,13 @@ body:not(.supabase-signed-in) #supabaseSignOut {
 .priority-checklist-editor {
     display: grid;
     gap: 14px;
-    margin-top: 18px;
-    padding: 16px;
-    border: 1px solid var(--Stroke);
-    border-radius: 12px;
-    background: var(--Gainsboro);
+    padding: 20px;
 }
 
-.priority-checklist-editor[hidden] {
-    display: none;
+.priority-modal-panel {
+    width: min(980px, 100%);
+    max-height: min(86vh, 820px);
+    overflow: auto;
 }
 
 .priority-editor-head,
@@ -1304,19 +1306,69 @@ body:not(.supabase-signed-in) #supabaseSignOut {
 
 .priority-editor-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 10px;
 }
 
 .priority-editor-row {
     display: grid;
-    /* grid-template-columns: minmax(0, 1fr) 126px 140px 112px; */
-    align-items: center;
     gap: 10px;
-    padding: 12px;
     border: 1px solid var(--Stroke);
     border-radius: 10px;
     background: var(--White);
+    overflow: hidden;
+}
+
+.priority-editor-row.inactive {
+    opacity: 0.55;
+}
+
+.priority-editor-row summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 120px 120px 28px;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.priority-editor-row summary::-webkit-details-marker {
+    display: none;
+}
+
+.priority-editor-row summary::after {
+    content: "+";
+    justify-self: end;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #d3faa5;
+    color: var(--Black);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 24px;
+    text-align: center;
+}
+
+.priority-editor-row[open] summary::after {
+    content: "-";
+}
+
+.priority-editor-summary {
+    display: grid;
+    justify-items: end;
+    gap: 2px;
+}
+
+.priority-editor-summary strong {
+    font-size: 13px;
+}
+
+.priority-editor-fields {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(130px, 1fr));
+    gap: 10px;
+    padding: 0 12px 12px;
 }
 
 .priority-editor-row > span {
@@ -1327,6 +1379,21 @@ body:not(.supabase-signed-in) #supabaseSignOut {
 
 .priority-input-field {
     align-self: stretch;
+}
+
+.priority-toggle-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    color: var(--Black);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.priority-toggle-field input {
+    width: 16px;
+    height: 16px;
 }
 
 .priority-input-field small {
@@ -1344,6 +1411,17 @@ body:not(.supabase-signed-in) #supabaseSignOut {
     border-radius: 8px;
     background: whitesmoke;
     color: var(--Black);
+}
+
+@media (max-width: 720px) {
+    .priority-editor-row summary,
+    .priority-editor-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .priority-editor-summary {
+        justify-items: start;
+    }
 }
 
 .priority-status-list {

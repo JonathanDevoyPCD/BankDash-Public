@@ -55,6 +55,12 @@
             </div>
         </div>
     </div>
+    <div class="bankdash-modal priority-editor-modal" id="priorityChecklistModal" hidden>
+        <div class="bankdash-modal-backdrop" data-priority-close></div>
+        <div class="bankdash-modal-panel priority-modal-panel" role="dialog" aria-modal="true" aria-labelledby="priorityEditorTitle">
+            <div id="priorityChecklistEditor" class="priority-checklist-editor"></div>
+        </div>
+    </div>
     <div class="auth-gate" id="authGate" aria-live="polite">
         <div class="auth-card">
             <div>
@@ -462,7 +468,6 @@
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                 </div>
-                                                <div id="priorityChecklistEditor" class="priority-checklist-editor" hidden></div>
                                                 <div id="priorityChecklist" class="feature-list compact-list priority-status-list"></div>
                                             </div>
                                         </div>
