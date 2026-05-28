@@ -80,6 +80,10 @@
 
         window.setTimeout(() => {
             sections.forEach((section) => {
+                if (section.id === 'financialDashboardEditor') {
+                    if (nextView !== 'overview') section.hidden = true;
+                    return;
+                }
                 section.hidden = section.dataset.view !== nextView;
             });
             setActiveNav(nextView);
