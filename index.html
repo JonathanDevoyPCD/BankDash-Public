@@ -61,6 +61,112 @@
             <div id="priorityChecklistEditor" class="priority-checklist-editor"></div>
         </div>
     </div>
+    <div class="bankdash-modal" id="bankEditorModal" hidden>
+        <div class="bankdash-modal-backdrop" data-bank-editor-close></div>
+        <form class="bankdash-modal-panel bank-editor-panel" id="bankEditorForm" role="dialog" aria-modal="true" aria-labelledby="bankEditorTitle">
+            <div class="bankdash-modal-head">
+                <div>
+                    <h6 id="bankEditorTitle">Add Bank</h6>
+                    <div class="f14-regular text-Gray">Name, logo, and display colour</div>
+                </div>
+                <button type="button" class="calculator-close" data-bank-editor-close aria-label="Close bank editor">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="bank-editor-grid">
+                <label class="settings-field">
+                    <span>Bank name</span>
+                    <input type="text" id="bankEditorName" placeholder="Bank name">
+                </label>
+                <label class="settings-field">
+                    <span>Logo path or URL</span>
+                    <input type="text" id="bankEditorLogo" placeholder="images/banks/example/logo.webp">
+                </label>
+                <label class="settings-field">
+                    <span>Colour</span>
+                    <input type="color" id="bankEditorColor" value="#89f1f9">
+                </label>
+            </div>
+            <div class="priority-editor-actions">
+                <button type="submit" class="tf-button style-1 f12-bold">Save bank</button>
+                <button type="button" class="tf-button style-4 f12-bold" data-bank-editor-close>Cancel</button>
+            </div>
+        </form>
+    </div>
+    <div class="bankdash-modal" id="virtualCardEditorModal" hidden>
+        <div class="bankdash-modal-backdrop" data-card-editor-close></div>
+        <form class="bankdash-modal-panel bank-editor-panel" id="virtualCardEditorForm" role="dialog" aria-modal="true" aria-labelledby="cardEditorTitle">
+            <div class="bankdash-modal-head">
+                <div>
+                    <h6 id="cardEditorTitle">Add Virtual Card</h6>
+                    <div class="f14-regular text-Gray">Card details are kept local to this browser</div>
+                </div>
+                <button type="button" class="calculator-close" data-card-editor-close aria-label="Close virtual card editor">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="bank-editor-grid virtual-card-editor-grid">
+                <label class="settings-field">
+                    <span>Card name</span>
+                    <input type="text" id="cardEditorName" placeholder="Virtual card name">
+                </label>
+                <label class="settings-field">
+                    <span>Logo path or URL</span>
+                    <input type="text" id="cardEditorLogo" placeholder="images/virtual-banks/example/logo.webp">
+                </label>
+                <label class="settings-field">
+                    <span>Card number</span>
+                    <input type="text" id="cardEditorNumber" inputmode="numeric" autocomplete="off" placeholder="Card number">
+                </label>
+                <label class="settings-field">
+                    <span>Expiry date</span>
+                    <input type="text" id="cardEditorExpiry" autocomplete="off" placeholder="MM/YY">
+                </label>
+                <label class="settings-field">
+                    <span>CVV</span>
+                    <input type="password" id="cardEditorCvv" inputmode="numeric" autocomplete="off" placeholder="CVV">
+                </label>
+                <label class="settings-field">
+                    <span>Cardholder name</span>
+                    <input type="text" id="cardEditorHolder" autocomplete="off" placeholder="Cardholder name">
+                </label>
+                <label class="settings-field">
+                    <span>Card type</span>
+                    <input type="text" id="cardEditorType" placeholder="VISA">
+                </label>
+                <label class="settings-field">
+                    <span>Colour</span>
+                    <input type="color" id="cardEditorColor" value="#212121">
+                </label>
+            </div>
+            <div class="priority-editor-actions">
+                <button type="submit" class="tf-button style-1 f12-bold">Save virtual card</button>
+                <button type="button" class="tf-button style-4 f12-bold" data-card-editor-close>Cancel</button>
+            </div>
+        </form>
+    </div>
+    <div class="bankdash-modal" id="cardUnlockModal" hidden>
+        <div class="bankdash-modal-backdrop" data-card-unlock-close></div>
+        <form class="bankdash-modal-panel bank-editor-panel" id="cardUnlockForm" role="dialog" aria-modal="true" aria-labelledby="cardUnlockTitle">
+            <div class="bankdash-modal-head">
+                <div>
+                    <h6 id="cardUnlockTitle">Unlock Card Details</h6>
+                    <div class="f14-regular text-Gray">Enter your account password to reveal card fields.</div>
+                </div>
+                <button type="button" class="calculator-close" data-card-unlock-close aria-label="Close card unlock">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <label class="settings-field card-unlock-field">
+                <span>Password</span>
+                <input type="password" id="cardUnlockPassword" autocomplete="current-password" placeholder="Your password">
+            </label>
+            <div class="priority-editor-actions">
+                <button type="submit" class="tf-button style-1 f12-bold">Unlock</button>
+                <button type="button" class="tf-button style-4 f12-bold" data-card-unlock-close>Cancel</button>
+            </div>
+        </form>
+    </div>
     <div class="auth-gate" id="authGate" aria-live="polite">
         <div class="auth-card">
             <div>
@@ -585,9 +691,9 @@
                                                 </div>
                                                 <div class="account-layout">
                                                     <div class="account-profile-card">
-                                                        <div class="account-avatar" id="accountInitials">JD</div>
+                                                        <div class="account-avatar" id="accountInitials">BU</div>
                                                         <div>
-                                                            <h4 id="accountDisplayName">Jonathan</h4>
+                                                            <h4 id="accountDisplayName">Account User</h4>
                                                             <p id="accountEmail">Signed in email</p>
                                                         </div>
                                                     </div>
@@ -687,7 +793,72 @@
                                                         </div>
                                                     </form>
 
-                                                    <div class="account-side-panel">
+                                                    <div class="banking-side-panel">
+                                                        <div>
+                                                            <h6>Primary Bank</h6>
+                                                            <p class="f14-regular text-Gray">Day to day transactions.</p>
+                                                        </div>
+                                                        <div class="banking-sections">
+                                                            <div class="banking-selection dropdown">
+                                                                <div class="banking-selection-inner">
+                                                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        Select Primary Bank
+                                                                    </button>
+                                                                    <button type="button" class="tf-button style-4 f12-bold bank-edit-button" id="editPrimaryBank" title="Edit primary bank">
+                                                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                                        <span>Edit</span>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="bankDropdownList"></ul>
+                                                                </div>
+                                                            </div>
+                                                            <div class="banking-choice bank-color gotymebank">
+                                                                <img src="images/banks/GoTymeBank/GoTymeBank-Logo.webp" alt="GoTymeBank" class="bank-logo" data-bank="gotyme">
+                                                            </div>
+                                                        </div>
+                                                        <br>
+                                                        <div class="virtual-card-heading">
+                                                            <div>
+                                                                <h6>Primary Virtual Card</h6>
+                                                                <p class="f14-regular text-Gray">Day to day transactions.</p>
+                                                            </div>
+                                                            <button type="button" class="tf-button style-4 f12-bold card-privacy-toggle" id="cardPrivacyToggle" aria-pressed="false" title="Unlock card details">
+                                                                <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+                                                                <span>Locked</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="virtual-card-sections">
+                                                            <div class="virtual-card-selection dropdown">
+                                                                <div class="virtual-selection-inner">
+                                                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="virtualCardDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        Select Virtual Card
+                                                                    </button>
+                                                                    <button type="button" class="tf-button style-4 f12-bold virtual-card-edit-button" id="editVirtualCard" title="Edit virtual card">
+                                                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                                        <span>Edit</span>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu" aria-labelledby="virtualCardDropdown" id="virtualCardDropdownList"></ul>
+                                                                </div>
+                                                            </div>
+                                                            <div class="virtual-card-choice bank-color gotymebank">
+                                                                <div class="virtual-card-details">
+                                                                    <img src="images/virtual-banks/GoTymeVirtual/GoTymeBank-Virtual-Logo.webp" alt="GoTyme Virtual Card" class="virtual-bank-logo" data-bank="gotyme">
+                                                                    <span class="virtual-card-name">GoTyme Virtual</span>
+                                                                    <div class="virtual-card-info">
+                                                                        <div class="virtual-private">
+                                                                            <span class="virtual-card-number secure-card-value">**** **** **** ****</span>
+                                                                            <span class="virtual-card-expiry secure-card-value">Exp **/**</span>
+                                                                            <span class="virtual-card-cvv secure-card-value">CVV ***</span>
+                                                                        </div>
+                                                                        <div class="virtual-public">
+                                                                            <span class="virtual-card-owner">Card Holder</span>
+                                                                            <span class="virtual-card-type">VISA</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="account-side-panel" hidden>
                                                         <div class="account-stat">
                                                             <span>Database</span>
                                                             <strong id="supabaseDbStats">Not signed in</strong>

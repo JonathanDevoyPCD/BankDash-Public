@@ -20,6 +20,17 @@
     let primaryAccountId = null;
     let pendingImportData = null;
     let isPasswordRecovery = false;
+
+    window.BankDashAuth = {
+        currentEmail: () => currentUser?.email || '',
+        verifyPassword: async (password) => {
+            if (!currentUser?.email) return { ok: false, message: 'Sign in before unlocking card details.' };
+            const { error } = await client.auth.signInWithPassword({ email: currentUser.email, password });
+            if (error) return { ok: false, message: error.message || 'Password check failed.' };
+            return { ok: true };
+        },
+    };
+
     const originalManualBaseline = {
         expenses: 0,
         salaries: 0,

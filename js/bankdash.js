@@ -1896,6 +1896,270 @@
         if (value) appendCalculatorValue(value);
     }
 
+    const defaultBankingSettings = {
+        selectedBankId: 'gotyme-bank',
+        selectedCardId: 'gotyme-virtual',
+        banks: [
+            {
+                id: 'gotyme-bank',
+                name: 'GoTyme Bank',
+                logo: 'images/banks/GoTymeBank/GoTymeBank-Logo.webp',
+                color: '#89f1f9',
+            },
+        ],
+        cards: [
+            {
+                id: 'gotyme-virtual',
+                name: 'GoTyme Virtual',
+                logo: 'images/virtual-banks/GoTymeVirtual/GoTymeBank-Virtual-Logo.webp',
+                number: '',
+                expiry: '',
+                cvv: '',
+                holder: '',
+                type: 'VISA',
+                color: '#212121',
+            },
+        ],
+    };
+    let cardDetailsUnlocked = false;
+    let editingBankId = null;
+    let editingCardId = null;
+
+    function bankingSettings() {
+        const saved = JSON.parse(localStorage.getItem('bankdash.banking') || 'null') || {};
+        const banks = Array.isArray(saved.banks) && saved.banks.length ? saved.banks : defaultBankingSettings.banks;
+        const cards = Array.isArray(saved.cards) && saved.cards.length ? saved.cards : defaultBankingSettings.cards;
+        return {
+            ...defaultBankingSettings,
+            ...saved,
+            banks,
+            cards,
+            selectedBankId: saved.selectedBankId || banks[0]?.id || defaultBankingSettings.selectedBankId,
+            selectedCardId: saved.selectedCardId || cards[0]?.id || defaultBankingSettings.selectedCardId,
+        };
+    }
+
+    function saveBankingSettings(settings) {
+        localStorage.setItem('bankdash.banking', JSON.stringify(settings));
+    }
+
+    function bankingId(value) {
+        return (value || 'item').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `item-${Date.now()}`;
+    }
+
+    function activeBank(settings = bankingSettings()) {
+        return settings.banks.find((item) => item.id === settings.selectedBankId) || settings.banks[0] || defaultBankingSettings.banks[0];
+    }
+
+    function activeCard(settings = bankingSettings()) {
+        return settings.cards.find((item) => item.id === settings.selectedCardId) || settings.cards[0] || defaultBankingSettings.cards[0];
+    }
+
+    function cardLastFour(number) {
+        const digits = String(number || '').replace(/\D/g, '');
+        return digits ? digits.slice(-4).padStart(4, '*') : '****';
+    }
+
+    function groupedCardNumber(number) {
+        const digits = String(number || '').replace(/\D/g, '');
+        return digits ? digits.replace(/(.{4})/g, '$1 ').trim() : 'No card number saved';
+    }
+
+    function setTextBySelector(selector, value) {
+        const node = document.querySelector(selector);
+        if (node) node.textContent = value;
+    }
+
+    function renderBankingPanel() {
+        const bankList = byId('bankDropdownList');
+        const cardList = byId('virtualCardDropdownList');
+        if (!bankList || !cardList) return;
+
+        const settings = bankingSettings();
+        const bank = activeBank(settings);
+        const card = activeCard(settings);
+        document.body.classList.toggle('card-secure-locked', !cardDetailsUnlocked);
+
+        bankList.innerHTML = settings.banks.map((item) => `
+            <li><button type="button" class="dropdown-item" data-bank-select="${escapeHtml(item.id)}">${escapeHtml(item.name)}</button></li>
+        `).join('');
+        cardList.innerHTML = settings.cards.map((item) => `
+            <li><button type="button" class="dropdown-item" data-card-select="${escapeHtml(item.id)}">${escapeHtml(item.name)}</button></li>
+        `).join('');
+
+        setText('dropdownMenuButton1', bank.name || 'Select Primary Bank');
+        setText('virtualCardDropdown', card.name || 'Select Virtual Card');
+
+        const bankChoice = document.querySelector('.banking-choice');
+        const bankLogo = document.querySelector('.bank-logo');
+        if (bankChoice) bankChoice.style.background = bank.color || '#89f1f9';
+        if (bankLogo) {
+            bankLogo.src = bank.logo || '';
+            bankLogo.alt = bank.name || 'Bank logo';
+            bankLogo.hidden = !bank.logo;
+        }
+
+        const cardChoice = document.querySelector('.virtual-card-choice');
+        const cardDetails = document.querySelector('.virtual-card-details');
+        const cardLogo = document.querySelector('.virtual-bank-logo');
+        if (cardChoice) cardChoice.style.background = card.color || '#212121';
+        if (cardDetails) cardDetails.style.background = card.color || '#212121';
+        if (cardLogo) {
+            cardLogo.src = card.logo || '';
+            cardLogo.alt = card.name || 'Virtual card logo';
+            cardLogo.hidden = !card.logo;
+        }
+
+        const privacyButton = byId('cardPrivacyToggle');
+        if (privacyButton) {
+            privacyButton.setAttribute('aria-pressed', String(cardDetailsUnlocked));
+            privacyButton.title = cardDetailsUnlocked ? 'Hide card details' : 'Unlock card details';
+            privacyButton.innerHTML = cardDetailsUnlocked
+                ? '<i class="fa-solid fa-eye" aria-hidden="true"></i><span>Visible</span>'
+                : '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i><span>Locked</span>';
+        }
+
+        setTextBySelector('.virtual-card-name', card.name || 'Virtual Card');
+        setTextBySelector('.virtual-card-number', cardDetailsUnlocked ? groupedCardNumber(card.number) : `**** **** **** ${cardLastFour(card.number)}`);
+        setTextBySelector('.virtual-card-expiry', cardDetailsUnlocked && card.expiry ? `Exp ${card.expiry}` : 'Exp **/**');
+        setTextBySelector('.virtual-card-cvv', cardDetailsUnlocked && card.cvv ? `CVV ${card.cvv}` : 'CVV ***');
+        setTextBySelector('.virtual-card-owner', cardDetailsUnlocked && card.holder ? card.holder : 'Card Holder');
+        setTextBySelector('.virtual-card-type', card.type || 'VISA');
+    }
+
+    function openBankEditor() {
+        const settings = bankingSettings();
+        const bank = activeBank(settings);
+        editingBankId = bank?.id || null;
+        byId('bankEditorName').value = bank?.name || '';
+        byId('bankEditorLogo').value = bank?.logo || '';
+        byId('bankEditorColor').value = bank?.color || '#89f1f9';
+        byId('bankEditorModal').hidden = false;
+    }
+
+    function closeBankEditor() {
+        const modal = byId('bankEditorModal');
+        if (modal) modal.hidden = true;
+        editingBankId = null;
+    }
+
+    function saveBankEditor(event) {
+        event.preventDefault();
+        const settings = bankingSettings();
+        const name = byId('bankEditorName').value.trim();
+        if (!name) {
+            showLocalToast('warning', 'Bank name required', 'Add a bank name before saving.');
+            return;
+        }
+        const id = bankingId(name);
+        const nextBank = {
+            id,
+            name,
+            logo: byId('bankEditorLogo').value.trim(),
+            color: byId('bankEditorColor').value || '#89f1f9',
+        };
+        settings.banks = [...settings.banks.filter((item) => item.id !== id && item.id !== editingBankId), nextBank];
+        settings.selectedBankId = id;
+        saveBankingSettings(settings);
+        editingBankId = null;
+        closeBankEditor();
+        renderBankingPanel();
+        showLocalToast('success', 'Bank saved', `${name} is now available in your bank list.`);
+    }
+
+    function openVirtualCardEditor() {
+        const settings = bankingSettings();
+        const card = activeCard(settings);
+        editingCardId = card?.id || null;
+        byId('cardEditorName').value = card?.name || '';
+        byId('cardEditorLogo').value = card?.logo || '';
+        byId('cardEditorNumber').value = cardDetailsUnlocked ? card?.number || '' : '';
+        byId('cardEditorExpiry').value = cardDetailsUnlocked ? card?.expiry || '' : '';
+        byId('cardEditorCvv').value = cardDetailsUnlocked ? card?.cvv || '' : '';
+        byId('cardEditorHolder').value = cardDetailsUnlocked ? card?.holder || '' : '';
+        byId('cardEditorType').value = card?.type || 'VISA';
+        byId('cardEditorColor').value = card?.color || '#212121';
+        byId('virtualCardEditorModal').hidden = false;
+    }
+
+    function closeVirtualCardEditor() {
+        const modal = byId('virtualCardEditorModal');
+        if (modal) modal.hidden = true;
+        editingCardId = null;
+    }
+
+    function saveVirtualCardEditor(event) {
+        event.preventDefault();
+        const settings = bankingSettings();
+        const name = byId('cardEditorName').value.trim();
+        if (!name) {
+            showLocalToast('warning', 'Card name required', 'Add a card name before saving.');
+            return;
+        }
+        const id = bankingId(name);
+        const baseCard = settings.cards.find((item) => item.id === editingCardId) || {};
+        const nextCard = {
+            ...baseCard,
+            id,
+            name,
+            logo: byId('cardEditorLogo').value.trim(),
+            number: byId('cardEditorNumber').value.trim() || baseCard.number || '',
+            expiry: byId('cardEditorExpiry').value.trim() || baseCard.expiry || '',
+            cvv: byId('cardEditorCvv').value.trim() || baseCard.cvv || '',
+            holder: byId('cardEditorHolder').value.trim() || baseCard.holder || '',
+            type: byId('cardEditorType').value.trim() || 'VISA',
+            color: byId('cardEditorColor').value || '#212121',
+        };
+        settings.cards = [...settings.cards.filter((item) => item.id !== id && item.id !== editingCardId), nextCard];
+        settings.selectedCardId = id;
+        saveBankingSettings(settings);
+        editingCardId = null;
+        closeVirtualCardEditor();
+        renderBankingPanel();
+        showLocalToast('success', 'Virtual card saved', `${name} is now available in your virtual card list.`);
+    }
+
+    function closeCardUnlock() {
+        const modal = byId('cardUnlockModal');
+        if (modal) modal.hidden = true;
+        const input = byId('cardUnlockPassword');
+        if (input) input.value = '';
+    }
+
+    async function handleCardUnlock(event) {
+        event.preventDefault();
+        const password = byId('cardUnlockPassword').value;
+        if (!password) {
+            showLocalToast('warning', 'Password required', 'Enter your password to reveal card details.');
+            return;
+        }
+        if (!window.BankDashAuth?.verifyPassword) {
+            showLocalToast('error', 'Unlock unavailable', 'Supabase authentication is not ready yet.');
+            return;
+        }
+        const result = await window.BankDashAuth.verifyPassword(password);
+        if (!result.ok) {
+            showLocalToast('error', 'Unlock failed', result.message || 'Password could not be verified.');
+            return;
+        }
+        cardDetailsUnlocked = true;
+        closeCardUnlock();
+        renderBankingPanel();
+        showLocalToast('success', 'Card details unlocked', 'Card details are visible for this session.');
+    }
+
+    function toggleCardPrivacy() {
+        if (cardDetailsUnlocked) {
+            cardDetailsUnlocked = false;
+            renderBankingPanel();
+            showLocalToast('basic', 'Card details locked', 'Virtual card details are hidden again.');
+            return;
+        }
+        const modal = byId('cardUnlockModal');
+        if (modal) modal.hidden = false;
+        byId('cardUnlockPassword')?.focus();
+    }
+
     function bindFilters() {
         document.querySelectorAll('[data-open-settings]').forEach((button) => {
             button.addEventListener('click', () => openSettings(button.dataset.openSettings));
@@ -1909,9 +2173,57 @@
             if (calcButton) handleCalculatorAction(calcButton.dataset.calcAction, calcButton.dataset.calcValue);
         });
 
+        byId('editPrimaryBank')?.addEventListener('click', openBankEditor);
+        byId('editVirtualCard')?.addEventListener('click', openVirtualCardEditor);
+        byId('cardPrivacyToggle')?.addEventListener('click', toggleCardPrivacy);
+        byId('bankEditorForm')?.addEventListener('submit', saveBankEditor);
+        byId('virtualCardEditorForm')?.addEventListener('submit', saveVirtualCardEditor);
+        byId('cardUnlockForm')?.addEventListener('submit', handleCardUnlock);
+        byId('bankEditorModal')?.addEventListener('click', (event) => {
+            if (event.target.closest('[data-bank-editor-close]')) closeBankEditor();
+        });
+        byId('virtualCardEditorModal')?.addEventListener('click', (event) => {
+            if (event.target.closest('[data-card-editor-close]')) closeVirtualCardEditor();
+        });
+        byId('cardUnlockModal')?.addEventListener('click', (event) => {
+            if (event.target.closest('[data-card-unlock-close]')) closeCardUnlock();
+        });
+        byId('bankDropdownList')?.addEventListener('click', (event) => {
+            const item = event.target.closest('[data-bank-select]');
+            if (!item) return;
+            const settings = bankingSettings();
+            settings.selectedBankId = item.dataset.bankSelect;
+            saveBankingSettings(settings);
+            renderBankingPanel();
+        });
+        byId('virtualCardDropdownList')?.addEventListener('click', (event) => {
+            const item = event.target.closest('[data-card-select]');
+            if (!item) return;
+            const settings = bankingSettings();
+            settings.selectedCardId = item.dataset.cardSelect;
+            cardDetailsUnlocked = false;
+            saveBankingSettings(settings);
+            renderBankingPanel();
+        });
+
         document.addEventListener('keydown', (event) => {
             const modal = byId('calculatorModal');
             const priorityModal = byId('priorityChecklistModal');
+            const bankModal = byId('bankEditorModal');
+            const cardModal = byId('virtualCardEditorModal');
+            const cardUnlockModal = byId('cardUnlockModal');
+            if (event.key === 'Escape' && bankModal && !bankModal.hidden) {
+                closeBankEditor();
+                return;
+            }
+            if (event.key === 'Escape' && cardModal && !cardModal.hidden) {
+                closeVirtualCardEditor();
+                return;
+            }
+            if (event.key === 'Escape' && cardUnlockModal && !cardUnlockModal.hidden) {
+                closeCardUnlock();
+                return;
+            }
             if (event.key === 'Escape' && priorityModal && !priorityModal.hidden) {
                 closePriorityChecklistEditor();
                 return;
@@ -2066,6 +2378,7 @@
     applyPrivacyState();
     populateMonthControls();
     populateManualCycleControls();
+    renderBankingPanel();
     renderDashboard();
     bindFilters();
 })();
