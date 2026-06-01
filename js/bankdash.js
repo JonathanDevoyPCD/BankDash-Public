@@ -47,23 +47,23 @@
     const essentialRules = [
         {
             label: 'Internet provider',
-            matcher: (item) => /internet|fibre|fiber|provider/i.test(item.description),
+            matcher: (item) => /internet|fibre|fiber|wifi|broadband/i.test(item.description),
         },
         {
             label: 'Vehicle finance',
-            matcher: (item) => /vehicle finance|car finance|auto finance/i.test(item.description),
+            matcher: (item) => /vehicle finance|car finance|auto finance|car installment/i.test(item.description),
         },
         {
-            label: 'Loan provider',
-            matcher: (item) => /loan|credit provider|finance provider/i.test(item.description),
+            label: 'Loan repayment',
+            matcher: (item) => /loan|repayment|credit agreement/i.test(item.description),
         },
         {
             label: 'Gym',
-            matcher: (item) => /gym|fitness/i.test(item.description),
+            matcher: (item) => /gym|fitness|health club/i.test(item.description),
         },
         {
-            label: 'Rent',
-            matcher: (item) => /rent|landlord/i.test(item.description),
+            label: 'Rent payment',
+            matcher: (item) => /rent|landlord|rental/i.test(item.description),
         },
     ];
     const allowedGoogleRules = [
@@ -71,12 +71,12 @@
         { label: 'YouTube Premium', amount: 81.99, matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
     ];
     const junePriorityPlan = [
-        { label: 'Rent', detail: 'Landlord', planned: 1500, matcher: (item) => /rent|landlord/i.test(item.description) },
-        { label: 'Car installments', detail: 'Vehicle finance', planned: 3000, matcher: (item) => /vehicle finance|car finance|auto finance/i.test(item.description) },
+        { label: 'Rent', detail: 'Rent payment', planned: 1514, matcher: (item) => /rent|landlord|rental/i.test(item.description) },
+        { label: 'Car installments', detail: 'Vehicle finance', planned: 2953, matcher: (item) => /vehicle finance|car finance|auto finance|car installment/i.test(item.description) },
         { label: 'Petrol', detail: 'Monthly cap', planned: 1500, category: 'Fuel/transport' },
-        { label: 'Internet', planned: 1500, matcher: (item) => /internet|fibre|fiber|provider/i.test(item.description) },
-        { label: 'Loans', planned: 700, matcher: (item) => /loan|credit provider|finance provider/i.test(item.description) },
-        { label: 'Gym', planned: 250, matcher: (item) => /gym|fitness/i.test(item.description) },
+        { label: 'Internet', planned: 1476, matcher: (item) => /internet|fibre|fiber|wifi|broadband/i.test(item.description) },
+        { label: 'Loan repayment', planned: 657, matcher: (item) => /loan|repayment|credit agreement/i.test(item.description) },
+        { label: 'Gym', planned: 241, matcher: (item) => /gym|fitness|health club/i.test(item.description) },
         { label: 'Groceries', detail: 'Monthly cap', planned: 1500, category: 'Groceries' },
         { label: 'Leisure', detail: 'Monthly cap', planned: 1500, category: 'Leisure' },
         { label: 'Saving', detail: 'GoalSave monthly target', planned: 1500 },
@@ -85,12 +85,12 @@
         { label: 'YouTube Premium', planned: 81.99, matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
     ];
     const priorityItemDefinitions = [
-        { key: 'rent', label: 'Rent', detail: 'Landlord', fallback: 1500, icon: 'fa-house', matcher: (item) => /rent|landlord/i.test(item.description) },
-        { key: 'vehicle', label: 'Vehicle', detail: 'Vehicle finance', fallback: 3000, icon: 'fa-car', matcher: (item) => /vehicle finance|car finance|auto finance/i.test(item.description) },
+        { key: 'rent', label: 'Rent', detail: 'Rent payment', fallback: 1514, icon: 'fa-house', matcher: (item) => /rent|landlord|rental/i.test(item.description) },
+        { key: 'vehicle', label: 'Vehicle', detail: 'Vehicle finance', fallback: 2953, icon: 'fa-car', matcher: (item) => /vehicle finance|car finance|auto finance|car installment/i.test(item.description) },
         { key: 'petrol', label: 'Petrol', detail: 'Multiple Stations', fallback: 1500, icon: 'fa-gas-pump', category: 'Fuel/transport' },
-        { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1500, icon: 'fa-globe', matcher: (item) => /internet|fibre|fiber|provider/i.test(item.description) },
-        { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 700, icon: 'fa-building-columns', matcher: (item) => /loan|credit provider|finance provider/i.test(item.description) },
-        { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 250, icon: 'fa-dumbbell', matcher: (item) => /gym|fitness/i.test(item.description) },
+        { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1476, icon: 'fa-globe', matcher: (item) => /internet|fibre|fiber|wifi|broadband/i.test(item.description) },
+        { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 657, icon: 'fa-building-columns', matcher: (item) => /loan|repayment|credit agreement/i.test(item.description) },
+        { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 241, icon: 'fa-dumbbell', matcher: (item) => /gym|fitness|health club/i.test(item.description) },
         { key: 'groceries', label: 'Groceries', detail: 'Multiple Stores', fallback: 1500, icon: 'fa-cart-shopping', category: 'Groceries' },
         { key: 'airtime', label: 'Airtime/Data', detail: 'Mobile & data', fallback: 450, icon: 'fa-mobile-screen-button', category: 'Mobile/data' },
         { key: 'lunch', label: 'Lunch', detail: 'Food & work meals', fallback: 0, icon: 'fa-utensils', matcher: (item) => /lunch|kfc|mcdonald|steers|nando|burger|restaurant|takealot foods|uber eats|mr d|food/i.test(`${item.merchant} ${item.description}`) },
@@ -104,7 +104,7 @@
         { key: 'water', label: 'Water', detail: 'Municipal water', fallback: 0, icon: 'fa-droplet', defaultActive: false, matcher: (item) => /water|municipal/i.test(`${item.merchant} ${item.description}`) },
         { key: 'security', label: 'Security', detail: 'Home security', fallback: 0, icon: 'fa-shield-halved', defaultActive: false, matcher: (item) => /security|armed response|adt|fidelity/i.test(`${item.merchant} ${item.description}`) },
         { key: 'insurance', label: 'Insurance', detail: 'Vehicle or personal', fallback: 0, icon: 'fa-file-shield', defaultActive: false, matcher: (item) => /insurance|insure|policy/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'medical', label: 'Medical', detail: 'Medical aid or medicine', fallback: 0, icon: 'fa-kit-medical', defaultActive: false, matcher: (item) => /medical|doctor|pharmacy|medicine/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'medical', label: 'Medical', detail: 'Medical aid or medicine', fallback: 0, icon: 'fa-kit-medical', defaultActive: false, matcher: (item) => /medical|doctor|pharmacy|dischem|clicks|medicine/i.test(`${item.merchant} ${item.description}`) },
         { key: 'credit-card', label: 'Credit Card', detail: 'Card repayment', fallback: 0, icon: 'fa-credit-card', defaultActive: false, matcher: (item) => /credit card|card repayment/i.test(`${item.merchant} ${item.description}`) },
         { key: 'clothing', label: 'Clothing', detail: 'Clothing stores', fallback: 0, icon: 'fa-shirt', defaultActive: false, category: 'Shopping & online' },
         { key: 'haircut', label: 'Haircut', detail: 'Grooming', fallback: 0, icon: 'fa-scissors', defaultActive: false, matcher: (item) => /hair|barber|salon/i.test(`${item.merchant} ${item.description}`) },
@@ -114,15 +114,15 @@
         { key: 'investments', label: 'Investments', detail: 'Monthly investing', fallback: 0, icon: 'fa-chart-line', defaultActive: false },
         { key: 'school-fees', label: 'School Fees', detail: 'Education', fallback: 0, icon: 'fa-graduation-cap', defaultActive: false, matcher: (item) => /school|tuition|education/i.test(`${item.merchant} ${item.description}`) },
         { key: 'gifts', label: 'Gifts', detail: 'Birthdays and giving', fallback: 0, icon: 'fa-gift', defaultActive: false, category: 'Leisure' },
-        { key: 'tax', label: 'Tax', detail: 'Tax payments', fallback: 0, icon: 'fa-receipt', defaultActive: false, matcher: (item) => /tax/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'tax', label: 'Tax', detail: 'SARS or tax payments', fallback: 0, icon: 'fa-receipt', defaultActive: false, matcher: (item) => /sars|tax/i.test(`${item.merchant} ${item.description}`) },
         { key: 'bank-fees', label: 'Bank Fees', detail: 'Account fees', fallback: 0, icon: 'fa-landmark', defaultActive: false, matcher: (item) => /bank fee|monthly fee|service fee/i.test(`${item.merchant} ${item.description}`) },
     ];
     const juneInactiveCosts = [
         'Strava',
         'Patreon',
-        'GOOGLE ADS8580037692',
+        'Google Ads',
         'Coffee',
-        'Vehicle Finance',
+        'Vehicle finance',
     ];
     const defaultBudgets = {
         'Dining & coffee': 0,
@@ -217,6 +217,22 @@
         window.setTimeout(() => toast.remove(), tone === 'error' ? 6500 : 4200);
     }
 
+    function syncedAtNow() {
+        return new Date().toISOString();
+    }
+
+    function appStateUpdatedAt() {
+        return localStorage.getItem('bankdash.syncUpdatedAt') || '';
+    }
+
+    function markAppStateChanged(source) {
+        const updatedAt = syncedAtNow();
+        localStorage.setItem('bankdash.syncUpdatedAt', updatedAt);
+        window.dispatchEvent(new CustomEvent('bankdash:app-state-changed', {
+            detail: { source, updatedAt },
+        }));
+    }
+
     function loadSettings() {
         try {
             const savedVersion = localStorage.getItem('bankdash.planningVersion');
@@ -251,7 +267,7 @@
         }
     }
 
-    function saveSettings() {
+    function writeSettingsToStorage() {
         localStorage.setItem('bankdash.planningVersion', planningVersion);
         localStorage.setItem('bankdash.budgets', JSON.stringify(userSettings.budgets));
         localStorage.setItem('bankdash.goalSaveTarget', String(userSettings.goalSaveTarget || 0));
@@ -269,6 +285,11 @@
             lastSeenCycle: currentManualCycleStart(),
             cycles: {},
         }));
+    }
+
+    function saveSettings(options = {}) {
+        writeSettingsToStorage();
+        if (options.sync !== false) markAppStateChanged(options.source || 'settings');
     }
 
     function transactionKey(item) {
@@ -1123,7 +1144,7 @@
         if (!Number(manual.salary || manual.availableUntilSalary || 0)) alerts.push({ label: 'Salary not set', detail: 'Add your salary in the current cycle setup', type: 'warn' });
         if (overBudgetItems.length) alerts.push({ label: 'Priority overspend', detail: overBudgetItems.map((item) => item.label).join(', '), type: 'danger' });
         if (unpaidKnown.length) alerts.push({ label: 'Money still reserved', detail: `${unpaidKnown.length} priority items still have remaining target`, type: 'warn' });
-        if (inactive.length) alerts.push({ label: 'Inactive costs appeared', detail: `${inactive.length} inactive cost entries`, type: 'danger' });
+        if (inactive.length) alerts.push({ label: 'Inactive costs appeared', detail: `${inactive.length} subscription, ads, coffee, or vehicle finance entries`, type: 'danger' });
         if (unapprovedGoogle.length) alerts.push({ label: 'Unapproved Google charge', detail: `${unapprovedGoogle.length} Google payment needs review`, type: 'danger' });
         if (overspent.length) alerts.push({ label: 'Budget overrun', detail: overspent.map((item) => item.label).join(', '), type: 'danger' });
         if (netSavingsDrawn > 0) alerts.push({ label: 'GoalSave drawdown', detail: `${moneyHtml(netSavingsDrawn)} net drawn from savings`, type: 'warn' });
@@ -1295,12 +1316,12 @@
             </div>
             ${rows}
         `;
-        saveSettings();
+        saveSettings({ sync: false });
     }
 
     function isInactiveJuneCost(item) {
         const text = `${item.merchant} ${item.description}`;
-        return /Strava|Patreon|Google Ads|Seattle|Coffee|Vehicle Finance/i.test(text);
+        return /Strava|Patreon|Google Ads|Coffee|Vehicle finance/i.test(text);
     }
 
     function renderSubscriptionDetector() {
@@ -1896,17 +1917,43 @@
         if (value) appendCalculatorValue(value);
     }
 
+    const preloadedBanks = [
+        {
+            id: 'gotyme-bank',
+            name: 'GoTyme Bank',
+            logo: 'images/banks/GoTymeBank/GoTymeBank-Logo.webp',
+            color: '#89f1f9',
+        },
+        {
+            id: 'fnb-bank',
+            name: 'FNB',
+            logo: 'images/banks/FirstNationBank/FNBBank-Logo.png',
+            color: '#00a9ac',
+        },
+        {
+            id: 'absa-bank',
+            name: 'ABSA',
+            logo: 'images/banks/AbsaBank/ABSABank-Logo.png',
+            color: '#a90c2b',
+        },
+        {
+            id: 'standard-bank',
+            name: 'Standard Bank',
+            logo: 'images/banks/StandardBank/StandardBank-Logo.png',
+            color: '#00529c',
+        },
+        {
+            id: 'capitec-bank',
+            name: 'Capitec',
+            logo: 'images/banks/CapitecBank/CapitecBank-Logo.png',
+            color: '#00b3ed',
+        },
+    ];
+
     const defaultBankingSettings = {
         selectedBankId: 'gotyme-bank',
         selectedCardId: 'gotyme-virtual',
-        banks: [
-            {
-                id: 'gotyme-bank',
-                name: 'GoTyme Bank',
-                logo: 'images/banks/GoTymeBank/GoTymeBank-Logo.webp',
-                color: '#89f1f9',
-            },
-        ],
+        banks: preloadedBanks,
         cards: [
             {
                 id: 'gotyme-virtual',
@@ -1923,11 +1970,15 @@
     };
     let cardDetailsUnlocked = false;
     let editingBankId = null;
+    let selectedBankOptionId = null;
     let editingCardId = null;
 
     function bankingSettings() {
         const saved = JSON.parse(localStorage.getItem('bankdash.banking') || 'null') || {};
-        const banks = Array.isArray(saved.banks) && saved.banks.length ? saved.banks : defaultBankingSettings.banks;
+        const preloadedIds = new Set(preloadedBanks.map((bank) => bank.id));
+        const savedBanks = Array.isArray(saved.banks) ? saved.banks : [];
+        const customBanks = savedBanks.filter((bank) => bank?.id && !preloadedIds.has(bank.id));
+        const banks = [...preloadedBanks, ...customBanks];
         const cards = Array.isArray(saved.cards) && saved.cards.length ? saved.cards : defaultBankingSettings.cards;
         return {
             ...defaultBankingSettings,
@@ -1939,8 +1990,9 @@
         };
     }
 
-    function saveBankingSettings(settings) {
+    function saveBankingSettings(settings, options = {}) {
         localStorage.setItem('bankdash.banking', JSON.stringify(settings));
+        if (options.sync !== false) markAppStateChanged(options.source || 'banking');
     }
 
     function bankingId(value) {
@@ -1963,11 +2015,6 @@
     function groupedCardNumber(number) {
         const digits = String(number || '').replace(/\D/g, '');
         return digits ? digits.replace(/(.{4})/g, '$1 ').trim() : 'No card number saved';
-    }
-
-    function setTextBySelector(selector, value) {
-        const node = document.querySelector(selector);
-        if (node) node.textContent = value;
     }
 
     function renderBankingPanel() {
@@ -2010,6 +2057,7 @@
             cardLogo.hidden = !card.logo;
         }
 
+        setText('cardPrivacyToggle', cardDetailsUnlocked ? 'Visible' : 'Locked');
         const privacyButton = byId('cardPrivacyToggle');
         if (privacyButton) {
             privacyButton.setAttribute('aria-pressed', String(cardDetailsUnlocked));
@@ -2019,6 +2067,8 @@
                 : '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i><span>Locked</span>';
         }
 
+        setText('cardEditorTitle', card?.id ? 'Edit Virtual Card' : 'Add Virtual Card');
+        setText('bankEditorTitle', 'Choose Primary Bank');
         setTextBySelector('.virtual-card-name', card.name || 'Virtual Card');
         setTextBySelector('.virtual-card-number', cardDetailsUnlocked ? groupedCardNumber(card.number) : `**** **** **** ${cardLastFour(card.number)}`);
         setTextBySelector('.virtual-card-expiry', cardDetailsUnlocked && card.expiry ? `Exp ${card.expiry}` : 'Exp **/**');
@@ -2027,13 +2077,25 @@
         setTextBySelector('.virtual-card-type', card.type || 'VISA');
     }
 
+    function setTextBySelector(selector, value) {
+        const node = document.querySelector(selector);
+        if (node) node.textContent = value;
+    }
+
+    function renderBankOptionState() {
+        document.querySelectorAll('[data-bank-option]').forEach((button) => {
+            const selected = button.dataset.bankOption === selectedBankOptionId;
+            button.classList.toggle('is-selected', selected);
+            button.setAttribute('aria-pressed', String(selected));
+        });
+    }
+
     function openBankEditor() {
         const settings = bankingSettings();
         const bank = activeBank(settings);
         editingBankId = bank?.id || null;
-        byId('bankEditorName').value = bank?.name || '';
-        byId('bankEditorLogo').value = bank?.logo || '';
-        byId('bankEditorColor').value = bank?.color || '#89f1f9';
+        selectedBankOptionId = bank?.id || defaultBankingSettings.selectedBankId;
+        renderBankOptionState();
         byId('bankEditorModal').hidden = false;
     }
 
@@ -2041,30 +2103,25 @@
         const modal = byId('bankEditorModal');
         if (modal) modal.hidden = true;
         editingBankId = null;
+        selectedBankOptionId = null;
     }
 
     function saveBankEditor(event) {
         event.preventDefault();
         const settings = bankingSettings();
-        const name = byId('bankEditorName').value.trim();
-        if (!name) {
-            showLocalToast('warning', 'Bank name required', 'Add a bank name before saving.');
+        const bank = preloadedBanks.find((item) => item.id === selectedBankOptionId);
+        if (!bank) {
+            showLocalToast('warning', 'Choose a bank', 'Select a bank before saving.');
             return;
         }
-        const id = bankingId(name);
-        const nextBank = {
-            id,
-            name,
-            logo: byId('bankEditorLogo').value.trim(),
-            color: byId('bankEditorColor').value || '#89f1f9',
-        };
-        settings.banks = [...settings.banks.filter((item) => item.id !== id && item.id !== editingBankId), nextBank];
-        settings.selectedBankId = id;
+        settings.banks = bankingSettings().banks;
+        settings.selectedBankId = bank.id;
         saveBankingSettings(settings);
         editingBankId = null;
+        selectedBankOptionId = null;
         closeBankEditor();
         renderBankingPanel();
-        showLocalToast('success', 'Bank saved', `${name} is now available in your bank list.`);
+        showLocalToast('success', 'Primary bank saved', `${bank.name} is now your primary bank.`);
     }
 
     function openVirtualCardEditor() {
@@ -2091,6 +2148,7 @@
     function saveVirtualCardEditor(event) {
         event.preventDefault();
         const settings = bankingSettings();
+        const current = activeCard(settings);
         const name = byId('cardEditorName').value.trim();
         if (!name) {
             showLocalToast('warning', 'Card name required', 'Add a card name before saving.');
@@ -2180,6 +2238,12 @@
         byId('virtualCardEditorForm')?.addEventListener('submit', saveVirtualCardEditor);
         byId('cardUnlockForm')?.addEventListener('submit', handleCardUnlock);
         byId('bankEditorModal')?.addEventListener('click', (event) => {
+            const option = event.target.closest('[data-bank-option]');
+            if (option) {
+                selectedBankOptionId = option.dataset.bankOption;
+                renderBankOptionState();
+                return;
+            }
             if (event.target.closest('[data-bank-editor-close]')) closeBankEditor();
         });
         byId('virtualCardEditorModal')?.addEventListener('click', (event) => {
@@ -2368,10 +2432,104 @@
         });
     }
 
+    function safeJsonParse(value, fallback) {
+        try {
+            return value ? JSON.parse(value) : fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    function syncedBankingSettings() {
+        const settings = bankingSettings();
+        return {
+            ...settings,
+            cards: settings.cards.map((card) => ({
+                id: card.id,
+                name: card.name,
+                logo: card.logo,
+                type: card.type,
+                color: card.color,
+            })),
+        };
+    }
+
+    function captureAppState() {
+        return {
+            schemaVersion: 1,
+            localUpdatedAt: appStateUpdatedAt() || '1970-01-01T00:00:00.000Z',
+            settings: {
+                planningVersion: localStorage.getItem('bankdash.planningVersion') || planningVersion,
+                budgets: userSettings.budgets || {},
+                goalSaveTarget: Number(userSettings.goalSaveTarget || 0),
+                merchantOverrides: userSettings.merchantOverrides || {},
+                categoryOverrides: userSettings.categoryOverrides || {},
+                priorityChecklist: userSettings.priorityChecklist || {},
+                manualOverview: userSettings.manualOverview || {},
+            },
+            banking: syncedBankingSettings(),
+        };
+    }
+
+    function applySyncedAppState(state, syncedAt) {
+        if (!state || typeof state !== 'object') return false;
+        const settings = state.settings || {};
+
+        localStorage.setItem('bankdash.planningVersion', settings.planningVersion || planningVersion);
+        localStorage.setItem('bankdash.budgets', JSON.stringify(settings.budgets || {}));
+        localStorage.setItem('bankdash.goalSaveTarget', String(settings.goalSaveTarget || 0));
+        localStorage.setItem('bankdash.merchantOverrides', JSON.stringify(settings.merchantOverrides || {}));
+        localStorage.setItem('bankdash.categoryOverrides', JSON.stringify(settings.categoryOverrides || {}));
+        localStorage.setItem('bankdash.priorityChecklist', JSON.stringify(settings.priorityChecklist || {
+            targets: {},
+            cycleTargets: {},
+            cycleSpent: {},
+            statuses: {},
+            active: {},
+        }));
+        localStorage.setItem('bankdash.manualOverview', JSON.stringify(settings.manualOverview || {
+            activeCycle: currentManualCycleStart(),
+            lastSeenCycle: currentManualCycleStart(),
+            cycles: {},
+        }));
+
+        if (state.banking) {
+            const localBanking = safeJsonParse(localStorage.getItem('bankdash.banking'), null) || bankingSettings();
+            const localCards = new Map((localBanking.cards || []).map((card) => [card.id, card]));
+            const remoteCards = Array.isArray(state.banking.cards) ? state.banking.cards : [];
+            const mergedCards = remoteCards.map((card) => {
+                const localCard = localCards.get(card.id) || {};
+                return {
+                    ...card,
+                    number: localCard.number || '',
+                    expiry: localCard.expiry || '',
+                    cvv: localCard.cvv || '',
+                    holder: localCard.holder || '',
+                };
+            });
+            localStorage.setItem('bankdash.banking', JSON.stringify({
+                ...state.banking,
+                cards: mergedCards.length ? mergedCards : localBanking.cards,
+            }));
+        }
+
+        localStorage.setItem('bankdash.syncUpdatedAt', syncedAt || state.localUpdatedAt || syncedAtNow());
+        userSettings = loadSettings();
+        populateManualCycleControls();
+        renderBankingPanel();
+        renderDashboard();
+        applyPrivacyState();
+        window.dispatchEvent(new CustomEvent('bankdash:app-state-applied', { detail: { syncedAt } }));
+        return true;
+    }
+
     window.BankDashData = {
         setData: setDashboardSourceData,
         getData: () => sourceData,
         empty: () => normalizeSourceData(emptySourceData),
+        captureAppState,
+        applyAppState: applySyncedAppState,
+        localAppStateUpdatedAt: appStateUpdatedAt,
     };
 
     rolloverManualCycleIfNeeded();

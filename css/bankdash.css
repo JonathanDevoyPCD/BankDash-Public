@@ -26,14 +26,12 @@ textarea {
     display: grid;
     gap: 5px;
 }
-
 .version-controls {
     /* padding: 0 32px 32px 32px; */
     font-family: 'Font Awesome 5 free';
     display: flex;
     gap: 5px;
 }
-
 .version-controls .version-info {
     font-weight: 400;
     font-size: 12px;
@@ -63,7 +61,6 @@ textarea {
 .shopping-list-btn {
     padding: 0px 32px;
 }
-
 .shopping-list-btn .tf-button {
     width: 100%;
     justify-content: center;
@@ -184,7 +181,6 @@ textarea {
     padding: 10px;
     transition: all 0.3s ease;
 }
-
 .user-buttons:hover {
     background-color: #AFC0FF;
     color: rgb(10, 10, 12) !important;
@@ -702,11 +698,11 @@ body.card-secure-locked .secure-card-value {
     font-weight: 700;
 }
 
-.settings-field,
-.override-row {
+.settings-field, .override-row {
     display: grid;
-    gap: 8px;
+    gap: 10px;
     min-width: 0;
+    align-content: start;
 }
 
 .settings-field input,
@@ -854,7 +850,7 @@ body.card-secure-locked .secure-card-value {
 .account-section,
 .account-side-panel,
 .account-stat,
-.account-maintenance {
+.account-maintenance, .banking-side-panel {
     border: 1px solid var(--Stroke);
     border-radius: 8px;
     background: var(--White);
@@ -959,6 +955,10 @@ body.card-secure-locked .secure-card-value {
     padding: 0 20px 18px;
 }
 
+.preset-bank-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .card-unlock-field {
     padding: 0 20px 18px;
 }
@@ -979,7 +979,6 @@ body.card-secure-locked .secure-card-value {
     padding: 16px 16px;
     border-radius: 8px;
 }
-
 .banking-sections .banking-choice img {
     width: 100%;
     height: 50px;
@@ -1019,6 +1018,7 @@ body.card-secure-locked .secure-card-value {
     font-size: 12px;
     font-weight: 500;
     line-height: 16px;
+    /* display: grid; */
     gap: 6px;
 }
 
@@ -1655,6 +1655,70 @@ body:not(.supabase-signed-in) #supabaseSignOut {
 
 .section-grid-transactions + .bankdash-table-wrap {
     margin-top: 18px;
+}
+
+.bank-option {
+    border-radius: 8px;
+    min-height: 76px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 8px;
+    color: white;
+    border: none;
+}
+
+.bank-option img {
+    width: 100%;
+    height: 40px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.bank-option span {
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 16px;
+}
+
+/* BANK COLORS START */
+.bank-option[data-bank-brand="gotyme"] {
+    background-color: #89f1f9;
+}
+
+.bank-option[data-bank-brand="fnb"] {
+    background-color: #00a9ac;
+}
+
+.bank-option[data-bank-brand="absa"] {
+    background-color: #a90c2b;
+}
+
+.bank-option[data-bank-brand="standardbank"] {
+    background-color: #00529c;
+}
+
+.bank-option[data-bank-brand="capitec"] {
+    background-color: #00b3ed;
+}
+/* BANK COLORS END */
+
+.bank-option.is-selected {
+    box-shadow: 0 0 0 3px #d3faa5, 0 12px 26px rgba(22, 19, 38, 0.18);
+    transform: translateY(-1px);
+}
+
+.bank-option:hover {
+    box-shadow: 0 0 0 3px #afc0ff;
+}
+
+.inner-selection {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 1199px) {

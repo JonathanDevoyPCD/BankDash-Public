@@ -20,6 +20,8 @@
     let primaryAccountId = null;
     let pendingImportData = null;
     let isPasswordRecovery = false;
+    let appStateSyncTimer = null;
+    let appStatePromptedForUserId = null;
 
     window.BankDashAuth = {
         currentEmail: () => currentUser?.email || '',
@@ -30,16 +32,15 @@
             return { ok: true };
         },
     };
-
     const originalManualBaseline = {
-        expenses: 0,
-        salaries: 0,
-        savingsTransfers: 0,
-        totalRecords: 0,
-        income: 0,
-        expensesTotal: 0,
-        savingsIn: 0,
-        savingsOut: 0,
+        expenses: 1597,
+        salaries: 8,
+        savingsTransfers: 55,
+        totalRecords: 1660,
+        income: 148750.54,
+        expensesTotal: 147734.82,
+        savingsIn: 18146.5,
+        savingsOut: 16777,
     };
 
     const byId = (id) => document.getElementById(id);
@@ -78,7 +79,7 @@
     }
 
     function isEssential(item) {
-        return /internet|fibre|fiber|vehicle finance|car finance|auto finance|loan|credit provider|finance provider|gym|fitness|rent|landlord/i
+        return /internet|fibre|fiber|wifi|broadband|vehicle finance|car finance|auto finance|car installment|loan|repayment|credit agreement|gym|fitness|health club|rent|landlord|rental/i
             .test(`${item.description} ${item.merchant_name || item.merchant || ''}`);
     }
 
@@ -89,14 +90,14 @@
         if (/eft for perfect circle salar|salary|salar/i.test(value)) return 'Salary';
         if (/vas - mobile purchase|data bundle|\bdata\b/i.test(value)) return 'Mobile/data';
         if (/debit order|debicheck/i.test(value)) return 'Debit orders';
-        if (/internet|fibre|fiber|vehicle finance|car finance|auto finance|rent|landlord|loan|credit provider|finance provider/i.test(value)) return 'Fixed beneficiaries/EFT';
+        if (/internet|fibre|fiber|wifi|broadband|vehicle finance|car finance|auto finance|car installment|rent|landlord|rental/i.test(value)) return 'Fixed beneficiaries/EFT';
         if (/seattle|coffee|restaurant|bakery|bistro|kfc|mcdonald|steers|food|cafe/i.test(value)) return 'Dining & coffee';
         if (/checkers|woolworths|pick n pay|spar|grocery|grocer/i.test(value)) return 'Groceries';
         if (/fuel|engen|shell|bp |caltex|sasol|total/i.test(value)) return 'Fuel/transport';
         if (/google|youtube|openai|chatgpt|strava|netflix|spotify|subscription|patreon|discord/i.test(value)) return 'Subscriptions/software';
         if (/takealot|amazon|shop|online|purchase at/i.test(value)) return 'Shopping & online';
-        if (/fitness|gym/i.test(value)) return 'Healthcare';
-        if (/rent|landlord|loan|internet|fibre|fiber|vehicle finance|car finance|auto finance/i.test(value)) return 'Fixed beneficiaries/EFT';
+        if (/edge fitness|gym/i.test(value)) return 'Healthcare';
+        if (/rent|landlord|loan|repayment|internet|fibre|fiber|vehicle finance|car finance/i.test(value)) return 'Fixed beneficiaries/EFT';
         return 'Other';
     }
 
@@ -292,7 +293,7 @@
                 user_id: userId,
                 name: 'EveryDay account',
                 account_type: 'bank',
-                institution: 'Bank',
+                institution: 'TymeBank',
                 is_primary: true,
             })
             .select('id')
@@ -312,7 +313,7 @@
                 user_id: userId,
                 name,
                 category_group: name === 'Salary' ? 'income' : name === 'GoalSave' ? 'savings' : categoryGroup(sample),
-                is_essential: ['Internet provider', 'Vehicle finance', 'Loan provider', 'Gym', 'Rent'].includes(name),
+                is_essential: ['Internet provider', 'Vehicle finance', 'Loan repayment', 'Gym', 'Rent payment'].includes(name),
             };
         });
 
@@ -495,6 +496,152 @@
         renderImportCheck(dashboardData);
     }
 
+    function currentLocalAppState() {
+        return window.BankDashData?.captureAppState?.() || null;
+    }
+
+    function appStateDate(value) {
+        const time = Date.parse(value || '');
+        return Number.isFinite(time) ? time : 0;
+    }
+
+    function appStateChecksum(state) {
+        return sourceHash(JSON.stringify(state || {}));
+    }
+
+    async function loadRemoteAppState() {
+        if (!currentUser) return null;
+        const { data, error } = await client
+            .from('user_app_state')
+            .select('state,state_checksum,client_updated_at,updated_at')
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+        if (error) throw error;
+        return data || null;
+    }
+
+    async function pushAppStateToSupabase(options = {}) {
+        if (!currentUser) return false;
+        const state = currentLocalAppState();
+        if (!state) return false;
+
+        const syncedAt = options.force || !appStateDate(state.localUpdatedAt)
+            ? new Date().toISOString()
+            : state.localUpdatedAt;
+        const nextState = {
+            ...state,
+            localUpdatedAt: syncedAt,
+        };
+
+        const { error } = await client.from('user_app_state').upsert({
+            user_id: currentUser.id,
+            state_schema_version: 1,
+            state: nextState,
+            state_checksum: appStateChecksum(nextState),
+            client_updated_at: syncedAt,
+        }, { onConflict: 'user_id' });
+        if (error) throw error;
+
+        localStorage.setItem('bankdash.syncUpdatedAt', syncedAt);
+        if (!options.quiet) showToast('success', 'Account synced', 'This browser data was saved to Supabase.');
+        return true;
+    }
+
+    async function pullAppStateFromSupabase(remoteState = null, options = {}) {
+        if (!currentUser) return false;
+        const remote = remoteState || await loadRemoteAppState();
+        if (!remote?.state) {
+            if (!options.quiet) showToast('warning', 'No synced data', 'No saved account data was found in Supabase yet.');
+            return false;
+        }
+
+        const syncedAt = remote.client_updated_at || remote.updated_at;
+        const applied = window.BankDashData?.applyAppState?.(remote.state, syncedAt);
+        if (applied && !options.quiet) showToast('success', 'Account synced', 'Latest saved data was loaded into this browser.');
+        return Boolean(applied);
+    }
+
+    function scheduleAppStatePush() {
+        if (!currentUser) return;
+        window.clearTimeout(appStateSyncTimer);
+        appStateSyncTimer = window.setTimeout(async () => {
+            try {
+                await pushAppStateToSupabase({ quiet: true });
+                setText('supabaseStatus', `Synced account data for ${currentUser.email}`);
+            } catch (error) {
+                showToast('warning', 'Sync delayed', error.message || 'Could not save account state yet.');
+            }
+        }, 900);
+    }
+
+    async function checkAppStateOnLogin() {
+        if (!currentUser || appStatePromptedForUserId === currentUser.id) return;
+        appStatePromptedForUserId = currentUser.id;
+
+        try {
+            const remote = await loadRemoteAppState();
+            const local = currentLocalAppState();
+            const localAt = appStateDate(local?.localUpdatedAt);
+            const remoteAt = appStateDate(remote?.client_updated_at || remote?.updated_at);
+
+            if (!remote) {
+                showToast('info', 'Sync not set up yet', 'Click Sync Account to save this browser data to your account.');
+                return;
+            }
+
+            const checksumsDiffer = appStateChecksum(local) !== remote.state_checksum;
+            if ((!localAt || remoteAt > localAt || checksumsDiffer) && window.confirm('Synced BankDash data is available for this account. Sync Account now?')) {
+                await pullAppStateFromSupabase(remote, { quiet: true });
+                showToast('success', 'Account synced', 'Latest saved account data was loaded.');
+            }
+        } catch (error) {
+            showToast('warning', 'Sync check failed', error.message || 'Could not check synced account data.');
+        }
+    }
+
+    async function handleAccountSync(event) {
+        event?.preventDefault();
+        event?.stopPropagation();
+        if (!currentUser) {
+            showToast('warning', 'Sign in required', 'Sign in before syncing account data.');
+            return;
+        }
+
+        try {
+            const remote = await loadRemoteAppState();
+            const local = currentLocalAppState();
+            const localAt = appStateDate(local?.localUpdatedAt);
+            const remoteAt = appStateDate(remote?.client_updated_at || remote?.updated_at);
+
+            if (!remote) {
+                if (window.confirm('No synced account data exists yet. Force New Sync from this browser now?')) {
+                    await pushAppStateToSupabase({ force: true });
+                }
+                return;
+            }
+
+            if (remoteAt > localAt) {
+                await pullAppStateFromSupabase(remote);
+                return;
+            }
+
+            if (localAt > remoteAt) {
+                if (window.confirm('This browser has newer BankDash data. Force New Sync to Supabase now?')) {
+                    await pushAppStateToSupabase({ force: true });
+                }
+                return;
+            }
+
+            if (window.confirm('Account data already appears current. Force New Sync from this browser?')) {
+                await pushAppStateToSupabase({ force: true });
+            } else {
+                await pullAppStateFromSupabase(remote);
+            }
+        } catch (error) {
+            showToast('error', 'Sync failed', error.message || 'Could not sync account data.');
+        }
+    }
+
     async function loadAccountSettings(quiet = false) {
         if (!currentUser) return;
 
@@ -535,7 +682,7 @@
             setValue('accountCoffeeCap', profile.coffee_budget_cap || 0);
             setValue('accountPasswordHint', profile.statement_password_hint || '');
             setValue('accountBankName', account?.name || 'EveryDay account');
-            setValue('accountInstitution', account?.institution || 'Bank');
+            setValue('accountInstitution', account?.institution || 'TymeBank');
             setValue('accountMask', account?.account_mask || '');
 
             setText('accountDisplayName', displayName);
@@ -584,7 +731,7 @@
             const accountPayload = {
                 user_id: currentUser.id,
                 name: byId('accountBankName').value.trim() || 'EveryDay account',
-                institution: byId('accountInstitution').value.trim() || 'Bank',
+                institution: byId('accountInstitution').value.trim() || 'TymeBank',
                 account_mask: byId('accountMask').value.trim() || null,
                 account_type: 'bank',
                 is_primary: true,
@@ -676,10 +823,10 @@
     function priorityTerms(value) {
         const base = value.toLowerCase().split(/\s+/).filter(Boolean);
         const synonyms = {
-            car: ['car', 'vehicle', 'finance', 'installment'],
-            vehicle: ['car', 'vehicle', 'finance', 'installment'],
-            internet: ['internet', 'wifi', 'fibre'],
-            rent: ['rent', 'landlord'],
+            car: ['car', 'vehicle', 'absa', 'asba', 'finance', 'installment'],
+            vehicle: ['car', 'vehicle', 'absa', 'asba', 'finance', 'installment'],
+            internet: ['internet', 'axxess', 'wifi', 'fibre'],
+            rent: ['rent', 'shannon', 'devoy'],
             gym: ['gym', 'edge', 'fitness'],
             google: ['google', 'youtube', 'strava'],
         };
@@ -788,7 +935,7 @@
             balance,
         };
 
-        if (moneyIn > 0 && /salary|salar|payroll|wage|income/i.test(description)) {
+        if (moneyIn > 0 && /salary|salar|eft for perfect circle/i.test(description)) {
             return { type: 'salaryTransactions', item: { ...base, moneyIn } };
         }
 
@@ -965,8 +1112,10 @@
             await loadAccountSettings(true);
             await refreshUploadHistory();
             await refreshRuleData();
+            await checkAppStateOnLogin();
             await loadDashboardFromSupabase();
         } else {
+            appStatePromptedForUserId = null;
             window.BankDashData?.setData(emptyDashboardData());
         }
     }
@@ -1292,6 +1441,8 @@
         byId('supabaseSignOut').addEventListener('click', handleSignOut);
         bindButtonActivation('.button-user-logout', handleSignOut);
         bindButtonActivation('.button-user-account', goToAccount);
+        bindButtonActivation('.button-user-sync', handleAccountSync);
+        window.addEventListener('bankdash:app-state-changed', scheduleAppStatePush);
 
         if (isPasswordRecoveryUrl()) showPasswordRecoveryForm(true);
 

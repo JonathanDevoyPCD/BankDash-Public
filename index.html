@@ -66,29 +66,37 @@
         <form class="bankdash-modal-panel bank-editor-panel" id="bankEditorForm" role="dialog" aria-modal="true" aria-labelledby="bankEditorTitle">
             <div class="bankdash-modal-head">
                 <div>
-                    <h6 id="bankEditorTitle">Add Bank</h6>
-                    <div class="f14-regular text-Gray">Name, logo, and display colour</div>
+                    <h6 id="bankEditorTitle">Choose Primary Bank</h6>
+                    <div class="f14-regular text-Gray">Select one of the pre-loaded banks</div>
                 </div>
                 <button type="button" class="calculator-close" data-bank-editor-close aria-label="Close bank editor">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
-            <div class="bank-editor-grid">
-                <label class="settings-field">
-                    <span>Bank name</span>
-                    <input type="text" id="bankEditorName" placeholder="Bank name">
-                </label>
-                <label class="settings-field">
-                    <span>Logo path or URL</span>
-                    <input type="text" id="bankEditorLogo" placeholder="images/banks/example/logo.webp">
-                </label>
-                <label class="settings-field">
-                    <span>Colour</span>
-                    <input type="color" id="bankEditorColor" value="#89f1f9">
-                </label>
+            <div class="bank-editor-grid preset-bank-grid">
+                <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="gotyme-bank" data-bank-brand="gotyme" aria-pressed="false">
+                    <img src="images/banks/GoTymeBank/GoTymeBank-Logo.webp" alt="GoTyme Bank logo" class="bank-logo-gotyme">
+                    <span>GoTyme Bank</span>
+                </button>
+                <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="fnb-bank" data-bank-brand="fnb" aria-pressed="false">
+                    <img src="images/banks/FirstNationBank/FNBBank-Logo.png" alt="FNB Bank logo" class="bank-logo-fnb">
+                    <span>FNB</span>
+                </button>
+                <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="absa-bank" data-bank-brand="absa" aria-pressed="false">
+                    <img src="images/banks/AbsaBank/ABSABank-Logo.png" alt="ABSA Bank logo" class="bank-logo-absa">
+                    <span>ABSA</span>
+                </button>
+                <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="standard-bank" data-bank-brand="standardbank" aria-pressed="false">
+                    <img src="images/banks/StandardBank/StandardBank-Logo.png" alt="Standard Bank logo" class="bank-logo-standardbank">
+                    <span>Standard Bank</span>
+                </button>
+                <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="capitec-bank" data-bank-brand="capitec" aria-pressed="false">
+                    <img src="images/banks/CapitecBank/CapitecBank-Logo.png" alt="Capitec Bank logo" class="bank-logo-capitecbank">
+                    <span>Capitec</span>
+                </button>
             </div>
             <div class="priority-editor-actions">
-                <button type="submit" class="tf-button style-1 f12-bold">Save bank</button>
+                <button type="submit" class="tf-button style-1 f12-bold">Save primary bank</button>
                 <button type="button" class="tf-button style-4 f12-bold" data-bank-editor-close>Cancel</button>
             </div>
         </form>
@@ -278,6 +286,10 @@
                                 <div class="user-buttons button-user-account tf-button style-4 f12-bold" role="button" tabindex="0" aria-label="Open account">
                                     <span class="icon"><i class="fa-solid fa-user"></i></span>
                                     <span class="user-username" id="userFirstName">First Name</span>
+                                </div>
+                                <div class="user-buttons button-user-sync tf-button style-4 f12-bold" role="button" tabindex="0" aria-label="Sync account">
+                                    <span class="icon"><i class="fa-solid fa-rotate"></i></span>
+                                    <span class="user-sync">Sync Account</span>
                                 </div>
                                 <div class="user-buttons button-user-logout tf-button style-4 f12-bold" role="button" tabindex="0" aria-label="Sign out">
                                     <span class="icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
@@ -503,13 +515,13 @@
                                                     <div class="priority-item priority-rent" data-priority-key="rent">
                                                         <i class="fa-solid fa-house"></i>
                                                         <strong class="priority-name">Rent</strong>
-                                                        <span class="priority-transaction-name">Landlord</span>
+                                                        <span class="priority-transaction-name">Rent payment</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-vehicle" data-priority-key="vehicle">
                                                         <i class="fa-solid fa-car"></i>
                                                         <strong class="priority-name">Vehicle</strong>
-                                                        <span class="priority-transaction-name">Vehicle Finance</span>
+                                                        <span class="priority-transaction-name">Vehicle finance</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-petrol" data-priority-key="petrol">
@@ -521,19 +533,19 @@
                                                     <div class="priority-item priority-internet" data-priority-key="internet">
                                                         <i class="fa-solid fa-globe"></i>
                                                         <strong class="priority-name">Internet & Fibre</strong>
-                                                        <span class="priority-transaction-name">Internet Provider</span>
+                                                        <span class="priority-transaction-name">Internet provider</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-loans" data-priority-key="loans">
                                                         <i class="fa-solid fa-building-columns"></i>
                                                         <strong class="priority-name">Loans</strong>
-                                                        <span class="priority-transaction-name">Loan Provider</span>
+                                                        <span class="priority-transaction-name">Loan provider</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-gym" data-priority-key="gym">
                                                         <i class="fa-solid fa-dumbbell"></i>
                                                         <strong class="priority-name">Gym</strong>
-                                                        <span class="priority-transaction-name">Fitness Provider</span>
+                                                        <span class="priority-transaction-name">Fitness provider</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-groceries" data-priority-key="groceries">
@@ -792,7 +804,6 @@
                                                             <button type="button" class="tf-button style-4 f12-bold" id="reloadAccountSettings">Reload</button>
                                                         </div>
                                                     </form>
-
                                                     <div class="banking-side-panel">
                                                         <div>
                                                             <h6>Primary Bank</h6>
@@ -808,7 +819,7 @@
                                                                         <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                                                         <span>Edit</span>
                                                                     </button>
-                                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="bankDropdownList"></ul>
+                                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="bankDropdownList"></ul>   
                                                                 </div>
                                                             </div>
                                                             <div class="banking-choice bank-color gotymebank">
