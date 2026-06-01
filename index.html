@@ -19,6 +19,104 @@
 </head>
 <body>
     <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+    <div class="bankdash-modal updates-modal" id="updatesModal" hidden>
+        <div class="bankdash-modal-backdrop" data-updates-close></div>
+        <div class="bankdash-modal-panel updates-modal-panel" role="dialog" aria-modal="true" aria-labelledby="updatesLogTitle">
+            <div class="bankdash-modal-head">
+                <div>
+                    <h6 id="updatesLogTitle">Updates Log</h6>
+                    <div class="f14-regular text-Gray">Features, fixes, and improvements shipped so far</div>
+                </div>
+                <button type="button" class="calculator-close" data-updates-close aria-label="Close updates log">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="updates-log-list">
+                <article class="updates-log-entry latest">
+                    <div><strong>v0.9.0</strong><span>June 2026</span></div>
+                    <h6>Shopping List budgeting</h6>
+                    <ul>
+                        <li>Added the Shopping List modal for grocery planning.</li>
+                        <li>Shopping List can replace the Groceries checklist item when enabled.</li>
+                        <li>Added paid/pending shopping items, max budget, totals, and synced shopping state.</li>
+                        <li>Added PayJustNow as a checklist item.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.8.0</strong><span>June 2026</span></div>
+                    <h6>Account data sync</h6>
+                    <ul>
+                        <li>Added Supabase-backed user app state sync across browsers and PCs.</li>
+                        <li>Added Sync Account and Force New Sync behavior.</li>
+                        <li>BankDash now checks for newer synced data after login.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.7.0</strong><span>May 2026</span></div>
+                    <h6>Banking and card tools</h6>
+                    <ul>
+                        <li>Added primary bank and virtual card panels.</li>
+                        <li>Added pre-loaded bank selection with bank colours and logos.</li>
+                        <li>Added password-gated card detail reveal for the current session.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.6.0</strong><span>May 2026</span></div>
+                    <h6>Manual financial planning</h6>
+                    <ul>
+                        <li>Converted Overview into a manual current-cycle dashboard.</li>
+                        <li>Added editable salary, expenses paid, GoalSave, and total left over blocks.</li>
+                        <li>Expanded Priority Checklist with max spend, spent amount, status, active/inactive controls, and budget states.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.5.0</strong><span>May 2026</span></div>
+                    <h6>Cleaner dashboard layout</h6>
+                    <ul>
+                        <li>Slimmed down duplicate dashboard sections.</li>
+                        <li>Kept unique sections focused on clear functions, useful summaries, and action alerts.</li>
+                        <li>Added sidebar controls, calculator modal, privacy toggle improvements, and status colours.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.4.0</strong><span>May 2026</span></div>
+                    <h6>PDF upload and review import</h6>
+                    <ul>
+                        <li>Added PDF upload and statement parsing for TymeBank statements.</li>
+                        <li>Added review imported transactions before final save.</li>
+                        <li>Improved parser accuracy, fee matching, EveryDay account filtering, and bulk upload limits.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.3.0</strong><span>May 2026</span></div>
+                    <h6>Supabase account foundation</h6>
+                    <ul>
+                        <li>Added Supabase auth, password reset, protected dashboard access, and account settings.</li>
+                        <li>Added database tables for profiles, transactions, categories, uploads, recurring payments, budgets, and goals.</li>
+                        <li>Added toast notifications for save, load, warning, and error feedback.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.2.0</strong><span>May 2026</span></div>
+                    <h6>Finance insights and rules</h6>
+                    <ul>
+                        <li>Added 25-to-24 cycle logic for month-to-month finance tracking.</li>
+                        <li>Added essential payments, Google payment allowlist, recurring payments, and estimated next-month calculations.</li>
+                        <li>Added expandable transaction breakdowns for priority and non-priority sections.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.1.0</strong><span>May 2026</span></div>
+                    <h6>Initial BankDash dashboard</h6>
+                    <ul>
+                        <li>Created the first financial dashboard from bank statement data.</li>
+                        <li>Added income, expenses, priority payments, non-priority payments, and net savings summaries.</li>
+                        <li>Added date filters, privacy blur, and initial dashboard styling from the template.</li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </div>
     <div class="bankdash-modal" id="calculatorModal" hidden>
         <div class="bankdash-modal-backdrop" data-calculator-close></div>
         <div class="bankdash-modal-panel calculator-modal-panel" role="dialog" aria-modal="true" aria-labelledby="calculatorTitle">
@@ -313,9 +411,9 @@
                             </div>
                             <div class="version-controls">
                                 <div class="version-info f12-regular text-Gray">
-                                    <span>Version: <span class="version-number">1.0.0</span></span>
+                                    <span>Version: <span class="version-number">v0.9.0</span></span>
                                     <br>
-                                    <span>Latest Update: <span class="latest-pushed-date"><i class="fa-solid fa-up-right-from-square"></i></span></span>
+                                    <span>Latest Update: <button type="button" class="latest-pushed-date" id="updatesLogToggle">Shopping List <i class="fa-solid fa-up-right-from-square"></i></button></span>
                                 </div>
                             </div>
                         </div>

@@ -1935,6 +1935,19 @@
         byId('CalculatorToggle')?.focus();
     }
 
+    function openUpdatesLog() {
+        const modal = byId('updatesModal');
+        if (!modal) return;
+        modal.hidden = false;
+        modal.querySelector('[data-updates-close]')?.focus();
+    }
+
+    function closeUpdatesLog() {
+        const modal = byId('updatesModal');
+        if (modal) modal.hidden = true;
+        byId('updatesLogToggle')?.focus();
+    }
+
     function appendCalculatorValue(value) {
         const operator = /[+\-*/]/.test(value);
         if (calculatorValue === 'Error') calculatorValue = '0';
@@ -2480,6 +2493,10 @@
             if (closeButton) closeCalculator();
             if (calcButton) handleCalculatorAction(calcButton.dataset.calcAction, calcButton.dataset.calcValue);
         });
+        byId('updatesLogToggle')?.addEventListener('click', openUpdatesLog);
+        byId('updatesModal')?.addEventListener('click', (event) => {
+            if (event.target.closest('[data-updates-close]')) closeUpdatesLog();
+        });
         byId('ShoppingListToggle')?.addEventListener('click', openShoppingList);
         byId('shoppingListModal')?.addEventListener('click', handleShoppingListClick);
         byId('shoppingListModal')?.addEventListener('change', handleShoppingListChange);
@@ -2533,6 +2550,11 @@
             const cardModal = byId('virtualCardEditorModal');
             const cardUnlockModal = byId('cardUnlockModal');
             const shoppingModal = byId('shoppingListModal');
+            const updatesModal = byId('updatesModal');
+            if (event.key === 'Escape' && updatesModal && !updatesModal.hidden) {
+                closeUpdatesLog();
+                return;
+            }
             if (event.key === 'Escape' && shoppingModal && !shoppingModal.hidden) {
                 closeShoppingList();
                 return;
