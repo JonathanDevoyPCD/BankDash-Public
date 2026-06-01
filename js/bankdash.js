@@ -90,6 +90,7 @@
         { key: 'petrol', label: 'Petrol', detail: 'Multiple Stations', fallback: 1500, icon: 'fa-gas-pump', category: 'Fuel/transport' },
         { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1476, icon: 'fa-globe', matcher: (item) => /internet|fibre|fiber|wifi|broadband/i.test(item.description) },
         { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 657, icon: 'fa-building-columns', matcher: (item) => /loan|repayment|credit agreement/i.test(item.description) },
+        { key: 'payjustnow', label: 'PayJustNow', detail: 'Account payment', fallback: 0, icon: 'fa-money-check-dollar', matcher: (item) => /pay\s*just\s*now|payjustnow/i.test(`${item.merchant} ${item.description}`) },
         { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 241, icon: 'fa-dumbbell', matcher: (item) => /gym|fitness|health club/i.test(item.description) },
         { key: 'groceries', label: 'Groceries', detail: 'Multiple Stores', fallback: 1500, icon: 'fa-cart-shopping', category: 'Groceries' },
         { key: 'airtime', label: 'Airtime/Data', detail: 'Mobile & data', fallback: 450, icon: 'fa-mobile-screen-button', category: 'Mobile/data' },
@@ -254,6 +255,11 @@
                     lastSeenCycle: currentManualCycleStart(),
                     cycles: {},
                 },
+                shoppingList: JSON.parse(localStorage.getItem('bankdash.shoppingList')) || {
+                    enabled: false,
+                    maxBudget: 0,
+                    items: [],
+                },
             };
         } catch (error) {
             return {
@@ -263,6 +269,7 @@
                 categoryOverrides: {},
                 priorityChecklist: { targets: {}, cycleTargets: {}, cycleSpent: {}, statuses: {} },
                 manualOverview: { activeCycle: currentManualCycleStart(), lastSeenCycle: currentManualCycleStart(), cycles: {} },
+                shoppingList: { enabled: false, maxBudget: 0, items: [] },
             };
         }
     }
@@ -284,6 +291,11 @@
             activeCycle: currentManualCycleStart(),
             lastSeenCycle: currentManualCycleStart(),
             cycles: {},
+        }));
+        localStorage.setItem('bankdash.shoppingList', JSON.stringify(userSettings.shoppingList || {
+            enabled: false,
+            maxBudget: 0,
+            items: [],
         }));
     }
 
@@ -884,6 +896,34 @@
         return userSettings.priorityChecklist;
     }
 
+    function ensureShoppingListSettings() {
+        userSettings.shoppingList = userSettings.shoppingList || { enabled: false, maxBudget: 0, items: [] };
+        userSettings.shoppingList.items = Array.isArray(userSettings.shoppingList.items) ? userSettings.shoppingList.items : [];
+        userSettings.shoppingList.maxBudget = roundMoney(Number(userSettings.shoppingList.maxBudget || 0));
+        userSettings.shoppingList.enabled = Boolean(userSettings.shoppingList.enabled);
+        return userSettings.shoppingList;
+    }
+
+    function shoppingListTotals() {
+        const shopping = ensureShoppingListSettings();
+        const paid = roundMoney(shopping.items
+            .filter((item) => item.status === 'paid')
+            .reduce((sum, item) => sum + Number(item.amount || 0), 0));
+        const pending = roundMoney(shopping.items
+            .filter((item) => item.status !== 'paid')
+            .reduce((sum, item) => sum + Number(item.amount || 0), 0));
+        const planned = roundMoney(paid + pending);
+        const maxBudget = roundMoney(Number(shopping.maxBudget || planned || 0));
+        return {
+            paid,
+            pending,
+            planned,
+            maxBudget,
+            left: roundMoney(maxBudget - paid),
+            itemCount: shopping.items.length,
+        };
+    }
+
     function priorityAmountFrom(definition, transactions, savingsTransfers) {
         if (definition.savings) {
             return roundMoney(savingsTransfers
@@ -922,24 +962,45 @@
 
     function priorityPlanStatus() {
         const checklist = ensurePriorityChecklistSettings();
+        const shopping = ensureShoppingListSettings();
+        const shoppingTotals = shoppingListTotals();
+        const shoppingDefinition = {
+            key: 'shopping-list',
+            label: 'Shopping List',
+            detail: 'Groceries list',
+            fallback: shoppingTotals.maxBudget,
+            icon: 'fa-clipboard-list',
+            shoppingList: true,
+        };
+        const definitions = priorityItemDefinitions.flatMap((item) => (
+            item.key === 'groceries' && shopping.enabled ? [item, shoppingDefinition] : [item]
+        ));
         const periodKey = priorityPeriodKey();
         const periodStatuses = checklist.statuses[periodKey] || {};
         const periodTargets = checklist.cycleTargets[periodKey] || {};
         const periodSpent = checklist.cycleSpent[periodKey] || {};
-        return priorityItemDefinitions.map((item) => {
-            const active = Object.prototype.hasOwnProperty.call(checklist.active, item.key)
+        return definitions.map((item) => {
+            const isShoppingListItem = Boolean(item.shoppingList);
+            const storedActive = Object.prototype.hasOwnProperty.call(checklist.active, item.key)
                 ? checklist.active[item.key] !== false
-                : item.defaultActive !== false;
-            const averageTarget = priorityAverageTarget(item);
-            const target = roundMoney(Number(periodTargets[item.key] || checklist.targets[item.key] || averageTarget || item.fallback || 0));
-            const actual = roundMoney(Number(periodSpent[item.key] || 0));
+                : isShoppingListItem || (item.key === 'groceries' && shopping.enabled ? false : item.defaultActive !== false);
+            const active = isShoppingListItem || (item.key === 'groceries' && shopping.enabled ? false : storedActive);
+            const averageTarget = isShoppingListItem ? shoppingTotals.maxBudget : priorityAverageTarget(item);
+            const target = isShoppingListItem
+                ? shoppingTotals.maxBudget
+                : roundMoney(Number(periodTargets[item.key] || checklist.targets[item.key] || averageTarget || item.fallback || 0));
+            const actual = isShoppingListItem
+                ? shoppingTotals.paid
+                : roundMoney(Number(periodSpent[item.key] || 0));
             const storedStatus = periodStatuses[item.key];
             const overspent = active && actual > target && target > 0;
             const amountLeft = Math.max(0, roundMoney(target - actual));
             const overAmount = overspent ? roundMoney(actual - target) : 0;
-            const inferredStatus = overspent ? 'unpaid' : actual > 0 && amountLeft <= 0 ? 'paid' : 'pending';
+            const inferredStatus = isShoppingListItem && shoppingTotals.pending > 0
+                ? 'pending'
+                : overspent ? 'unpaid' : actual > 0 && amountLeft <= 0 ? 'paid' : 'pending';
             const manualStatus = ['paid', 'unpaid', 'pending'].includes(storedStatus) ? storedStatus : '';
-            const status = active ? manualStatus || inferredStatus : 'inactive';
+            const status = active ? (isShoppingListItem ? inferredStatus : manualStatus || inferredStatus) : 'inactive';
             const paid = status === 'paid';
             const remaining = active && !paid ? amountLeft : 0;
 
@@ -1046,6 +1107,7 @@
         const editor = byId('priorityChecklistEditor');
         if (!editor) return;
         const period = manualCycleLabelFor(activeManualCycleStart());
+        const shoppingEnabled = ensureShoppingListSettings().enabled;
         editor.innerHTML = `
             <div class="priority-editor-head">
                 <div>
@@ -1055,12 +1117,20 @@
                 <button type="button" class="tf-button style-4 f12-bold" id="cancelPriorityEdit">Cancel</button>
             </div>
             <div class="priority-editor-grid">
-                ${statuses.map((item) => `
+                ${statuses.map((item) => {
+                    const managedByShoppingList = item.shoppingList || (item.key === 'groceries' && shoppingEnabled);
+                    const disabled = managedByShoppingList ? 'disabled' : '';
+                    const helper = item.shoppingList
+                        ? 'Managed from the Shopping List modal.'
+                        : item.key === 'groceries' && shoppingEnabled
+                            ? 'Inactive while Shopping List is enabled.'
+                            : `${item.active ? item.overspent ? `${formatMoney(item.overAmount)} over max` : `${formatMoney(item.amountLeft)} left` : 'Inactive'}`;
+                    return `
                     <details class="priority-editor-row ${item.active ? '' : 'inactive'}">
                         <summary>
                             <span class="priority-editor-copy">
                                 <strong>${escapeHtml(item.label)}</strong>
-                                <small>${escapeHtml(item.detail || 'Monthly priority')} - ${item.active ? item.overspent ? `${formatMoney(item.overAmount)} over max` : `${formatMoney(item.amountLeft)} left` : 'Inactive'}</small>
+                                <small>${escapeHtml(item.detail || 'Monthly priority')} - ${escapeHtml(helper)}</small>
                             </span>
                             <span class="priority-editor-summary">
                                 <strong>${formatMoney(item.actual)}</strong>
@@ -1073,20 +1143,20 @@
                         </summary>
                         <div class="priority-editor-fields">
                             <label class="priority-toggle-field">
-                                <input type="checkbox" data-priority-active="${escapeHtml(item.key)}" ${item.active ? 'checked' : ''}>
+                                <input type="checkbox" data-priority-active="${escapeHtml(item.key)}" ${item.active ? 'checked' : ''} ${disabled}>
                                 <span>Active checklist item</span>
                             </label>
                             <label class="priority-input-field">
                                 <small>Spent Amount</small>
-                                <input type="number" min="0" step="0.01" value="${item.actual || ''}" data-priority-spent="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} spent amount" placeholder="0.00">
+                                <input type="number" min="0" step="0.01" value="${item.actual || ''}" data-priority-spent="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} spent amount" placeholder="0.00" ${disabled}>
                             </label>
                             <label class="priority-input-field">
                                 <small>Max Spend Amount</small>
-                                <input type="number" min="0" step="0.01" value="${item.target}" data-priority-target="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} max spend amount" placeholder="0.00">
+                                <input type="number" min="0" step="0.01" value="${item.target}" data-priority-target="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} max spend amount" placeholder="0.00" ${disabled}>
                             </label>
                             <label class="priority-input-field">
                                 <small>Status</small>
-                                <select data-priority-status="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} status">
+                                <select data-priority-status="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.label)} status" ${disabled}>
                                     <option value="pending" ${item.status === 'pending' || item.status === 'inactive' ? 'selected' : ''}>PENDING</option>
                                     <option value="paid" ${item.status === 'paid' ? 'selected' : ''}>PAID</option>
                                     <option value="unpaid" ${item.status === 'unpaid' ? 'selected' : ''}>UNPAID</option>
@@ -1094,7 +1164,8 @@
                             </label>
                         </div>
                     </details>
-                `).join('')}
+                `;
+                }).join('')}
             </div>
             <div class="priority-editor-actions">
                 <button type="button" class="tf-button style-1 f12-bold" id="savePriorityEdit">Save checklist</button>
@@ -1105,8 +1176,11 @@
 
     function renderCockpitBudgetMeters() {
         const rows = cockpitBudgetCategories().map((item) => {
-            const budget = Number(userSettings.budgets[item.category] || 0);
-            const spent = categorySpent(item.category);
+            const shopping = ensureShoppingListSettings();
+            const shoppingTotals = shoppingListTotals();
+            const useShoppingList = item.category === 'Groceries' && shopping.enabled;
+            const budget = useShoppingList ? shoppingTotals.maxBudget : Number(userSettings.budgets[item.category] || 0);
+            const spent = useShoppingList ? shoppingTotals.paid : categorySpent(item.category);
             const remaining = roundMoney(budget - spent);
             const percent = Math.min(100, Math.round((spent / Math.max(budget, 1)) * 100));
             const over = remaining < 0;
@@ -1114,7 +1188,7 @@
                 <div class="budget-meter ${over ? 'over' : ''}">
                     <div class="budget-meter-top">
                         <div>
-                            <strong>${escapeHtml(item.label)}</strong>
+                            <strong>${escapeHtml(useShoppingList ? 'Shopping List' : item.label)}</strong>
                             <span>${moneyHtml(spent)} of ${moneyHtml(budget)}</span>
                         </div>
                         <strong>${over ? `${moneyHtml(Math.abs(remaining))} over` : `${moneyHtml(remaining)} left`}</strong>
@@ -1917,6 +1991,182 @@
         if (value) appendCalculatorValue(value);
     }
 
+    function shoppingItemId() {
+        return `shop-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function saveShoppingList(source = 'shopping-list') {
+        saveSettings({ source });
+        renderDashboard();
+        if (!byId('shoppingListModal')?.hidden) renderShoppingListModal();
+    }
+
+    function renderShoppingListModal(editId = '') {
+        const target = byId('shoppingListContent');
+        if (!target) return;
+        const shopping = ensureShoppingListSettings();
+        const totals = shoppingListTotals();
+        const editItem = shopping.items.find((item) => item.id === editId) || null;
+        const overBudget = totals.maxBudget > 0 && totals.paid > totals.maxBudget;
+        const amountLeft = roundMoney(totals.maxBudget - totals.paid);
+
+        target.innerHTML = `
+            <div class="shopping-list-summary">
+                <div class="shopping-list-stat">
+                    <span>Mode</span>
+                    <strong>${shopping.enabled ? 'Enabled' : 'Disabled'}</strong>
+                </div>
+                <div class="shopping-list-stat">
+                    <span>Max budget</span>
+                    <strong>${formatMoney(totals.maxBudget)}</strong>
+                </div>
+                <div class="shopping-list-stat">
+                    <span>Paid total</span>
+                    <strong>${formatMoney(totals.paid)}</strong>
+                </div>
+                <div class="shopping-list-stat">
+                    <span>${overBudget ? 'Over budget' : 'Left over'}</span>
+                    <strong>${formatMoney(Math.abs(amountLeft))}</strong>
+                </div>
+            </div>
+            <div class="shopping-list-controls">
+                <label class="priority-toggle-field">
+                    <input type="checkbox" id="shoppingListEnabled" ${shopping.enabled ? 'checked' : ''}>
+                    <span>Use Shopping List instead of Groceries checklist item</span>
+                </label>
+                <label class="settings-field">
+                    <span>Max Budget</span>
+                    <input type="number" id="shoppingMaxBudget" min="0" step="0.01" value="${shopping.maxBudget || ''}" placeholder="0.00">
+                </label>
+            </div>
+            <form class="shopping-list-form" id="shoppingItemForm">
+                <input type="hidden" id="shoppingItemId" value="${escapeHtml(editItem?.id || '')}">
+                <label class="settings-field">
+                    <span>Item</span>
+                    <input type="text" id="shoppingItemName" value="${escapeHtml(editItem?.name || '')}" placeholder="Milk, bread, chicken">
+                </label>
+                <label class="settings-field">
+                    <span>Amount</span>
+                    <input type="number" id="shoppingItemAmount" min="0" step="0.01" value="${editItem?.amount || ''}" placeholder="0.00">
+                </label>
+                <label class="settings-field">
+                    <span>Status</span>
+                    <select id="shoppingItemStatus">
+                        <option value="pending" ${editItem?.status !== 'paid' ? 'selected' : ''}>Pending</option>
+                        <option value="paid" ${editItem?.status === 'paid' ? 'selected' : ''}>Paid</option>
+                    </select>
+                </label>
+                <button type="submit" class="tf-button style-1 f12-bold">${editItem ? 'Save Item' : 'Add Item'}</button>
+            </form>
+            <div class="shopping-list-items">
+                ${shopping.items.length
+                    ? shopping.items.map((item) => `
+                        <div class="shopping-list-row ${escapeHtml(item.status || 'pending')}" data-shopping-row="${escapeHtml(item.id)}">
+                            <div>
+                                <strong>${escapeHtml(item.name || 'Shopping item')}</strong>
+                                <small>${escapeHtml(item.status === 'paid' ? 'Paid' : 'Pending')}</small>
+                            </div>
+                            <strong>${formatMoney(item.amount || 0)}</strong>
+                            <button type="button" class="tf-button style-4 f12-bold" data-shopping-status="${escapeHtml(item.id)}">${item.status === 'paid' ? 'Mark Pending' : 'Mark Paid'}</button>
+                            <div class="shopping-list-row-actions">
+                                <button type="button" data-shopping-edit="${escapeHtml(item.id)}" title="Edit item"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+                                <button type="button" data-shopping-remove="${escapeHtml(item.id)}" title="Remove item"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                    `).join('')
+                    : '<div class="shopping-list-empty">No shopping items yet. Add planned grocery items above.</div>'}
+            </div>
+            <div class="priority-editor-actions">
+                <button type="button" class="tf-button style-1 f12-bold" id="saveShoppingList">Save shopping list</button>
+                <button type="button" class="tf-button style-4 f12-bold" data-shopping-close>Close</button>
+            </div>
+        `;
+    }
+
+    function openShoppingList() {
+        const modal = byId('shoppingListModal');
+        if (!modal) return;
+        renderShoppingListModal();
+        modal.hidden = false;
+        byId('shoppingItemName')?.focus();
+    }
+
+    function closeShoppingList() {
+        const modal = byId('shoppingListModal');
+        if (modal) modal.hidden = true;
+        byId('ShoppingListToggle')?.focus();
+    }
+
+    function handleShoppingListClick(event) {
+        if (event.target.closest('[data-shopping-close]')) {
+            closeShoppingList();
+            return;
+        }
+
+        const editButton = event.target.closest('[data-shopping-edit]');
+        if (editButton) {
+            renderShoppingListModal(editButton.dataset.shoppingEdit);
+            byId('shoppingItemName')?.focus();
+            return;
+        }
+
+        const removeButton = event.target.closest('[data-shopping-remove]');
+        if (removeButton) {
+            const shopping = ensureShoppingListSettings();
+            shopping.items = shopping.items.filter((item) => item.id !== removeButton.dataset.shoppingRemove);
+            saveShoppingList('shopping-list-remove');
+            showLocalToast('basic', 'Shopping item removed', 'The item was removed from the shopping list.');
+            return;
+        }
+
+        const statusButton = event.target.closest('[data-shopping-status]');
+        if (statusButton) {
+            const shopping = ensureShoppingListSettings();
+            const item = shopping.items.find((row) => row.id === statusButton.dataset.shoppingStatus);
+            if (item) item.status = item.status === 'paid' ? 'pending' : 'paid';
+            saveShoppingList('shopping-list-status');
+            return;
+        }
+
+        if (event.target.closest('#saveShoppingList')) {
+            const shopping = ensureShoppingListSettings();
+            shopping.enabled = Boolean(byId('shoppingListEnabled')?.checked);
+            shopping.maxBudget = roundMoney(Number(byId('shoppingMaxBudget')?.value || 0));
+            saveShoppingList('shopping-list-save');
+            showLocalToast('success', 'Shopping list saved', shopping.enabled ? 'Shopping List is now driving the groceries budget.' : 'Shopping List is saved but not active.');
+        }
+    }
+
+    function handleShoppingListChange(event) {
+        if (!event.target.closest('#shoppingListEnabled, #shoppingMaxBudget')) return;
+        const shopping = ensureShoppingListSettings();
+        shopping.enabled = Boolean(byId('shoppingListEnabled')?.checked);
+        shopping.maxBudget = roundMoney(Number(byId('shoppingMaxBudget')?.value || 0));
+        saveShoppingList('shopping-list-settings');
+    }
+
+    function handleShoppingItemSubmit(event) {
+        event.preventDefault();
+        const shopping = ensureShoppingListSettings();
+        const id = byId('shoppingItemId')?.value || shoppingItemId();
+        const name = byId('shoppingItemName')?.value.trim();
+        const amount = roundMoney(Number(byId('shoppingItemAmount')?.value || 0));
+        const status = byId('shoppingItemStatus')?.value === 'paid' ? 'paid' : 'pending';
+
+        if (!name) {
+            showLocalToast('warning', 'Item name required', 'Add a shopping item name before saving.');
+            return;
+        }
+
+        const nextItem = { id, name, amount, status };
+        shopping.items = [
+            ...shopping.items.filter((item) => item.id !== id),
+            nextItem,
+        ];
+        saveShoppingList('shopping-list-item');
+        showLocalToast('success', 'Shopping item saved', `${name} was added to the shopping list.`);
+    }
+
     const preloadedBanks = [
         {
             id: 'gotyme-bank',
@@ -2230,6 +2480,12 @@
             if (closeButton) closeCalculator();
             if (calcButton) handleCalculatorAction(calcButton.dataset.calcAction, calcButton.dataset.calcValue);
         });
+        byId('ShoppingListToggle')?.addEventListener('click', openShoppingList);
+        byId('shoppingListModal')?.addEventListener('click', handleShoppingListClick);
+        byId('shoppingListModal')?.addEventListener('change', handleShoppingListChange);
+        byId('shoppingListModal')?.addEventListener('submit', (event) => {
+            if (event.target.closest('#shoppingItemForm')) handleShoppingItemSubmit(event);
+        });
 
         byId('editPrimaryBank')?.addEventListener('click', openBankEditor);
         byId('editVirtualCard')?.addEventListener('click', openVirtualCardEditor);
@@ -2276,6 +2532,11 @@
             const bankModal = byId('bankEditorModal');
             const cardModal = byId('virtualCardEditorModal');
             const cardUnlockModal = byId('cardUnlockModal');
+            const shoppingModal = byId('shoppingListModal');
+            if (event.key === 'Escape' && shoppingModal && !shoppingModal.hidden) {
+                closeShoppingList();
+                return;
+            }
             if (event.key === 'Escape' && bankModal && !bankModal.hidden) {
                 closeBankEditor();
                 return;
@@ -2466,6 +2727,7 @@
                 categoryOverrides: userSettings.categoryOverrides || {},
                 priorityChecklist: userSettings.priorityChecklist || {},
                 manualOverview: userSettings.manualOverview || {},
+                shoppingList: userSettings.shoppingList || {},
             },
             banking: syncedBankingSettings(),
         };
@@ -2491,6 +2753,11 @@
             activeCycle: currentManualCycleStart(),
             lastSeenCycle: currentManualCycleStart(),
             cycles: {},
+        }));
+        localStorage.setItem('bankdash.shoppingList', JSON.stringify(settings.shoppingList || {
+            enabled: false,
+            maxBudget: 0,
+            items: [],
         }));
 
         if (state.banking) {

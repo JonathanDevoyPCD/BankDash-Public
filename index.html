@@ -61,6 +61,21 @@
             <div id="priorityChecklistEditor" class="priority-checklist-editor"></div>
         </div>
     </div>
+    <div class="bankdash-modal shopping-list-modal" id="shoppingListModal" hidden>
+        <div class="bankdash-modal-backdrop" data-shopping-close></div>
+        <div class="bankdash-modal-panel shopping-list-panel" role="dialog" aria-modal="true" aria-labelledby="shoppingListTitle">
+            <div class="bankdash-modal-head">
+                <div>
+                    <h6 id="shoppingListTitle">Shopping List</h6>
+                    <div class="f14-regular text-Gray">Build a groceries budget from planned shopping items</div>
+                </div>
+                <button type="button" class="calculator-close" data-shopping-close aria-label="Close shopping list">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div id="shoppingListContent" class="shopping-list-content"></div>
+        </div>
+    </div>
     <div class="bankdash-modal" id="bankEditorModal" hidden>
         <div class="bankdash-modal-backdrop" data-bank-editor-close></div>
         <form class="bankdash-modal-panel bank-editor-panel" id="bankEditorForm" role="dialog" aria-modal="true" aria-labelledby="bankEditorTitle">
@@ -540,6 +555,12 @@
                                                         <i class="fa-solid fa-building-columns"></i>
                                                         <strong class="priority-name">Loans</strong>
                                                         <span class="priority-transaction-name">Loan provider</span>
+                                                        <span class="priority-amount money-value"><span>Pending</span></span>
+                                                    </div>
+                                                    <div class="priority-item priority-payjustnow" data-priority-key="payjustnow">
+                                                        <i class="fa-solid fa-money-check-dollar"></i>
+                                                        <strong class="priority-name">PayJustNow</strong>
+                                                        <span class="priority-transaction-name">Account payment</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-gym" data-priority-key="gym">
