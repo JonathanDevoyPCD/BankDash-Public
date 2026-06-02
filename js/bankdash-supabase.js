@@ -92,7 +92,7 @@
         if (/coffee|restaurant|bakery|bistro|kfc|mcdonald|steers|food|cafe/i.test(value)) return 'Dining & coffee';
         if (/checkers|woolworths|pick n pay|spar|grocery|grocer/i.test(value)) return 'Groceries';
         if (/fuel|engen|shell|bp |caltex|sasol|total/i.test(value)) return 'Fuel/transport';
-        if (/google|youtube|openai|chatgpt|ai subscription|strava|netflix|spotify|subscription|patreon|discord/i.test(value)) return 'Subscriptions/software';
+        if (/google|youtube|openai|chatgpt|strava|netflix|spotify|subscription|patreon|discord/i.test(value)) return 'Subscriptions/software';
         if (/takealot|amazon|shop|online|purchase at/i.test(value)) return 'Shopping & online';
         if (/gym|fitness/i.test(value)) return 'Healthcare';
         if (/rent|landlord|loan provider|internet provider|vehicle finance/i.test(value)) return 'Fixed beneficiaries/EFT';
@@ -134,7 +134,7 @@
             direction: 'expense',
             is_priority: item.priority === 'priority',
             is_essential: isEssential(item),
-            is_recurring: isEssential(item) || /Google|OpenAI|ChatGPT|AI subscription|Netflix|Spotify|Strava|YouTube/i.test(`${item.description} ${item.merchant}`),
+            is_recurring: isEssential(item) || /Google|OPENAI|Netflix|Spotify|Strava|YouTube/i.test(`${item.description} ${item.merchant}`),
             is_flagged: isUnexpectedGooglePayment(`${item.description} ${item.merchant}`, item.amount),
             flag_reason: isUnexpectedGooglePayment(`${item.description} ${item.merchant}`, item.amount)
                 ? 'Unexpected Google payment'
@@ -201,6 +201,10 @@
         const match = fileName.match(/(20\d{2})[_-](\d{2})/);
         if (!match) return { year: null, month: null };
         return { year: Number(match[1]), month: Number(match[2]) };
+    }
+
+    function authRedirectUrl() {
+        return config.authRedirectUrl || window.location.href.split('#')[0].split('?')[0];
     }
 
     function firstNameFor(user) {
@@ -326,7 +330,7 @@
                 user_id: userId,
                 name,
                 category_group: name === 'Salary' ? 'income' : name === 'GoalSave' ? 'savings' : categoryGroup(sample),
-                is_essential: ['Internet provider', 'Vehicle finance', 'Loan provider', 'Gym', 'Rent payment'].includes(name),
+                is_essential: ['Internet provider', 'Vehicle finance', 'Loan provider', 'Gym', 'Rent - Rent payment'].includes(name),
             };
         });
 
@@ -1124,7 +1128,7 @@
             email,
             password,
             options: {
-                emailRedirectTo: window.location.href.split('#')[0],
+                emailRedirectTo: authRedirectUrl(),
                 data: {
                     first_name: firstName,
                     full_name: firstName,
@@ -1160,7 +1164,7 @@
         }
 
         const { error } = await client.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.href.split('#')[0],
+            redirectTo: authRedirectUrl(),
         });
         if (error) {
             setText('authStatus', error.message);
