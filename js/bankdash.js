@@ -47,58 +47,44 @@
     const essentialRules = [
         {
             label: 'Internet provider',
-            matcher: (item) => /internet|fibre|fiber|wifi|broadband/i.test(item.description),
+            matcher: (item) => /internet|wifi|fibre|isp/i.test(`${item.merchant} ${item.description}`),
         },
         {
             label: 'Vehicle finance',
-            matcher: (item) => /vehicle finance|car finance|auto finance|car installment/i.test(item.description),
+            matcher: (item) => /vehicle|car finance|installment/i.test(`${item.merchant} ${item.description}`),
         },
         {
-            label: 'Loan repayment',
-            matcher: (item) => /loan|repayment|credit agreement/i.test(item.description),
+            label: 'Loan provider',
+            matcher: (item) => /loan|credit provider|repayment/i.test(`${item.merchant} ${item.description}`),
         },
         {
             label: 'Gym',
-            matcher: (item) => /gym|fitness|health club/i.test(item.description),
+            matcher: (item) => /gym|fitness/i.test(`${item.merchant} ${item.description}`),
         },
         {
             label: 'Rent payment',
-            matcher: (item) => /rent|landlord|rental/i.test(item.description),
+            matcher: (item) => /rent|landlord/i.test(`${item.merchant} ${item.description}`),
         },
     ];
     const allowedGoogleRules = [
         { label: 'Google One', amount: 34.99, matcher: (item) => /Google One/i.test(`${item.merchant} ${item.description}`) },
         { label: 'YouTube Premium', amount: 81.99, matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
     ];
-    const junePriorityPlan = [
-        { label: 'Rent', detail: 'Rent payment', planned: 1514, matcher: (item) => /rent|landlord|rental/i.test(item.description) },
-        { label: 'Car installments', detail: 'Vehicle finance', planned: 2953, matcher: (item) => /vehicle finance|car finance|auto finance|car installment/i.test(item.description) },
-        { label: 'Petrol', detail: 'Monthly cap', planned: 1500, category: 'Fuel/transport' },
-        { label: 'Internet', planned: 1476, matcher: (item) => /internet|fibre|fiber|wifi|broadband/i.test(item.description) },
-        { label: 'Loan repayment', planned: 657, matcher: (item) => /loan|repayment|credit agreement/i.test(item.description) },
-        { label: 'Gym', planned: 241, matcher: (item) => /gym|fitness|health club/i.test(item.description) },
-        { label: 'Groceries', detail: 'Monthly cap', planned: 1500, category: 'Groceries' },
-        { label: 'Leisure', detail: 'Monthly cap', planned: 1500, category: 'Leisure' },
-        { label: 'Saving', detail: 'GoalSave monthly target', planned: 1500 },
-        { label: 'ChatGPT', planned: 399, matcher: (item) => /OPENAI|ChatGPT/i.test(`${item.merchant} ${item.description}`) },
-        { label: 'Google One', planned: 34.99, matcher: (item) => /Google One/i.test(`${item.merchant} ${item.description}`) },
-        { label: 'YouTube Premium', planned: 81.99, matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
-    ];
     const priorityItemDefinitions = [
-        { key: 'rent', label: 'Rent', detail: 'Rent payment', fallback: 1514, icon: 'fa-house', matcher: (item) => /rent|landlord|rental/i.test(item.description) },
-        { key: 'vehicle', label: 'Vehicle', detail: 'Vehicle finance', fallback: 2953, icon: 'fa-car', matcher: (item) => /vehicle finance|car finance|auto finance|car installment/i.test(item.description) },
+        { key: 'rent', label: 'Rent', detail: 'Rent payment', fallback: 1500, icon: 'fa-house', matcher: (item) => /rent|landlord/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'vehicle', label: 'Vehicle', detail: 'Vehicle finance', fallback: 3000, icon: 'fa-car', matcher: (item) => /vehicle|car finance|installment/i.test(`${item.merchant} ${item.description}`) },
         { key: 'petrol', label: 'Petrol', detail: 'Multiple Stations', fallback: 1500, icon: 'fa-gas-pump', category: 'Fuel/transport' },
-        { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1476, icon: 'fa-globe', matcher: (item) => /internet|fibre|fiber|wifi|broadband/i.test(item.description) },
-        { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 657, icon: 'fa-building-columns', matcher: (item) => /loan|repayment|credit agreement/i.test(item.description) },
+        { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1500, icon: 'fa-globe', matcher: (item) => /internet|wifi|fibre|isp/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 650, icon: 'fa-building-columns', matcher: (item) => /loan|credit provider|repayment/i.test(`${item.merchant} ${item.description}`) },
         { key: 'payjustnow', label: 'PayJustNow', detail: 'Account payment', fallback: 0, icon: 'fa-money-check-dollar', matcher: (item) => /pay\s*just\s*now|payjustnow/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 241, icon: 'fa-dumbbell', matcher: (item) => /gym|fitness|health club/i.test(item.description) },
+        { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 250, icon: 'fa-dumbbell', matcher: (item) => /gym|fitness/i.test(`${item.merchant} ${item.description}`) },
         { key: 'groceries', label: 'Groceries', detail: 'Multiple Stores', fallback: 1500, icon: 'fa-cart-shopping', category: 'Groceries' },
         { key: 'airtime', label: 'Airtime/Data', detail: 'Mobile & data', fallback: 450, icon: 'fa-mobile-screen-button', category: 'Mobile/data' },
         { key: 'lunch', label: 'Lunch', detail: 'Food & work meals', fallback: 0, icon: 'fa-utensils', matcher: (item) => /lunch|kfc|mcdonald|steers|nando|burger|restaurant|takealot foods|uber eats|mr d|food/i.test(`${item.merchant} ${item.description}`) },
         { key: 'leisure', label: 'Leisure', detail: 'Various', fallback: 1500, icon: 'fa-beer-mug-empty', categories: ['Leisure', 'Dining & coffee'] },
         { key: 'coffee', label: 'Coffee', detail: 'Coffee shops', fallback: 0, icon: 'fa-mug-saucer', matcher: (item) => /coffee|seattle|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`) },
         { key: 'savings', label: 'Savings', detail: 'GoalSave', fallback: 1500, icon: 'fa-vault', savings: true },
-        { key: 'openai', label: 'ChatGPT', detail: 'OpenAI', fallback: 399, icon: 'fa-brands fa-openai', matcher: (item) => /OPENAI|ChatGPT/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'openai', label: 'ChatGPT', detail: 'AI subscription', fallback: 400, icon: 'fa-brands fa-openai', matcher: (item) => /openai|chatgpt|ai subscription/i.test(`${item.merchant} ${item.description}`) },
         { key: 'google', label: 'Google', detail: 'Google One', fallback: 34.99, icon: 'fa-brands fa-google', matcher: (item) => /Google One/i.test(`${item.merchant} ${item.description}`) },
         { key: 'youtube', label: 'YouTube', detail: 'YouTube Premium', fallback: 81.99, icon: 'fa-brands fa-youtube', matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
         { key: 'electricity', label: 'Electricity', detail: 'Power utilities', fallback: 0, icon: 'fa-bolt', defaultActive: false, matcher: (item) => /electricity|prepaid|easypay/i.test(`${item.merchant} ${item.description}`) },
@@ -133,12 +119,6 @@
         'Shopping & online': 2000,
         'Fuel/transport': 1500,
         'Mobile/data': 450,
-    };
-    const fixedJuneBudgetTargets = {
-        'Dining & coffee': 0,
-        Groceries: 1500,
-        Leisure: 1500,
-        'Fuel/transport': 1500,
     };
     const categoryOptions = [
         'Bank fees',
@@ -241,7 +221,6 @@
             const useNewPlanDefaults = savedVersion !== planningVersion;
             return {
                 budgets: useNewPlanDefaults ? { ...defaultBudgets } : { ...defaultBudgets, ...savedBudgets },
-                goalSaveTarget: useNewPlanDefaults ? 1500 : Number(localStorage.getItem('bankdash.goalSaveTarget') || 1500),
                 merchantOverrides: JSON.parse(localStorage.getItem('bankdash.merchantOverrides')) || {},
                 categoryOverrides: JSON.parse(localStorage.getItem('bankdash.categoryOverrides')) || {},
                 priorityChecklist: JSON.parse(localStorage.getItem('bankdash.priorityChecklist')) || {
@@ -264,7 +243,6 @@
         } catch (error) {
             return {
                 budgets: { ...defaultBudgets },
-                goalSaveTarget: 1500,
                 merchantOverrides: {},
                 categoryOverrides: {},
                 priorityChecklist: { targets: {}, cycleTargets: {}, cycleSpent: {}, statuses: {} },
@@ -277,7 +255,6 @@
     function writeSettingsToStorage() {
         localStorage.setItem('bankdash.planningVersion', planningVersion);
         localStorage.setItem('bankdash.budgets', JSON.stringify(userSettings.budgets));
-        localStorage.setItem('bankdash.goalSaveTarget', String(userSettings.goalSaveTarget || 0));
         localStorage.setItem('bankdash.merchantOverrides', JSON.stringify(userSettings.merchantOverrides));
         localStorage.setItem('bankdash.categoryOverrides', JSON.stringify(userSettings.categoryOverrides));
         localStorage.setItem('bankdash.priorityChecklist', JSON.stringify(userSettings.priorityChecklist || {
@@ -647,16 +624,16 @@
         const netSavingsDrawn = currentData.totals.savingsOut - currentData.totals.savingsIn;
 
         setText('periodLabel', currentData.period);
-        byId('avgIncome').innerHTML = moneyHtml(salaryAverage);
+        if (byId('avgIncome')) byId('avgIncome').innerHTML = moneyHtml(salaryAverage);
         setText('salaryRange', `${currentData.salaryTransactions.length} salary deposits confirmed`);
-        byId('totalExpenses').innerHTML = moneyHtml(currentData.totals.expenses);
-        byId('avgExpenses').innerHTML = `${moneyHtml(monthlyAverage)} 25-to-25 average`;
+        if (byId('totalExpenses')) byId('totalExpenses').innerHTML = moneyHtml(currentData.totals.expenses);
+        if (byId('avgExpenses')) byId('avgExpenses').innerHTML = `${moneyHtml(monthlyAverage)} 25-to-25 average`;
         byId('priorityTotal').innerHTML = moneyHtml(currentData.totals.priority);
         setText('priorityShare', `${pct(currentData.totals.priority, currentData.totals.expenses)} of expense total`);
         byId('nonPriorityTotal').innerHTML = moneyHtml(currentData.totals.nonPriority);
         setText('nonPriorityShare', `${pct(currentData.totals.nonPriority, currentData.totals.expenses)} of expense total`);
-        byId('netSavings').innerHTML = moneyHtml(netSavingsDrawn);
-        byId('savingsDetail').innerHTML = `${moneyHtml(currentData.totals.savingsOut)} out, ${moneyHtml(currentData.totals.savingsIn)} in`;
+        if (byId('netSavings')) byId('netSavings').innerHTML = moneyHtml(netSavingsDrawn);
+        if (byId('savingsDetail')) byId('savingsDetail').innerHTML = `${moneyHtml(currentData.totals.savingsOut)} out, ${moneyHtml(currentData.totals.savingsIn)} in`;
     }
 
     function resetCharts() {
@@ -668,36 +645,41 @@
         resetCharts();
 
         const months = currentData.monthly.map((item) => item.month.slice(5));
-        const monthlyChart = new ApexCharts(byId('monthlyChart'), {
-            chart: { type: 'bar', height: 320, toolbar: { show: false }, fontFamily: 'Inter, Arial, sans-serif' },
-            colors: ['#148f63', '#d75452', '#2d6cdf', '#c87d18'],
-            series: [
-                { name: 'Salary', data: currentData.monthly.map((item) => item.income) },
-                { name: 'Expenses', data: currentData.monthly.map((item) => item.expenses) },
-                { name: 'Priority', data: currentData.monthly.map((item) => item.priority) },
-                { name: 'Non-priority', data: currentData.monthly.map((item) => item.nonPriority) },
-            ],
-            plotOptions: { bar: { borderRadius: 4, columnWidth: '54%' } },
-            dataLabels: { enabled: false },
-            xaxis: { categories: months },
-            yaxis: { labels: { formatter: (value) => `R${Math.round(value / 1000)}k` } },
-            tooltip: { y: { formatter: formatMoney } },
-            legend: { position: 'top', horizontalAlign: 'left' },
-            grid: { borderColor: '#e2e7ee' },
-        });
+        const monthlyTarget = byId('monthlyChart');
+        if (monthlyTarget) {
+            charts.push(new ApexCharts(monthlyTarget, {
+                chart: { type: 'bar', height: 320, toolbar: { show: false }, fontFamily: 'Inter, Arial, sans-serif' },
+                colors: ['#148f63', '#d75452', '#2d6cdf', '#c87d18'],
+                series: [
+                    { name: 'Salary', data: currentData.monthly.map((item) => item.income) },
+                    { name: 'Expenses', data: currentData.monthly.map((item) => item.expenses) },
+                    { name: 'Priority', data: currentData.monthly.map((item) => item.priority) },
+                    { name: 'Non-priority', data: currentData.monthly.map((item) => item.nonPriority) },
+                ],
+                plotOptions: { bar: { borderRadius: 4, columnWidth: '54%' } },
+                dataLabels: { enabled: false },
+                xaxis: { categories: months },
+                yaxis: { labels: { formatter: (value) => `R${Math.round(value / 1000)}k` } },
+                tooltip: { y: { formatter: formatMoney } },
+                legend: { position: 'top', horizontalAlign: 'left' },
+                grid: { borderColor: '#e2e7ee' },
+            }));
+        }
 
-        const priorityChart = new ApexCharts(byId('priorityChart'), {
-            chart: { type: 'donut', height: 280, toolbar: { show: false }, fontFamily: 'Inter, Arial, sans-serif' },
-            colors: ['#2d6cdf', '#c87d18'],
-            series: [currentData.totals.priority, currentData.totals.nonPriority],
-            labels: ['Priority', 'Non-priority'],
-            dataLabels: { formatter: (value) => `${Math.round(value)}%` },
-            legend: { position: 'bottom' },
-            tooltip: { y: { formatter: formatMoney } },
-            plotOptions: { pie: { donut: { size: '68%' } } },
-        });
+        const priorityTarget = byId('priorityChart');
+        if (priorityTarget) {
+            charts.push(new ApexCharts(priorityTarget, {
+                chart: { type: 'donut', height: 280, toolbar: { show: false }, fontFamily: 'Inter, Arial, sans-serif' },
+                colors: ['#2d6cdf', '#c87d18'],
+                series: [currentData.totals.priority, currentData.totals.nonPriority],
+                labels: ['Priority', 'Non-priority'],
+                dataLabels: { formatter: (value) => `${Math.round(value)}%` },
+                legend: { position: 'bottom' },
+                tooltip: { y: { formatter: formatMoney } },
+                plotOptions: { pie: { donut: { size: '68%' } } },
+            }));
+        }
 
-        charts = [monthlyChart, priorityChart];
         charts.forEach((chart) => chart.render());
     }
 
@@ -781,8 +763,8 @@
         return groupEssentialPayments(transactions).reduce((sum, item) => roundMoney(sum + item.amount), 0);
     }
 
-    function seattleTransactions(transactions) {
-        return transactions.filter((item) => /seattle/i.test(`${item.merchant} ${item.description}`));
+    function coffeeShopTransactions(transactions) {
+        return transactions.filter((item) => /coffee|cafe|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`));
     }
 
     function cycleIndex(cycles, start) {
@@ -814,29 +796,6 @@
                 <strong class="${direction}">${moneyHtml(delta)}</strong>
             </div>
         `;
-    }
-
-    function renderBudgetTargets() {
-        const categoryMap = new Map(currentData.categories.map((item) => [item.category, item]));
-        const rows = Object.entries(userSettings.budgets)
-            .filter(([, budget]) => Number(budget) > 0)
-            .map(([category, budget]) => {
-                const spent = categoryMap.get(category)?.amount || 0;
-                const percent = Math.min(100, Math.round((spent / Math.max(Number(budget), 1)) * 100));
-                const over = spent > Number(budget);
-                return `
-                    <div class="budget-row">
-                        <div>
-                            <strong>${escapeHtml(category)}</strong>
-                            <span>${moneyHtml(spent)} of ${moneyHtml(Number(budget))}</span>
-                        </div>
-                        <strong class="${over ? 'up' : 'down'}">${over ? 'Over' : `${percent}%`}</strong>
-                        <div class="budget-bar"><span style="width: ${percent}%"></span></div>
-                    </div>
-                `;
-            })
-            .join('');
-        byId('budgetTargets').innerHTML = rows || '<div class="list-row"><span>No budgets configured.</span></div>';
     }
 
     function selectedCycleWindow() {
@@ -1175,6 +1134,8 @@
     }
 
     function renderCockpitBudgetMeters() {
+        const target = byId('cockpitBudgetMeters');
+        if (!target) return;
         const rows = cockpitBudgetCategories().map((item) => {
             const shopping = ensureShoppingListSettings();
             const shoppingTotals = shoppingListTotals();
@@ -1198,7 +1159,7 @@
             `;
         }).join('');
 
-        byId('cockpitBudgetMeters').innerHTML = rows;
+        target.innerHTML = rows;
     }
 
     function renderActionAlerts(statuses) {
@@ -1261,138 +1222,6 @@
         renderActionAlerts(statuses);
     }
 
-    function flexibleBudgetCategories() {
-        return ['Groceries', 'Leisure', 'Dining & coffee', 'Shopping & online', 'Subscriptions/software', 'Fuel/transport', 'Mobile/data'];
-    }
-
-    function plannedPriorityAmount(item) {
-        if (typeof item.planned === 'number') return item.planned;
-        if (item.category) return Number(userSettings.budgets[item.category] || 0);
-        if (!item.matcher) return 0;
-        return roundMoney(currentData.transactions
-            .filter((transaction) => item.matcher(transaction))
-            .reduce((sum, transaction) => sum + transaction.amount, 0));
-    }
-
-    function renderJunePriorityPlan() {
-        const priorityRows = junePriorityPlan
-            .map((item, index) => {
-                const amount = plannedPriorityAmount(item);
-                const detail = item.detail || 'Priority June cost';
-                return `
-                    <div class="feature-row">
-                        <div>
-                            <strong>${index + 1}. ${escapeHtml(item.label)}</strong>
-                            <span>${escapeHtml(detail)}</span>
-                        </div>
-                        <strong>${amount ? moneyHtml(amount) : 'Track'}</strong>
-                    </div>
-                `;
-            })
-            .join('');
-        const inactiveRows = juneInactiveCosts
-            .map((label) => `
-                <div class="feature-row flagged">
-                    <span>${escapeHtml(label)}</span>
-                    <strong>Inactive</strong>
-                </div>
-            `)
-            .join('');
-
-        return `
-            <div class="feature-subheading">June priority order</div>
-            ${priorityRows}
-            <div class="feature-subheading">No longer active for June</div>
-            ${inactiveRows}
-        `;
-    }
-
-    function historicalBudgetBasis() {
-        const cycles = allCyclesWithOverrides()
-            .filter((cycle) => cycle.endExclusive <= lastKnownDate() && cycle.income > 0)
-            .slice(-6);
-        const totals = {};
-        flexibleBudgetCategories().forEach((category) => {
-            totals[category] = 0;
-        });
-
-        cycles.forEach((cycle) => {
-            groupPayments(cycle.transactions).forEach((group) => {
-                if (Object.prototype.hasOwnProperty.call(totals, group.category)) {
-                    totals[group.category] = roundMoney(totals[group.category] + group.amount);
-                }
-            });
-        });
-
-        const averages = {};
-        Object.entries(totals).forEach(([category, total]) => {
-            averages[category] = cycles.length ? roundMoney(total / cycles.length) : 0;
-        });
-
-        const averageIncome = averageValues(cycles.filter((cycle) => cycle.income > 0), 'income');
-        const averageEssential = cycles.length
-            ? roundMoney(cycles.reduce((sum, cycle) => sum + essentialTotal(cycle.transactions), 0) / cycles.length)
-            : 0;
-        const averagePriorityOther = cycles.length
-            ? roundMoney(cycles.reduce((sum, cycle) => {
-                const essential = essentialTotal(cycle.transactions);
-                return sum + Math.max(0, cycle.priority - essential);
-            }, 0) / cycles.length)
-            : 0;
-
-        return { cycles, averages, averageIncome, averageEssential, averagePriorityOther };
-    }
-
-    function renderBudgetPlanner() {
-        const targetInput = byId('goalSaveTarget');
-        targetInput.value = Number(userSettings.goalSaveTarget || 0);
-
-        const basis = historicalBudgetBasis();
-        const historicalFlexibleTotal = roundMoney(Object.values(basis.averages).reduce((sum, value) => sum + value, 0));
-        const availableAfterEssentials = roundMoney(
-            basis.averageIncome - basis.averageEssential - basis.averagePriorityOther - Number(userSettings.goalSaveTarget || 0),
-        );
-        const scale = historicalFlexibleTotal > 0
-            ? Math.min(1, Math.max(0, availableAfterEssentials / historicalFlexibleTotal))
-            : 0;
-
-        const rows = flexibleBudgetCategories()
-            .map((category) => {
-                const historical = basis.averages[category] || 0;
-                const hasFixedTarget = Object.prototype.hasOwnProperty.call(fixedJuneBudgetTargets, category);
-                const adjusted = hasFixedTarget ? fixedJuneBudgetTargets[category] : roundMoney(historical * scale);
-                userSettings.budgets[category] = adjusted;
-                const detail = hasFixedTarget
-                    ? `June target set at ${moneyHtml(adjusted)}`
-                    : `Historical ${moneyHtml(historical)} adjusted by ${Math.round(scale * 100)}%`;
-                return `
-                    <div class="budget-row">
-                        <div>
-                            <strong>${escapeHtml(category)}</strong>
-                            <span>${detail}</span>
-                        </div>
-                        <strong>${moneyHtml(adjusted)}</strong>
-                        <div class="budget-bar"><span style="width: ${hasFixedTarget ? 100 : Math.round(scale * 100)}%"></span></div>
-                    </div>
-                `;
-            })
-            .join('');
-
-        byId('budgetPlanner').innerHTML = `
-            ${renderJunePriorityPlan()}
-            <div class="feature-row">
-                <span>Income after essentials, other priority, and GoalSave</span>
-                <strong>${moneyHtml(availableAfterEssentials)}</strong>
-            </div>
-            <div class="feature-row">
-                <span>Historical flexible baseline</span>
-                <strong>${moneyHtml(historicalFlexibleTotal)}</strong>
-            </div>
-            ${rows}
-        `;
-        saveSettings({ sync: false });
-    }
-
     function isInactiveJuneCost(item) {
         const text = `${item.merchant} ${item.description}`;
         return /Strava|Patreon|Google Ads|Coffee|Vehicle finance/i.test(text);
@@ -1404,7 +1233,7 @@
         cycles.forEach((cycle) => {
             cycle.transactions
                 .filter((item) => !isInactiveJuneCost(item))
-                .filter((item) => item.category === 'Subscriptions/software' || /GOOGLE|OPENAI|DISCORD|Steam|PLAYTOMIC|OPUS|Netflix|Spotify|Apple|Adobe|Canva/i.test(item.description))
+                .filter((item) => item.category === 'Subscriptions/software' || /GOOGLE|AI subscription|DISCORD|Steam|PLAYTOMIC|OPUS|Netflix|Spotify|Apple|Adobe|Canva/i.test(item.description))
                 .forEach((item) => {
                     const current = groups.get(item.merchant) || { merchant: item.merchant, cycles: new Map(), count: 0 };
                     current.cycles.set(cycle.start, roundMoney((current.cycles.get(cycle.start) || 0) + item.amount));
@@ -1462,8 +1291,8 @@
     function renderCoffeeTracker() {
         const tracker = byId('coffeeTracker');
         if (!tracker) return;
-        const currentRows = seattleTransactions(currentData.transactions);
-        const previousRows = comparisonCycles().flatMap((cycle) => seattleTransactions(cycle.transactions));
+        const currentRows = coffeeShopTransactions(currentData.transactions);
+        const previousRows = comparisonCycles().flatMap((cycle) => coffeeShopTransactions(cycle.transactions));
         const currentTotal = roundMoney(currentRows.reduce((sum, item) => sum + item.amount, 0));
         const previousAverage = previousRows.length && comparisonCycles().length
             ? roundMoney(previousRows.reduce((sum, item) => sum + item.amount, 0) / comparisonCycles().length)
@@ -1479,6 +1308,8 @@
     }
 
     function renderCashflowCalendar() {
+        const target = byId('cashflowCalendar');
+        if (!target) return;
         const events = [];
         currentData.salaryTransactions.forEach((item) => events.push({ date: item.date, label: 'Salary', detail: item.description, amount: item.moneyIn, type: 'income' }));
         currentData.savingsTransfers.forEach((item) => events.push({ date: item.date, label: item.direction, detail: item.description, amount: item.moneyIn || item.moneyOut, type: 'savings' }));
@@ -1499,33 +1330,37 @@
                 </div>
             `)
             .join('');
-        byId('cashflowCalendar').innerHTML = rows || '<div class="list-row"><span>No cashflow events for this selection.</span></div>';
+        target.innerHTML = rows || '<div class="list-row"><span>No cashflow events for this selection.</span></div>';
     }
 
     function renderMonthComparison() {
+        const target = byId('monthComparison');
+        if (!target) return;
         const previous = comparisonCycles();
         if (!previous.length) {
-            byId('monthComparison').innerHTML = '<div class="list-row"><span>No previous period to compare.</span></div>';
+            target.innerHTML = '<div class="list-row"><span>No previous period to compare.</span></div>';
             return;
         }
-        const currentSeattle = roundMoney(seattleTransactions(currentData.transactions).reduce((sum, item) => sum + item.amount, 0));
+        const currentCoffee = roundMoney(coffeeShopTransactions(currentData.transactions).reduce((sum, item) => sum + item.amount, 0));
         const previousTransactions = previous.flatMap((cycle) => cycle.transactions);
-        const previousSeattle = roundMoney(seattleTransactions(previousTransactions).reduce((sum, item) => sum + item.amount, 0));
-        byId('monthComparison').innerHTML = [
+        const previousCoffee = roundMoney(coffeeShopTransactions(previousTransactions).reduce((sum, item) => sum + item.amount, 0));
+        target.innerHTML = [
             deltaRow('Salary', currentData.totals.income, sumCycles(previous, 'income')),
             deltaRow('Expenses', currentData.totals.expenses, sumCycles(previous, 'expenses')),
             deltaRow('Priority', currentData.totals.priority, sumCycles(previous, 'priority')),
             deltaRow('Non-priority', currentData.totals.nonPriority, sumCycles(previous, 'nonPriority')),
             deltaRow('Essential payments', essentialTotal(currentData.transactions), essentialTotal(previousTransactions)),
-            deltaRow('Seattle', currentSeattle, previousSeattle),
+            deltaRow('Coffee shops', currentCoffee, previousCoffee),
         ].join('');
     }
 
     function renderSavingsPressure() {
+        const target = byId('savingsPressure');
+        if (!target) return;
         const netDrawn = roundMoney(currentData.totals.savingsOut - currentData.totals.savingsIn);
         const incomeGap = roundMoney(currentData.totals.expenses - currentData.totals.income);
         const status = netDrawn > 0 || incomeGap > 0 ? 'Pressure' : 'Stable';
-        byId('savingsPressure').innerHTML = `
+        target.innerHTML = `
             <div class="feature-row"><span>Status</span><strong class="${status === 'Pressure' ? 'up' : 'down'}">${status}</strong></div>
             <div class="feature-row"><span>Net GoalSave drawn</span><strong>${moneyHtml(netDrawn)}</strong></div>
             <div class="feature-row"><span>Expenses over salary</span><strong>${moneyHtml(incomeGap)}</strong></div>
@@ -1545,6 +1380,8 @@
     }
 
     function renderSalaryList() {
+        const target = byId('salaryList');
+        if (!target) return;
         const total = roundMoney(currentData.salaryTransactions.reduce((sum, item) => sum + item.moneyIn, 0));
         const rows = currentData.salaryTransactions.length
             ? currentData.salaryTransactions
@@ -1557,7 +1394,7 @@
             `)
             .join('')
             : '<div class="list-row"><span>No salary deposit found for this selection.</span></div>';
-        byId('salaryList').innerHTML = `${rows}
+        target.innerHTML = `${rows}
             <div class="section-total">
                 <span>Total</span>
                 <strong>${moneyHtml(total)}</strong>
@@ -1603,14 +1440,16 @@
     }
 
     function renderEstimate() {
+        const target = byId('estimatePanel');
+        if (!target) return;
         const estimate = currentData.estimate;
         if (!estimate) {
-            byId('estimatePanel').innerHTML = '<div class="list-row"><span>No estimate available.</span></div>';
+            target.innerHTML = '<div class="list-row"><span>No estimate available.</span></div>';
             return;
         }
 
         const projectedBalance = roundMoney(estimate.salary - estimate.expenses);
-        byId('estimatePanel').innerHTML = `
+        target.innerHTML = `
             <div class="estimate-row">
                 <span>Next period</span>
                 <strong>${estimate.label}</strong>
@@ -1639,30 +1478,77 @@
         `;
     }
 
+    function statementActivityTag(item) {
+        const text = `${item.merchant || ''} ${item.description || ''} ${item.category || ''}`.toLowerCase();
+        if (item.category === 'Salary') return 'Salary';
+        if (item.category === 'GoalSave') return 'GoalSave transfer';
+        if (item.category === 'Bank fees' || item.fees > 0 || /\bfee\b|service fee|transactional sms/.test(text)) return 'Bank charge';
+        if (/debit order|debicheck/.test(text)) return 'Debit order';
+        if (item.priority === 'priority') return 'Priority payment';
+        if (item.priority === 'non-priority') return 'Flexible spend';
+        return 'Statement item';
+    }
+
+    function statementActivityRows() {
+        return [
+            ...currentData.salaryTransactions.map((item) => ({
+                date: item.date,
+                description: item.description || 'Salary deposit',
+                merchant: item.merchant || 'Salary',
+                direction: 'Income',
+                directionClass: 'income',
+                category: 'Salary',
+                priority: 'income',
+                tag: 'Salary',
+                amount: item.moneyIn || 0,
+            })),
+            ...currentData.savingsTransfers.map((item) => ({
+                date: item.date,
+                description: item.description || item.direction || 'GoalSave transfer',
+                merchant: item.merchant || 'GoalSave',
+                direction: item.direction || 'GoalSave',
+                directionClass: 'savings',
+                category: 'GoalSave',
+                priority: 'savings',
+                tag: 'GoalSave transfer',
+                amount: item.moneyIn || item.moneyOut || 0,
+            })),
+            ...currentData.transactions.map((item) => ({
+                ...item,
+                direction: 'Expense',
+                directionClass: 'expense',
+                tag: statementActivityTag(item),
+            })),
+        ].sort((a, b) => b.date.localeCompare(a.date) || (b.amount || 0) - (a.amount || 0));
+    }
+
     function filteredTransactions() {
-        return currentData.transactions.filter((item) => {
+        return statementActivityRows().filter((item) => {
             const matchesFilter = activeFilter === 'all' || item.priority === activeFilter;
-            const haystack = `${item.merchant} ${item.category} ${item.description}`.toLowerCase();
+            const haystack = `${item.merchant} ${item.category} ${item.description} ${item.direction} ${item.tag}`.toLowerCase();
             return matchesFilter && haystack.includes(searchTerm);
         });
     }
 
     function renderTransactions() {
+        const target = byId('transactionRows');
+        if (!target) return;
         const rows = filteredTransactions();
-        byId('transactionRows').innerHTML = rows.length
+        target.innerHTML = rows.length
             ? rows
             .slice(0, 120)
             .map((item) => `
                 <tr>
                     <td>${item.date}</td>
-                    <td><strong>${escapeHtml(item.merchant)}</strong><br><span>${escapeHtml(item.description)}</span></td>
+                    <td><strong>${escapeHtml(item.merchant || item.description)}</strong><br><span>${escapeHtml(item.description || '')}</span></td>
+                    <td><span class="type-pill ${item.directionClass}">${escapeHtml(item.direction)}</span></td>
+                    <td><span class="type-pill ${item.priority}">${escapeHtml(item.tag)}</span></td>
                     <td>${escapeHtml(item.category)}</td>
-                    <td><span class="type-pill ${item.priority}">${item.priority}</span></td>
                     <td class="amount-cell"><strong>${moneyHtml(item.amount)}</strong></td>
                 </tr>
             `)
             .join('')
-            : '<tr><td colspan="5">No transactions found for this selection.</td></tr>';
+            : '<tr><td colspan="6">No statement activity found for this selection.</td></tr>';
     }
 
     function openSettings(mode) {
@@ -1769,9 +1655,7 @@
         renderCharts();
         renderSpendInsights();
         renderEstimate();
-        renderBudgetPlanner();
         renderCockpit();
-        renderBudgetTargets();
         renderSubscriptionDetector();
         renderCoffeeTracker();
         renderCashflowCalendar();
@@ -2195,7 +2079,7 @@
         },
         {
             id: 'absa-bank',
-            name: 'ABSA',
+            name: 'Absa',
             logo: 'images/banks/AbsaBank/ABSABank-Logo.png',
             color: '#a90c2b',
         },
@@ -2214,14 +2098,14 @@
     ];
 
     const defaultBankingSettings = {
-        selectedBankId: 'gotyme-bank',
-        selectedCardId: 'gotyme-virtual',
+        selectedBankId: 'Primary Bank-bank',
+        selectedCardId: 'Primary Bank-virtual',
         banks: preloadedBanks,
         cards: [
             {
-                id: 'gotyme-virtual',
-                name: 'GoTyme Virtual',
-                logo: 'images/virtual-banks/GoTymeVirtual/GoTymeBank-Virtual-Logo.webp',
+                id: 'Primary Bank-virtual',
+                name: 'Virtual Card',
+                logo: 'images/virtual-banks/Primary BankVirtual/Primary Bank-Virtual-Logo.webp',
                 number: '',
                 expiry: '',
                 cvv: '',
@@ -2636,12 +2520,6 @@
         byId('manualCycleYear')?.addEventListener('change', changeManualCycle);
         byId('saveManualOverview')?.addEventListener('click', saveManualOverviewInputs);
 
-        byId('goalSaveTarget').addEventListener('change', (event) => {
-            userSettings.goalSaveTarget = Number(event.target.value || 0);
-            saveSettings();
-            renderDashboard();
-        });
-
         document.querySelectorAll('.range-chip').forEach((button) => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.range-chip').forEach((item) => item.classList.remove('active'));
@@ -2744,7 +2622,6 @@
             settings: {
                 planningVersion: localStorage.getItem('bankdash.planningVersion') || planningVersion,
                 budgets: userSettings.budgets || {},
-                goalSaveTarget: Number(userSettings.goalSaveTarget || 0),
                 merchantOverrides: userSettings.merchantOverrides || {},
                 categoryOverrides: userSettings.categoryOverrides || {},
                 priorityChecklist: userSettings.priorityChecklist || {},
@@ -2761,7 +2638,6 @@
 
         localStorage.setItem('bankdash.planningVersion', settings.planningVersion || planningVersion);
         localStorage.setItem('bankdash.budgets', JSON.stringify(settings.budgets || {}));
-        localStorage.setItem('bankdash.goalSaveTarget', String(settings.goalSaveTarget || 0));
         localStorage.setItem('bankdash.merchantOverrides', JSON.stringify(settings.merchantOverrides || {}));
         localStorage.setItem('bankdash.categoryOverrides', JSON.stringify(settings.categoryOverrides || {}));
         localStorage.setItem('bankdash.priorityChecklist', JSON.stringify(settings.priorityChecklist || {

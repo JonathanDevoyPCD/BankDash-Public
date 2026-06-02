@@ -18,31 +18,25 @@
                 'savingsPressure',
             ],
         },
-        uploadStatements: {
-            label: 'Upload Statements',
-            targets: ['uploadStatements'],
-        },
-        priorityRules: {
-            label: 'Priority Rules',
-            targets: ['priorityRules'],
-        },
-        budget: {
-            label: 'Budget Plan',
-            targets: ['budget', 'budgetTargets', 'settingsPanel'],
-        },
-        payments: {
-            label: 'Payments',
-            targets: ['payments', 'essentialPayments', 'subscriptionDetector', 'priorityPayments', 'nonPriorityPayments'],
-        },
-        transactions: {
-            label: 'Transactions',
-            targets: ['transactions', 'cashflowCalendar', 'merchantEditorSummary'],
-        },
         accountSettings: {
             label: 'Account',
             targets: ['accountSettings'],
         },
     };
+
+    // Future work: Bank Activity is parked until the statement workflow is ready for public release.
+    const parkedSectionIds = [
+        'uploadStatements',
+        'transactions',
+        'cashflowCalendar',
+        'merchantEditorSummary',
+        'payments',
+        'recurringPayments',
+        'essentialPayments',
+        'subscriptionDetector',
+        'priorityPayments',
+        'nonPriorityPayments',
+    ];
 
     const mainContent = document.querySelector('.main-content');
     const row = document.querySelector('.main-content-wrap .row');
@@ -66,6 +60,11 @@
         });
     });
 
+    parkedSectionIds.forEach((id) => {
+        const section = closestSection(id);
+        if (section) section.dataset.view = 'parked';
+    });
+
     function setActiveNav(view) {
         document.querySelectorAll('.menu-item, .menu-item-button').forEach((node) => node.classList.remove('active'));
         const active = document.querySelector(`.menu-item-button[data-view="${view}"]`);
@@ -75,7 +74,14 @@
     }
 
     function switchView(view, replaceHistory) {
-        const nextView = views[view] ? view : 'overview';
+        const aliases = {
+            bankActivity: 'overview',
+            uploadStatements: 'overview',
+            payments: 'overview',
+            transactions: 'overview',
+        };
+        const requestedView = aliases[view] || view;
+        const nextView = views[requestedView] ? requestedView : 'overview';
         mainContent.classList.add('is-loading');
 
         window.setTimeout(() => {
@@ -84,7 +90,7 @@
                     if (nextView !== 'overview') section.hidden = true;
                     return;
                 }
-                section.hidden = section.dataset.view !== nextView;
+                section.hidden = section.dataset.view === 'parked' || section.dataset.view !== nextView;
             });
             setActiveNav(nextView);
             mainContent.dataset.activeView = nextView;
@@ -108,7 +114,7 @@
         const settingsButton = event.target.closest('[data-open-settings]');
         if (!settingsButton) return;
         const settingsSection = closestSection('settingsPanel');
-        const settingsView = settingsButton.dataset.openSettings === 'overrides' ? 'transactions' : 'budget';
+        const settingsView = 'overview';
         if (settingsSection) settingsSection.dataset.view = settingsView;
         switchView(settingsView, false);
     });

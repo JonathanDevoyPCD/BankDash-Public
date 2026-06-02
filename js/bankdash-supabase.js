@@ -15,8 +15,6 @@
 
     const client = supabaseFactory.createClient(config.url, config.publishableKey);
     let currentUser = null;
-    let cachedTransactions = [];
-    let selectedPriorityMatch = null;
     let primaryAccountId = null;
     let pendingImportData = null;
     let isPasswordRecovery = false;
@@ -79,7 +77,7 @@
     }
 
     function isEssential(item) {
-        return /internet|fibre|fiber|wifi|broadband|vehicle finance|car finance|auto finance|car installment|loan|repayment|credit agreement|gym|fitness|health club|rent|landlord|rental/i
+        return /internet|wifi|fibre|vehicle finance|car finance|installment|loan|credit provider|gym|fitness|rent|landlord/i
             .test(`${item.description} ${item.merchant_name || item.merchant || ''}`);
     }
 
@@ -87,17 +85,17 @@
         const value = description.toLowerCase();
         if (/(^|\s)fee[:\s]|transactional sms|monthly service/i.test(value)) return 'Bank fees';
         if (/goalsave/i.test(value)) return 'GoalSave';
-        if (/eft for perfect circle salar|salary|salar/i.test(value)) return 'Salary';
+        if (/eft for EMPLOYER salar|salary|salar/i.test(value)) return 'Salary';
         if (/vas - mobile purchase|data bundle|\bdata\b/i.test(value)) return 'Mobile/data';
         if (/debit order|debicheck/i.test(value)) return 'Debit orders';
-        if (/internet|fibre|fiber|wifi|broadband|vehicle finance|car finance|auto finance|car installment|rent|landlord|rental/i.test(value)) return 'Fixed beneficiaries/EFT';
-        if (/seattle|coffee|restaurant|bakery|bistro|kfc|mcdonald|steers|food|cafe/i.test(value)) return 'Dining & coffee';
+        if (/internet|wifi|fibre|vehicle finance|car finance|loan|credit provider|rent|landlord/i.test(value)) return 'Fixed beneficiaries/EFT';
+        if (/coffee|restaurant|bakery|bistro|kfc|mcdonald|steers|food|cafe/i.test(value)) return 'Dining & coffee';
         if (/checkers|woolworths|pick n pay|spar|grocery|grocer/i.test(value)) return 'Groceries';
         if (/fuel|engen|shell|bp |caltex|sasol|total/i.test(value)) return 'Fuel/transport';
-        if (/google|youtube|openai|chatgpt|strava|netflix|spotify|subscription|patreon|discord/i.test(value)) return 'Subscriptions/software';
+        if (/google|youtube|openai|chatgpt|ai subscription|strava|netflix|spotify|subscription|patreon|discord/i.test(value)) return 'Subscriptions/software';
         if (/takealot|amazon|shop|online|purchase at/i.test(value)) return 'Shopping & online';
-        if (/edge fitness|gym/i.test(value)) return 'Healthcare';
-        if (/rent|landlord|loan|repayment|internet|fibre|fiber|vehicle finance|car finance/i.test(value)) return 'Fixed beneficiaries/EFT';
+        if (/gym|fitness/i.test(value)) return 'Healthcare';
+        if (/rent|landlord|loan provider|internet provider|vehicle finance/i.test(value)) return 'Fixed beneficiaries/EFT';
         return 'Other';
     }
 
@@ -136,7 +134,7 @@
             direction: 'expense',
             is_priority: item.priority === 'priority',
             is_essential: isEssential(item),
-            is_recurring: isEssential(item) || /Google|OPENAI|Netflix|Spotify|Strava|YouTube/i.test(`${item.description} ${item.merchant}`),
+            is_recurring: isEssential(item) || /Google|OpenAI|ChatGPT|AI subscription|Netflix|Spotify|Strava|YouTube/i.test(`${item.description} ${item.merchant}`),
             is_flagged: isUnexpectedGooglePayment(`${item.description} ${item.merchant}`, item.amount),
             flag_reason: isUnexpectedGooglePayment(`${item.description} ${item.merchant}`, item.amount)
                 ? 'Unexpected Google payment'
@@ -152,7 +150,7 @@
             transaction_date: item.date,
             posted_date: item.date,
             description: item.description,
-            merchant_name: 'Perfect Circle Salary',
+            merchant_name: 'EMPLOYER Salary',
             amount: roundMoney(item.moneyIn),
             direction: 'income',
             is_priority: false,
@@ -208,6 +206,7 @@
     function firstNameFor(user) {
         const metadataName = user?.user_metadata?.first_name || user?.user_metadata?.full_name || user?.user_metadata?.name || '';
         const baseName = metadataName || user?.email?.split('@')[0] || 'User';
+        if (!metadataName && /^Account User/i.test(baseName)) return 'Account User';
         const firstName = baseName.split(/[\s._-]+/).filter(Boolean)[0] || 'User';
         return firstName.charAt(0).toUpperCase() + firstName.slice(1);
     }
@@ -313,7 +312,7 @@
                 user_id: userId,
                 name,
                 category_group: name === 'Salary' ? 'income' : name === 'GoalSave' ? 'savings' : categoryGroup(sample),
-                is_essential: ['Internet provider', 'Vehicle finance', 'Loan repayment', 'Gym', 'Rent payment'].includes(name),
+                is_essential: ['Internet provider', 'Vehicle finance', 'Loan provider', 'Gym', 'Rent payment'].includes(name),
             };
         });
 
@@ -797,97 +796,6 @@
             : 'No uploads yet';
     }
 
-    async function refreshRuleData() {
-        if (!currentUser) return;
-
-        const [transactionsResult, rulesResult] = await Promise.all([
-            client
-                .from('transactions')
-                .select('id,transaction_date,description,merchant_name,amount,direction,is_priority')
-                .eq('user_id', currentUser.id)
-                .eq('direction', 'expense')
-                .order('transaction_date', { ascending: false })
-                .limit(2000),
-            client
-                .from('recurring_payments')
-                .select('name,merchant_match,expected_amount,payment_group,is_active')
-                .eq('user_id', currentUser.id)
-                .order('created_at', { ascending: false }),
-        ]);
-
-        if (!transactionsResult.error) cachedTransactions = transactionsResult.data || [];
-        renderPrioritySuggestions();
-        renderSavedPriorityRules(rulesResult.error ? [] : rulesResult.data || []);
-    }
-
-    function priorityTerms(value) {
-        const base = value.toLowerCase().split(/\s+/).filter(Boolean);
-        const synonyms = {
-            car: ['car', 'vehicle', 'absa', 'asba', 'finance', 'installment'],
-            vehicle: ['car', 'vehicle', 'absa', 'asba', 'finance', 'installment'],
-            internet: ['internet', 'axxess', 'wifi', 'fibre'],
-            rent: ['rent', 'shannon', 'devoy'],
-            gym: ['gym', 'edge', 'fitness'],
-            google: ['google', 'youtube', 'strava'],
-        };
-        return Array.from(new Set(base.flatMap((term) => synonyms[term] || [term])));
-    }
-
-    function renderPrioritySuggestions() {
-        const target = byId('prioritySuggestions');
-        if (!target) return;
-
-        const name = byId('priorityRuleName')?.value.trim() || '';
-        const terms = priorityTerms(name);
-        if (!terms.length) {
-            target.innerHTML = '<div class="feature-row"><span>Start typing a priority name</span><strong>Ready</strong></div>';
-            return;
-        }
-
-        const suggestions = cachedTransactions
-            .map((item) => {
-                const haystack = `${item.merchant_name || ''} ${item.description || ''}`.toLowerCase();
-                const score = terms.reduce((sum, term) => sum + (haystack.includes(term) ? 1 : 0), 0);
-                return { ...item, score };
-            })
-            .filter((item) => item.score > 0)
-            .sort((a, b) => b.score - a.score || b.amount - a.amount)
-            .slice(0, 8);
-
-        target.innerHTML = suggestions.length
-            ? suggestions.map((item) => {
-                const match = item.merchant_name || item.description;
-                return `
-                    <button type="button" class="suggestion-row ${selectedPriorityMatch === match ? 'selected' : ''}" data-priority-match="${escapeHtml(match)}">
-                        <span>${escapeHtml(match)}</span>
-                        <strong>${currency.format(item.amount || 0)}</strong>
-                    </button>
-                `;
-            }).join('')
-            : '<div class="feature-row"><span>No automatic matches</span><strong>Manual match still allowed</strong></div>';
-
-        target.querySelectorAll('[data-priority-match]').forEach((button) => {
-            button.addEventListener('click', () => {
-                selectedPriorityMatch = button.dataset.priorityMatch;
-                renderPrioritySuggestions();
-                setText('priorityRuleStatus', `Selected ${selectedPriorityMatch}`);
-            });
-        });
-    }
-
-    function renderSavedPriorityRules(rules) {
-        const target = byId('savedPriorityRules');
-        if (!target) return;
-        target.innerHTML = rules.length
-            ? rules.map((rule) => `
-                <div class="feature-row">
-                    <span>${escapeHtml(rule.name)}<small>${escapeHtml(rule.merchant_match)}</small></span>
-                    <strong>${rule.expected_amount ? currency.format(rule.expected_amount) : 'Any amount'}</strong>
-                </div>
-            `).join('')
-            : '<div class="feature-row"><span>No saved rules yet</span><strong>0</strong></div>';
-    }
-
     function monthNumber(label) {
         return {
             jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
@@ -935,7 +843,7 @@
             balance,
         };
 
-        if (moneyIn > 0 && /salary|salar|eft for perfect circle/i.test(description)) {
+        if (moneyIn > 0 && /salary|salar|eft for EMPLOYER/i.test(description)) {
             return { type: 'salaryTransactions', item: { ...base, moneyIn } };
         }
 
@@ -1111,7 +1019,6 @@
         if (signedIn) {
             await loadAccountSettings(true);
             await refreshUploadHistory();
-            await refreshRuleData();
             await checkAppStateOnLogin();
             await loadDashboardFromSupabase();
         } else {
@@ -1322,7 +1229,6 @@
             byId('reviewImportRows').innerHTML = '';
             await refreshDbStats();
             await refreshUploadHistory();
-            await refreshRuleData();
             await loadDashboardFromSupabase();
             showToast('success', 'Transactions saved', `${count} reviewed records were saved to BankDash.`);
         } catch (error) {
@@ -1340,7 +1246,7 @@
 
     async function clearImportedData() {
         if (!currentUser) return;
-        const confirmed = window.confirm('Clear imported transactions, statement upload rows, and uploaded statement files? Account settings and rules stay saved.');
+        const confirmed = window.confirm('Clear Bank Activity only? This removes parsed statement transactions, statement upload rows, and uploaded statement PDFs. Account settings, checklist data, banks, cards, and manual dashboard setup stay saved.');
         if (!confirmed) return;
 
         try {
@@ -1360,47 +1266,11 @@
             discardReviewedTransactions();
             await refreshDbStats();
             await refreshUploadHistory();
-            await refreshRuleData();
             await loadDashboardFromSupabase();
-            showToast('success', 'Imported data cleared', 'Transactions and uploaded statements were removed. Settings were kept.');
+            showToast('success', 'Bank Activity cleared', 'Statement transactions and uploaded PDFs were removed. Your other dashboard data was kept.');
         } catch (error) {
-            showToast('error', 'Clear failed', error.message || 'Could not clear imported data.');
+            showToast('error', 'Clear failed', error.message || 'Could not clear Bank Activity data.');
         }
-    }
-
-    async function handlePriorityRuleSave(event) {
-        event.preventDefault();
-        if (!currentUser) return;
-
-        const name = byId('priorityRuleName').value.trim();
-        const amount = Number(byId('priorityRuleAmount').value || 0);
-        const match = selectedPriorityMatch || name;
-        if (!name || !match) {
-            setText('priorityRuleStatus', 'Enter a name and select or type a match.');
-            showToast('warning', 'Priority rule incomplete', 'Enter a name and select or type a matching transaction.');
-            return;
-        }
-
-        const { error } = await client.from('recurring_payments').insert({
-            user_id: currentUser.id,
-            name,
-            merchant_match: match,
-            expected_amount: amount || null,
-            payment_group: 'priority',
-            is_active: true,
-        });
-
-        if (error) {
-            setText('priorityRuleStatus', error.message);
-            showToast('error', 'Rule save failed', error.message);
-            return;
-        }
-
-        setText('priorityRuleStatus', `Saved ${name}`);
-        selectedPriorityMatch = null;
-        byId('priorityRuleForm').reset();
-        await refreshRuleData();
-        showToast('success', 'Priority rule saved', `${name} will be tracked as a priority payment.`);
     }
 
     async function handleSignOut(event) {
@@ -1431,13 +1301,8 @@
         byId('saveReviewedTransactions').addEventListener('click', saveReviewedTransactions);
         byId('discardReviewedTransactions').addEventListener('click', discardReviewedTransactions);
         byId('clearImportedData').addEventListener('click', clearImportedData);
-        byId('priorityRuleForm').addEventListener('submit', handlePriorityRuleSave);
         byId('accountForm').addEventListener('submit', saveAccountSettings);
         byId('reloadAccountSettings').addEventListener('click', () => loadAccountSettings(false));
-        byId('priorityRuleName').addEventListener('input', () => {
-            selectedPriorityMatch = null;
-            renderPrioritySuggestions();
-        });
         byId('supabaseSignOut').addEventListener('click', handleSignOut);
         bindButtonActivation('.button-user-logout', handleSignOut);
         bindButtonActivation('.button-user-account', goToAccount);

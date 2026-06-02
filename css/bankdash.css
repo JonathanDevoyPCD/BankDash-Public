@@ -1353,6 +1353,21 @@ body:not(.supabase-signed-in) #supabaseSignOut {
     color: var(--Salmon);
 }
 
+.type-pill.income {
+    background: rgba(45, 184, 118, 0.14);
+    color: #1d8a55;
+}
+
+.type-pill.expense {
+    background: rgba(242, 94, 103, 0.12);
+    color: var(--Salmon);
+}
+
+.type-pill.savings {
+    background: rgba(126, 98, 255, 0.12);
+    color: #5d48c9;
+}
+
 .priority-items-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

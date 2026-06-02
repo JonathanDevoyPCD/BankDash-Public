@@ -33,6 +33,16 @@
             </div>
             <div class="updates-log-list">
                 <article class="updates-log-entry latest">
+                    <div><strong>v0.10.0</strong><span>June 2026</span></div>
+                    <h6>Public layout cleanup</h6>
+                    <ul>
+                        <li>Removed duplicate public dashboard sections that were no longer useful.</li>
+                        <li>Removed Budget Plan and Priority Rules from the public navigation and page flow.</li>
+                        <li>Consolidated Statements, Payments, and Transactions into a future Bank Activity workflow.</li>
+                        <li>Parked Bank Activity from the public UI until statement uploads and transaction review are ready for release.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
                     <div><strong>v0.9.0</strong><span>June 2026</span></div>
                     <h6>Shopping List budgeting</h6>
                     <ul>
@@ -196,8 +206,8 @@
                     <span>FNB</span>
                 </button>
                 <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="absa-bank" data-bank-brand="absa" aria-pressed="false">
-                    <img src="images/banks/AbsaBank/ABSABank-Logo.png" alt="ABSA Bank logo" class="bank-logo-absa">
-                    <span>ABSA</span>
+                    <img src="images/banks/AbsaBank/ABSABank-Logo.png" alt="Absa Bank logo" class="bank-logo-absa">
+                    <span>Absa</span>
                 </button>
                 <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="standard-bank" data-bank-brand="standardbank" aria-pressed="false">
                     <img src="images/banks/StandardBank/StandardBank-Logo.png" alt="Standard Bank logo" class="bank-logo-standardbank">
@@ -335,36 +345,6 @@
                                         </a>
                                     </li>
                                     <li class="menu-item">
-                                        <a href="#uploadStatements" class="menu-item-button">
-                                            <div class="icon"><i class="icon-document"></i></div>
-                                            <div class="text">Statements</div>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a href="#priorityRules" class="menu-item-button">
-                                            <div class="icon"><i class="icon-tick-square"></i></div>
-                                            <div class="text">Priority Rules</div>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a href="#budget" class="menu-item-button">
-                                            <div class="icon"><i class="icon-wallet1"></i></div>
-                                            <div class="text">Budget Plan</div>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a href="#payments" class="menu-item-button">
-                                            <div class="icon"><i class="icon-tick-square"></i></div>
-                                            <div class="text">Payments</div>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a href="#transactions" class="menu-item-button">
-                                            <div class="icon"><i class="icon-document"></i></div>
-                                            <div class="text">Transactions</div>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
                                         <a href="#accountSettings" class="menu-item-button">
                                             <div class="icon"><i class="icon-setting1"></i></div>
                                             <div class="text">Account</div>
@@ -411,9 +391,9 @@
                             </div>
                             <div class="version-controls">
                                 <div class="version-info f12-regular text-Gray">
-                                    <span>Version: <span class="version-number">v0.9.0</span></span>
+                                    <span>Version: <span class="version-number">v0.10.0</span></span>
                                     <br>
-                                    <span>Latest Update: <button type="button" class="latest-pushed-date" id="updatesLogToggle">Shopping List <i class="fa-solid fa-up-right-from-square"></i></button></span>
+                                    <span>Latest Update: <button type="button" class="latest-pushed-date" id="updatesLogToggle">Public Layout Cleanup <i class="fa-solid fa-up-right-from-square"></i></button></span>
                                 </div>
                             </div>
                         </div>
@@ -467,8 +447,14 @@
                                             <div class="wg-box mb-32 workflow-panel">
                                                 <div class="title">
                                                     <div>
-                                                        <h6>Statement Upload</h6>
+                                                        <h6>Bank Activity</h6>
                                                         <div class="f14-regular text-Gray" id="uploadStatus">Ready for PDFs</div>
+                                                    </div>
+                                                    <div class="account-actions">
+                                                        <button type="button" class="tf-button style-4 f12-bold" id="clearImportedData">
+                                                            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                                            <span>Clear Bank Activity</span>
+                                                        </button>
                                                     </div>
                                                 </div>
                                                 <div class="workflow-grid">
@@ -514,34 +500,30 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-12" id="priorityRules">
-                                            <div class="wg-box mb-32 workflow-panel">
+                                        <div class="col-12" id="transactions">
+                                            <div class="wg-box mb-32 bankdash-section-panel">
                                                 <div class="title">
-                                                    <div>
-                                                        <h6>Priority Rules</h6>
-                                                        <div class="f14-regular text-Gray" id="priorityRuleStatus">Rules and merchant matching</div>
-                                                    </div>
+                                                    <div><h6>Statement Activity</h6><div class="f14-regular text-Gray">Income, expenses, bank charges, debits, transfers, and categories from uploaded statements</div></div>
+                                                    <button type="button" class="tf-button f12-bold" data-open-settings="overrides"><i class="icon-edit"></i>Edit Merchants</button>
                                                 </div>
-                                                <form class="priority-rule-form" id="priorityRuleForm">
-                                                    <label class="settings-field">
-                                                        <span>Priority name</span>
-                                                        <input type="text" id="priorityRuleName" placeholder="Car, rent, internet">
-                                                    </label>
-                                                    <label class="settings-field">
-                                                        <span>Expected amount</span>
-                                                        <input type="number" id="priorityRuleAmount" min="0" step="0.01" placeholder="0.00">
-                                                    </label>
-                                                    <button type="submit" class="tf-button f12-bold">Save rule</button>
-                                                </form>
-                                                <div class="rule-builder-grid">
-                                                    <div>
-                                                        <div class="f14-bold text-Black">Suggested matches</div>
-                                                        <div id="prioritySuggestions" class="feature-list compact-list"></div>
-                                                    </div>
-                                                    <div>
-                                                        <div class="f14-bold text-Black">Saved rules</div>
-                                                        <div id="savedPriorityRules" class="feature-list compact-list"></div>
-                                                    </div>
+                                                <div class="section-grid section-grid-transactions">
+                                                    <div id="cashflowCalendar" class="calendar-list"></div>
+                                                    <div id="merchantEditorSummary" class="feature-list"></div>
+                                                </div>
+                                                <div class="bankdash-table-wrap">
+                                                    <table class="table-list-transaction bankdash-table">
+                                                        <thead>
+                                                            <tr class="list-transaction-head">
+                                                                <th>Date</th>
+                                                                <th>Description</th>
+                                                                <th>Direction</th>
+                                                                <th>Tag</th>
+                                                                <th>Category</th>
+                                                                <th>Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="transactionRows"></tbody>
+                                                    </table>
                                                 </div>
                                             </div>
                                         </div>
@@ -645,7 +627,7 @@
                                                     </div>
                                                     <div class="priority-item priority-internet" data-priority-key="internet">
                                                         <i class="fa-solid fa-globe"></i>
-                                                        <strong class="priority-name">Internet & Fibre</strong>
+                                                        <strong class="priority-name">Internet & internet|wifi|fibre</strong>
                                                         <span class="priority-transaction-name">Internet provider</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
@@ -664,7 +646,7 @@
                                                     <div class="priority-item priority-gym" data-priority-key="gym">
                                                         <i class="fa-solid fa-dumbbell"></i>
                                                         <strong class="priority-name">Gym</strong>
-                                                        <span class="priority-transaction-name">Fitness provider</span>
+                                                        <span class="priority-transaction-name">gym|fitness provider</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-groceries" data-priority-key="groceries">
@@ -706,7 +688,7 @@
                                                     <div class="priority-item priority-openai" data-priority-key="openai">
                                                         <i class="fa-brands fa-openai"></i>
                                                         <strong class="priority-name">ChatGPT</strong>
-                                                        <span class="priority-transaction-name">OpenAI</span>
+                                                        <span class="priority-transaction-name">AI subscription</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-google" data-priority-key="google">
@@ -726,33 +708,9 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-xl-7">
-                                            <div class="wg-box mb-32 cockpit-panel">
-                                                <div class="title"><div><h6>Quick Budget Meters</h6><div class="f14-regular text-Gray">Caps and safe spend</div></div></div>
-                                                <div id="cockpitBudgetMeters" class="budget-meter-grid"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="wg-box mb-32 bankdash-section-panel">
-                                                <div class="title"><div><h6>Income & Cashflow</h6><div class="f14-regular text-Gray">Salary, true spend, GoalSave movement, and forecast</div></div></div>
-                                                <div class="section-grid section-grid-cashflow">
-                                                    <div class="bankdash-total-pair">
-                                                        <div><span>Average salary</span><strong id="avgIncome">R0.00</strong><small id="salaryRange">Confirmed salary deposits</small></div>
-                                                        <div><span>Total expenses</span><strong id="totalExpenses">R0.00</strong><small id="avgExpenses">Average monthly spend</small></div>
-                                                        <div><span>Net savings drawn</span><strong id="netSavings">R0.00</strong><small id="savingsDetail">GoalSave movement</small></div>
-                                                    </div>
-                                                    <div id="estimatePanel" class="estimate-list"></div>
-                                                    <div id="salaryList" class="stack-list"></div>
-                                                    <div id="monthComparison" class="feature-list compact-list"></div>
-                                                    <div id="savingsPressure" class="feature-list compact-list"></div>
-                                                </div>
-                                                <div id="monthlyChart" class="chart"></div>
-                                            </div>
-                                        </div>
-
                                         <div class="col-12" id="payments">
                                             <div class="wg-box mb-32 bankdash-section-panel">
-                                                <div class="title"><div><h6>Spending Breakdown</h6><div class="f14-regular text-Gray">Category split, top signals, and payment detail</div></div></div>
+                                                <div class="title"><div><h6>Payment Signals</h6><div class="f14-regular text-Gray">Priority split, top spend signals, and payment detail from the same statement activity</div></div></div>
                                                 <div class="section-grid section-grid-spending">
                                                     <div>
                                                         <div id="priorityChart" class="chart compact"></div>
@@ -774,24 +732,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-12" id="budget">
-                                            <div class="wg-box mb-32 bankdash-section-panel">
-                                                <div class="title">
-                                                    <div><h6>Budget Plan</h6><div class="f14-regular text-Gray">Recommended spend after GoalSave and target caps</div></div>
-                                                    <button type="button" class="tf-button f12-bold" data-open-settings="budgets"><i class="icon-edit"></i>Edit</button>
-                                                </div>
-                                                <div class="planner-control">
-                                                    <label for="goalSaveTarget">GoalSave target</label>
-                                                    <input type="number" min="0" step="100" id="goalSaveTarget" value="0">
-                                                </div>
-                                                <div class="section-grid section-grid-budget">
-                                                    <div id="budgetPlanner" class="feature-list"></div>
-                                                    <div id="budgetTargets" class="feature-list"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-12">
+                                        <div class="col-12" id="recurringPayments">
                                             <div class="wg-box mb-32 bankdash-section-panel">
                                                 <div class="title"><div><h6>Recurring & Essential Payments</h6><div class="f14-regular text-Gray">Automatic deductions, subscriptions, and expected fixed costs</div></div></div>
                                                 <div class="section-grid section-grid-recurring">
@@ -941,8 +882,8 @@
                                                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="bankDropdownList"></ul>   
                                                                 </div>
                                                             </div>
-                                                            <div class="banking-choice bank-color gotymebank">
-                                                                <img src="images/banks/GoTymeBank/GoTymeBank-Logo.webp" alt="GoTymeBank" class="bank-logo" data-bank="gotyme">
+                                                            <div class="banking-choice bank-color Primary Bank">
+                                                                <img src="images/banks/Primary Bank/Primary Bank-Logo.webp" alt="Primary Bank" class="bank-logo" data-bank="Primary Bank">
                                                             </div>
                                                         </div>
                                                         <br>
@@ -969,10 +910,10 @@
                                                                     <ul class="dropdown-menu" aria-labelledby="virtualCardDropdown" id="virtualCardDropdownList"></ul>
                                                                 </div>
                                                             </div>
-                                                            <div class="virtual-card-choice bank-color gotymebank">
+                                                            <div class="virtual-card-choice bank-color Primary Bank">
                                                                 <div class="virtual-card-details">
-                                                                    <img src="images/virtual-banks/GoTymeVirtual/GoTymeBank-Virtual-Logo.webp" alt="GoTyme Virtual Card" class="virtual-bank-logo" data-bank="gotyme">
-                                                                    <span class="virtual-card-name">GoTyme Virtual</span>
+                                                                    <img src="images/virtual-banks/Primary BankVirtual/Primary Bank-Virtual-Logo.webp" alt="Virtual Card Card" class="virtual-bank-logo" data-bank="Primary Bank">
+                                                                    <span class="virtual-card-name">Virtual Card</span>
                                                                     <div class="virtual-card-info">
                                                                         <div class="virtual-private">
                                                                             <span class="virtual-card-number secure-card-value">**** **** **** ****</span>
@@ -1008,7 +949,6 @@
                                                         </div>
                                                         <div class="account-maintenance">
                                                             <button type="button" class="tf-button f12-bold" id="supabaseImport" disabled>Import current data</button>
-                                                            <button type="button" class="tf-button style-4 f12-bold" id="clearImportedData">Clear imported statement data</button>
                                                             <p class="f12-regular text-Gray">Use this only when you need to seed Supabase from the existing local data file.</p>
                                                         </div>
                                                     </div>
@@ -1016,32 +956,6 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-12" id="transactions">
-                                            <div class="wg-box mb-32 bankdash-section-panel">
-                                                <div class="title">
-                                                    <div><h6>Transactions</h6><div class="f14-regular text-Gray">Statement detail, cashflow calendar, and merchant tools</div></div>
-                                                    <button type="button" class="tf-button f12-bold" data-open-settings="overrides"><i class="icon-edit"></i>Edit Merchants</button>
-                                                </div>
-                                                <div class="section-grid section-grid-transactions">
-                                                    <div id="cashflowCalendar" class="calendar-list"></div>
-                                                    <div id="merchantEditorSummary" class="feature-list"></div>
-                                                </div>
-                                                <div class="bankdash-table-wrap">
-                                                    <table class="table-list-transaction bankdash-table">
-                                                        <thead>
-                                                            <tr class="list-transaction-head">
-                                                                <th>Date</th>
-                                                                <th>Merchant</th>
-                                                                <th>Category</th>
-                                                                <th>Type</th>
-                                                                <th>Amount</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="transactionRows"></tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
