@@ -349,11 +349,64 @@ body:not(.bankdash-authenticated) #wrapper {
     color: var(--Black);
 }
 
+.auth-form input.invalid {
+    border-color: var(--Salmon);
+}
+
 .auth-note {
     margin: 0;
     font-size: 12px;
     line-height: 1.5;
     color: var(--Gray);
+}
+
+.security-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+}
+
+.security-card {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    border: 1px solid var(--Stroke);
+    border-radius: 8px;
+    background: var(--Gainsboro);
+}
+
+.security-card > span {
+    color: var(--Gray);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.security-card > strong {
+    color: var(--Black);
+}
+
+.mfa-setup-panel {
+    display: grid;
+    gap: 10px;
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--Stroke);
+}
+
+.mfa-qr-code {
+    width: 180px;
+    min-height: 180px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--White);
+}
+
+.mfa-qr-code img,
+.mfa-qr-code svg {
+    width: 100%;
+    height: auto;
 }
 
 .toast-stack {

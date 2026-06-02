@@ -20,6 +20,8 @@
     let isPasswordRecovery = false;
     let appStateSyncTimer = null;
     let appStatePromptedForUserId = null;
+    let pendingMfaFactorId = null;
+    let pendingMfaEnrollmentId = null;
 
     window.BankDashAuth = {
         currentEmail: () => currentUser?.email || '',
@@ -77,7 +79,7 @@
     }
 
     function isEssential(item) {
-        return /internet|wifi|fibre|vehicle finance|car finance|installment|loan|credit provider|gym|fitness|rent|landlord/i
+        return /internet provider|fibre|fiber|isp|vehicle finance|car finance|loan provider|loan repayment|gym|fitness|rent payment|monthly rent|landlord/i
             .test(`${item.description} ${item.merchant_name || item.merchant || ''}`);
     }
 
@@ -85,17 +87,17 @@
         const value = description.toLowerCase();
         if (/(^|\s)fee[:\s]|transactional sms|monthly service/i.test(value)) return 'Bank fees';
         if (/goalsave/i.test(value)) return 'GoalSave';
-        if (/eft for EMPLOYER salar|salary|salar/i.test(value)) return 'Salary';
+        if (/eft for perfect circle salar|salary|salar/i.test(value)) return 'Salary';
         if (/vas - mobile purchase|data bundle|\bdata\b/i.test(value)) return 'Mobile/data';
         if (/debit order|debicheck/i.test(value)) return 'Debit orders';
-        if (/internet|wifi|fibre|vehicle finance|car finance|loan|credit provider|rent|landlord/i.test(value)) return 'Fixed beneficiaries/EFT';
-        if (/coffee|restaurant|bakery|bistro|kfc|mcdonald|steers|food|cafe/i.test(value)) return 'Dining & coffee';
+        if (/vehicle finance|car finance|internet provider|fibre|fiber|isp|loan repayment/i.test(value)) return 'Fixed beneficiaries/EFT';
+        if (/seattle|coffee|restaurant|bakery|bistro|kfc|mcdonald|steers|food|cafe/i.test(value)) return 'Dining & coffee';
         if (/checkers|woolworths|pick n pay|spar|grocery|grocer/i.test(value)) return 'Groceries';
         if (/fuel|engen|shell|bp |caltex|sasol|total/i.test(value)) return 'Fuel/transport';
         if (/google|youtube|openai|chatgpt|strava|netflix|spotify|subscription|patreon|discord/i.test(value)) return 'Subscriptions/software';
         if (/takealot|amazon|shop|online|purchase at/i.test(value)) return 'Shopping & online';
-        if (/gym|fitness/i.test(value)) return 'Healthcare';
-        if (/rent|landlord|loan provider|internet provider|vehicle finance/i.test(value)) return 'Fixed beneficiaries/EFT';
+        if (/edge fitness|gym/i.test(value)) return 'Healthcare';
+        if (/rent payment|landlord|loan provider|internet provider|vehicle finance|car finance/i.test(value)) return 'Fixed beneficiaries/EFT';
         return 'Other';
     }
 
@@ -150,7 +152,7 @@
             transaction_date: item.date,
             posted_date: item.date,
             description: item.description,
-            merchant_name: 'EMPLOYER Salary',
+            merchant_name: 'Perfect Circle Salary',
             amount: roundMoney(item.moneyIn),
             direction: 'income',
             is_priority: false,
@@ -212,7 +214,6 @@
     function firstNameFor(user) {
         const metadataName = user?.user_metadata?.first_name || user?.user_metadata?.full_name || user?.user_metadata?.name || '';
         const baseName = metadataName || user?.email?.split('@')[0] || 'User';
-        if (!metadataName && /^Account User/i.test(baseName)) return 'Account User';
         const firstName = baseName.split(/[\s._-]+/).filter(Boolean)[0] || 'User';
         return firstName.charAt(0).toUpperCase() + firstName.slice(1);
     }
@@ -240,14 +241,40 @@
     function setAuthMode(mode) {
         const isSignup = mode === 'signup';
         const isRecovery = mode === 'recovery';
+        const isMfa = mode === 'mfa';
         if (!isRecovery) isPasswordRecovery = false;
-        byId('authGateForm').hidden = isSignup || isRecovery;
-        byId('signupForm').hidden = !isSignup || isRecovery;
+        byId('authGateForm').hidden = isSignup || isRecovery || isMfa;
+        byId('signupForm').hidden = !isSignup || isRecovery || isMfa;
+        byId('mfaChallengeForm').hidden = !isMfa;
         byId('passwordRecoveryForm').hidden = !isRecovery;
         document.querySelectorAll('[data-auth-mode]').forEach((button) => {
             button.classList.toggle('active', button.dataset.authMode === (isSignup ? 'signup' : 'signin'));
         });
-        setText('authStatus', isRecovery ? 'Create a new password' : isSignup ? 'Create your BankDash account' : 'Sign in to continue');
+        setText('authStatus', isMfa ? 'Enter your 2FA code' : isRecovery ? 'Create a new password' : isSignup ? 'Create your BankDash account' : 'Sign in to continue');
+    }
+
+    function passwordIssues(password, context = {}) {
+        const emailName = (context.email || '').split('@')[0]?.toLowerCase() || '';
+        const firstName = (context.firstName || '').toLowerCase();
+        const lower = String(password || '').toLowerCase();
+        const issues = [];
+        if (password.length < 12) issues.push('Use at least 12 characters.');
+        if (!/[a-z]/.test(password)) issues.push('Add a lowercase letter.');
+        if (!/[A-Z]/.test(password)) issues.push('Add an uppercase letter.');
+        if (!/\d/.test(password)) issues.push('Add a number.');
+        if (!/[^A-Za-z0-9]/.test(password)) issues.push('Add a symbol.');
+        if (emailName && lower.includes(emailName)) issues.push('Do not include your email name.');
+        if (firstName && lower.includes(firstName)) issues.push('Do not include your first name.');
+        if (/(password|bankdash|qwerty|letmein|welcome|123456)/i.test(password)) issues.push('Avoid common password words.');
+        return issues;
+    }
+
+    function validatePassword(password, context = {}) {
+        const issues = passwordIssues(password, context);
+        if (!issues.length) return true;
+        setText('authStatus', issues[0]);
+        showToast('warning', 'Stronger password required', issues.join(' '));
+        return false;
     }
 
     function showToast(type, title, message) {
@@ -332,7 +359,7 @@
                 user_id: userId,
                 name,
                 category_group: name === 'Salary' ? 'income' : name === 'GoalSave' ? 'savings' : categoryGroup(sample),
-                is_essential: ['Internet provider', 'Vehicle finance', 'Loan provider', 'Gym', 'Rent - Rent payment'].includes(name),
+                is_essential: ['Internet provider', 'Vehicle finance', 'Loan provider', 'Gym', 'Rent payment'].includes(name),
             };
         });
 
@@ -361,6 +388,10 @@
     async function refreshDbStats() {
         if (!currentUser) {
             setText('supabaseDbStats', 'Not signed in');
+            return;
+        }
+        if (!await hasAal2Session()) {
+            setText('supabaseDbStats', '2FA required for protected data');
             return;
         }
 
@@ -496,6 +527,10 @@
             window.BankDashData?.setData(emptyDashboardData());
             return;
         }
+        if (!await requireAal2ForSensitiveData('load financial dashboard data', true)) {
+            window.BankDashData?.setData(emptyDashboardData());
+            return;
+        }
 
         const { data, error } = await client
             .from('transactions')
@@ -530,6 +565,7 @@
 
     async function loadRemoteAppState() {
         if (!currentUser) return null;
+        if (!await requireAal2ForSensitiveData('sync account data')) return null;
         const { data, error } = await client
             .from('user_app_state')
             .select('state,state_checksum,client_updated_at,updated_at')
@@ -541,6 +577,7 @@
 
     async function pushAppStateToSupabase(options = {}) {
         if (!currentUser) return false;
+        if (!await requireAal2ForSensitiveData('save account sync data', Boolean(options.quiet))) return false;
         const state = currentLocalAppState();
         if (!state) return false;
 
@@ -680,27 +717,191 @@
         }
     }
 
+    async function verifiedTotpFactor() {
+        const { data, error } = await client.auth.mfa.listFactors();
+        if (error) throw error;
+        return (data?.totp || data?.all || []).find((factor) => factor.factor_type === 'totp' && factor.status === 'verified')
+            || (data?.totp || []).find((factor) => factor.status === 'verified')
+            || null;
+    }
+
+    async function requiredMfaFactor() {
+        const factor = await verifiedTotpFactor();
+        if (!factor) return null;
+        const { data, error } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (error) throw error;
+        return data?.nextLevel === 'aal2' && data?.currentLevel !== 'aal2' ? factor : null;
+    }
+
+    async function refreshMfaStatus() {
+        if (!currentUser) return;
+        try {
+            const factor = await verifiedTotpFactor();
+            const { data: aal } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
+            const enabled = Boolean(factor);
+            setText('mfaStatus', enabled ? `Enabled (${aal?.currentLevel || 'active'})` : 'Not enabled');
+            byId('startMfaSetup').hidden = enabled;
+            byId('disableMfa').hidden = !enabled;
+            return { enabled, currentLevel: aal?.currentLevel || 'aal1', nextLevel: aal?.nextLevel || null };
+        } catch (error) {
+            setText('mfaStatus', 'Could not check 2FA');
+            showToast('warning', '2FA check failed', error.message || 'Could not load MFA status.');
+            return { enabled: false, currentLevel: 'unknown', nextLevel: null };
+        }
+    }
+
+    async function hasAal2Session() {
+        if (!currentUser) return false;
+        try {
+            const { data, error } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
+            if (error) throw error;
+            return data?.currentLevel === 'aal2';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async function requireAal2ForSensitiveData(action, quiet = false) {
+        if (await hasAal2Session()) return true;
+        if (!quiet) {
+            showToast('warning', '2FA required', `Enable 2FA in Account Security, then verify your authenticator code to ${action}.`);
+            goToAccount();
+        }
+        return false;
+    }
+
+    function renderMfaQr(data) {
+        const qrTarget = byId('mfaQrCode');
+        const secretTarget = byId('mfaSecretText');
+        const totp = data?.totp || {};
+        const qr = totp.qr_code || totp.svg || '';
+        if (qrTarget) {
+            if (String(qr).trim().startsWith('<svg')) qrTarget.innerHTML = qr;
+            else if (qr) qrTarget.innerHTML = `<img src="${escapeHtml(qr)}" alt="Authenticator QR code">`;
+            else qrTarget.textContent = 'QR unavailable';
+        }
+        if (secretTarget) secretTarget.textContent = totp.secret ? `Manual key: ${totp.secret}` : 'Scan this code with Google Authenticator.';
+    }
+
+    async function startMfaSetup() {
+        if (!currentUser) return;
+        try {
+            const { data, error } = await client.auth.mfa.enroll({
+                factorType: 'totp',
+                friendlyName: 'BankDash',
+            });
+            if (error) throw error;
+            pendingMfaEnrollmentId = data.id;
+            renderMfaQr(data);
+            byId('mfaSetupPanel').hidden = false;
+            byId('mfaSetupCode').value = '';
+            byId('mfaSetupCode').focus();
+            showToast('basic', 'Scan QR code', 'Add BankDash to Google Authenticator, then enter the 6-digit code.');
+        } catch (error) {
+            showToast('error', '2FA setup failed', error.message || 'Could not start MFA setup.');
+        }
+    }
+
+    async function verifyMfaSetup() {
+        const code = byId('mfaSetupCode').value.trim();
+        if (!pendingMfaEnrollmentId || !code) {
+            showToast('warning', 'Code required', 'Enter the 6-digit authenticator code.');
+            return;
+        }
+        try {
+            const challenge = await client.auth.mfa.challenge({ factorId: pendingMfaEnrollmentId });
+            if (challenge.error) throw challenge.error;
+            const verify = await client.auth.mfa.verify({
+                factorId: pendingMfaEnrollmentId,
+                challengeId: challenge.data.id,
+                code,
+            });
+            if (verify.error) throw verify.error;
+            pendingMfaEnrollmentId = null;
+            byId('mfaSetupPanel').hidden = true;
+            byId('mfaSetupCode').value = '';
+            await refreshMfaStatus();
+            if (await hasAal2Session()) {
+                await refreshUploadHistory();
+                await loadDashboardFromSupabase();
+                await checkAppStateOnLogin();
+            }
+            showToast('success', '2FA enabled', 'BankDash will ask for your authenticator code when you sign in.');
+        } catch (error) {
+            showToast('error', '2FA verification failed', error.message || 'Check the code and try again.');
+        }
+    }
+
+    async function disableMfa() {
+        if (!currentUser) return;
+        const factor = await verifiedTotpFactor();
+        if (!factor) {
+            await refreshMfaStatus();
+            return;
+        }
+        if (!window.confirm('Disable two-factor authentication for this account?')) return;
+        const { error } = await client.auth.mfa.unenroll({ factorId: factor.id });
+        if (error) {
+            showToast('error', '2FA disable failed', error.message || 'Could not disable MFA.');
+            return;
+        }
+        await refreshMfaStatus();
+        showToast('success', '2FA disabled', 'Authenticator login protection was removed.');
+    }
+
+    async function handleMfaChallengeSubmit(event) {
+        event.preventDefault();
+        const code = byId('mfaChallengeCode').value.trim();
+        if (!pendingMfaFactorId || !code) {
+            showToast('warning', '2FA code required', 'Enter your authenticator code.');
+            return;
+        }
+        try {
+            const challenge = await client.auth.mfa.challenge({ factorId: pendingMfaFactorId });
+            if (challenge.error) throw challenge.error;
+            const verify = await client.auth.mfa.verify({
+                factorId: pendingMfaFactorId,
+                challengeId: challenge.data.id,
+                code,
+            });
+            if (verify.error) throw verify.error;
+            pendingMfaFactorId = null;
+            byId('mfaChallengeCode').value = '';
+            const { data } = await client.auth.getSession();
+            await updateSession(data.session);
+            showToast('success', '2FA verified', 'Your secure session is active.');
+        } catch (error) {
+            showToast('error', '2FA failed', error.message || 'Check your authenticator code and try again.');
+        }
+    }
+
     async function loadAccountSettings(quiet = false) {
         if (!currentUser) return { profileCreated: false };
 
         try {
             const profileCreated = await ensureProfile(currentUser);
-            const [{ data: profile, error: profileError }, { data: accounts, error: accountError }] = await Promise.all([
-                client
-                    .from('profiles')
-                    .select('first_name,last_name,display_name,phone,currency_code,timezone,financial_cycle_start_day,monthly_income_target,default_goalsave_target,coffee_budget_cap,statement_password_hint')
-                    .eq('id', currentUser.id)
-                    .single(),
-                client
+            const { data: profile, error: profileError } = await client
+                .from('profiles')
+                .select('first_name,last_name,display_name,phone,currency_code,timezone,financial_cycle_start_day,monthly_income_target,default_goalsave_target,coffee_budget_cap,statement_password_hint')
+                .eq('id', currentUser.id)
+                .single();
+            if (profileError) throw profileError;
+
+            let accounts = [];
+            const canLoadSensitiveData = await hasAal2Session();
+            if (canLoadSensitiveData) {
+                const accountResponse = await client
                     .from('accounts')
                     .select('id,name,institution,account_mask,is_primary')
                     .eq('user_id', currentUser.id)
                     .order('is_primary', { ascending: false })
                     .order('created_at', { ascending: true })
-                    .limit(1),
-            ]);
-            if (profileError) throw profileError;
-            if (accountError) throw accountError;
+                    .limit(1);
+                if (accountResponse.error) throw accountResponse.error;
+                accounts = accountResponse.data || [];
+            } else if (!quiet) {
+                showToast('warning', '2FA required', 'Bank account details stay locked until you enable 2FA and verify your session.');
+            }
 
             const account = accounts?.[0] || null;
             primaryAccountId = account?.id || null;
@@ -768,30 +969,34 @@
             const { error: profileError } = await client.from('profiles').upsert(profilePayload);
             if (profileError) throw profileError;
 
-            const accountPayload = {
-                user_id: currentUser.id,
-                name: byId('accountBankName').value.trim() || 'EveryDay account',
-                institution: byId('accountInstitution').value.trim() || 'TymeBank',
-                account_mask: byId('accountMask').value.trim() || null,
-                account_type: 'bank',
-                is_primary: true,
-            };
+            let bankDetailsSaved = false;
+            if (await hasAal2Session()) {
+                const accountPayload = {
+                    user_id: currentUser.id,
+                    name: byId('accountBankName').value.trim() || 'EveryDay account',
+                    institution: byId('accountInstitution').value.trim() || 'TymeBank',
+                    account_mask: byId('accountMask').value.trim() || null,
+                    account_type: 'bank',
+                    is_primary: true,
+                };
 
-            if (primaryAccountId) {
-                const { error: accountError } = await client
-                    .from('accounts')
-                    .update(accountPayload)
-                    .eq('id', primaryAccountId)
-                    .eq('user_id', currentUser.id);
-                if (accountError) throw accountError;
-            } else {
-                const { data, error: accountError } = await client
-                    .from('accounts')
-                    .insert(accountPayload)
-                    .select('id')
-                    .single();
-                if (accountError) throw accountError;
-                primaryAccountId = data.id;
+                if (primaryAccountId) {
+                    const { error: accountError } = await client
+                        .from('accounts')
+                        .update(accountPayload)
+                        .eq('id', primaryAccountId)
+                        .eq('user_id', currentUser.id);
+                    if (accountError) throw accountError;
+                } else {
+                    const { data, error: accountError } = await client
+                        .from('accounts')
+                        .insert(accountPayload)
+                        .select('id')
+                        .single();
+                    if (accountError) throw accountError;
+                    primaryAccountId = data.id;
+                }
+                bankDetailsSaved = true;
             }
 
             await client.auth.updateUser({ data: { first_name: firstName, full_name: displayName, bankdash_onboarded: true } });
@@ -799,7 +1004,9 @@
             setText('accountEmail', currentUser.email);
             setText('accountInitials', initialsFor(firstName, lastName, currentUser.email));
             setText('userFirstName', firstName);
-            showToast('success', 'Account saved', 'Your profile and dashboard preferences were updated.');
+            showToast('success', 'Account saved', bankDetailsSaved
+                ? 'Your profile, dashboard preferences, and bank details were updated.'
+                : 'Your profile was saved. Enable 2FA to save bank details.');
         } catch (error) {
             showToast('error', 'Account save failed', error.message || 'Could not save account settings.');
         }
@@ -810,6 +1017,10 @@
         if (!currentUser) {
             setText('uploadHistory', 'Sign in required');
             showToast('warning', 'Sign in required', 'Please sign in before loading uploads.');
+            return;
+        }
+        if (!await requireAal2ForSensitiveData('view uploaded statement history', true)) {
+            setText('uploadHistory', 'Enable 2FA to view uploads');
             return;
         }
 
@@ -884,7 +1095,7 @@
             balance,
         };
 
-        if (moneyIn > 0 && /salary|salar|eft for EMPLOYER/i.test(description)) {
+        if (moneyIn > 0 && /salary|salar|eft for perfect circle/i.test(description)) {
             return { type: 'salaryTransactions', item: { ...base, moneyIn } };
         }
 
@@ -1015,6 +1226,7 @@
 
     async function importLocalData() {
         if (!currentUser) return;
+        if (!await requireAal2ForSensitiveData('import statement data')) return;
 
         const button = byId('supabaseImport');
         button.disabled = true;
@@ -1049,21 +1261,42 @@
         currentUser = session?.user || null;
         document.body.classList.add('bankdash-auth-ready');
         const signedIn = Boolean(currentUser) && !isPasswordRecovery;
-        document.body.classList.toggle('bankdash-authenticated', signedIn);
-        document.body.classList.toggle('supabase-signed-in', signedIn);
+        let mfaFactor = null;
+        if (signedIn) {
+            try {
+                mfaFactor = await requiredMfaFactor();
+            } catch (error) {
+                showToast('warning', '2FA check failed', error.message || 'Could not check MFA status.');
+            }
+        }
+        const authenticated = signedIn && !mfaFactor;
+        document.body.classList.toggle('bankdash-authenticated', authenticated);
+        document.body.classList.toggle('supabase-signed-in', authenticated);
         setText('supabaseStatus', signedIn ? `Signed in as ${currentUser.email}` : 'Not signed in');
-        setText('authStatus', isPasswordRecovery ? 'Create a new password' : signedIn ? `Signed in as ${currentUser.email}` : 'Sign in to continue');
+        setText('authStatus', isPasswordRecovery ? 'Create a new password' : authenticated ? `Signed in as ${currentUser.email}` : 'Sign in to continue');
         setText('userFirstName', currentUser ? firstNameFor(currentUser) : 'First Name');
         const importButton = byId('supabaseImport');
-        if (importButton) importButton.disabled = !signedIn;
+        if (importButton) importButton.disabled = !authenticated;
+        if (mfaFactor) {
+            pendingMfaFactorId = mfaFactor.id;
+            setAuthMode('mfa');
+            setText('supabaseStatus', 'Two-factor verification required');
+            return;
+        }
         await refreshDbStats();
-        if (signedIn) {
+        if (authenticated) {
             window.BankDashData?.setData(emptyDashboardData());
             const localStateReset = window.BankDashData?.prepareForUser?.(currentUser.id);
             if (localStateReset) {
                 showToast('info', 'Clean account workspace', 'Local dashboard data was reset because a different account is signed in on this browser.');
             }
             const accountLoad = await loadAccountSettings(true);
+            const mfaStatus = await refreshMfaStatus();
+            if (!mfaStatus?.enabled) {
+                goToAccount();
+                showToast('warning', '2FA required', 'Set up Google Authenticator in Account Security to unlock synced and financial data.');
+                return;
+            }
             await refreshUploadHistory();
             await loadDashboardFromSupabase();
             if (accountLoad?.profileCreated) {
@@ -1074,6 +1307,7 @@
                 await checkAppStateOnLogin({ localStateReset });
             }
         } else {
+            pendingMfaFactorId = null;
             appStatePromptedForUserId = null;
             window.BankDashData?.setData(emptyDashboardData());
         }
@@ -1118,11 +1352,7 @@
             showToast('warning', 'Passwords do not match', 'Confirm password must match the password field.');
             return;
         }
-        if (password.length < 8) {
-            setText('authStatus', 'Password must be at least 8 characters.');
-            showToast('warning', 'Password too short', 'Use at least 8 characters for your password.');
-            return;
-        }
+        if (!validatePassword(password, { email, firstName })) return;
 
         setText('authStatus', 'Creating account...');
         showToast('basic', 'Creating account', 'Setting up your BankDash login.');
@@ -1203,10 +1433,7 @@
             showToast('warning', 'Passwords do not match', 'Confirm password must match the new password.');
             return;
         }
-        if (password.length < 8) {
-            showToast('warning', 'Password too short', 'Use at least 8 characters.');
-            return;
-        }
+        if (!validatePassword(password, { email: currentUser?.email || byId('authEmail')?.value || '' })) return;
 
         const { error } = await client.auth.updateUser({ password });
         if (error) {
@@ -1227,6 +1454,7 @@
     async function handleStatementUpload(event) {
         event.preventDefault();
         if (!currentUser) return;
+        if (!await requireAal2ForSensitiveData('upload statement PDFs')) return;
 
         const files = Array.from(byId('statementFiles').files || []);
         if (!files.length) {
@@ -1304,6 +1532,7 @@
 
     async function saveReviewedTransactions() {
         if (!currentUser || !pendingImportData) return;
+        if (!await requireAal2ForSensitiveData('save reviewed transactions')) return;
 
         const count = pendingImportData.transactions.length + pendingImportData.salaryTransactions.length + pendingImportData.savingsTransfers.length;
         if (!count) {
@@ -1351,6 +1580,7 @@
 
     async function clearImportedData() {
         if (!currentUser) return;
+        if (!await requireAal2ForSensitiveData('clear bank activity data')) return;
         const confirmed = window.confirm('Clear Bank Activity only? This removes parsed statement transactions, statement upload rows, and uploaded statement PDFs. Account settings, checklist data, banks, cards, and manual dashboard setup stay saved.');
         if (!confirmed) return;
 
@@ -1390,6 +1620,41 @@
         showToast('basic', 'Signed out', 'Your dashboard session has ended.');
     }
 
+    async function handleGlobalSignOut() {
+        if (!window.confirm('Sign out this account on all devices?')) return;
+        const { error } = await client.auth.signOut({ scope: 'global' });
+        await updateSession(null);
+        if (error) {
+            showToast('warning', 'Signed out locally', error.message || 'Could not confirm global sign out.');
+            return;
+        }
+        showToast('success', 'Signed out everywhere', 'All active sessions for this account were ended.');
+    }
+
+    async function handleSecurityPasswordReset() {
+        if (!currentUser?.email) return;
+        const { error } = await client.auth.resetPasswordForEmail(currentUser.email, {
+            redirectTo: authRedirectUrl('password'),
+        });
+        if (error) {
+            showToast('error', 'Reset failed', error.message || 'Could not send password reset email.');
+            return;
+        }
+        showToast('success', 'Reset email sent', 'Check your inbox for the password reset link.');
+    }
+
+    function handleClearLocalBrowserData() {
+        if (!currentUser) return;
+        if (!window.confirm('Clear local browser data for this account on this device? Synced Supabase data is not deleted.')) return;
+        window.BankDashData?.resetLocalAppStateForUser?.(currentUser.id);
+        showToast('success', 'Local data cleared', 'This browser now has a clean local BankDash workspace for the signed-in account.');
+    }
+
+    function handleClearPrivateCardData() {
+        const cleared = window.BankDashData?.clearPrivateCardData?.();
+        if (cleared) showToast('success', 'Card details cleared', 'Saved private card fields were removed from this browser.');
+    }
+
     async function initSupabasePanel() {
         const panel = byId('supabasePanel');
         if (!panel) return;
@@ -1399,6 +1664,8 @@
 
         byId('authGateForm').addEventListener('submit', handleAuthSubmit);
         byId('signupForm').addEventListener('submit', handleSignUpSubmit);
+        byId('mfaChallengeForm').addEventListener('submit', handleMfaChallengeSubmit);
+        byId('mfaChallengeSignOut').addEventListener('click', handleSignOut);
         byId('showSignIn').addEventListener('click', () => setAuthMode('signin'));
         byId('showSignUp').addEventListener('click', () => setAuthMode('signup'));
         byId('authResetPassword').addEventListener('click', handlePasswordReset);
@@ -1411,6 +1678,17 @@
         byId('clearImportedData').addEventListener('click', clearImportedData);
         byId('accountForm').addEventListener('submit', saveAccountSettings);
         byId('reloadAccountSettings').addEventListener('click', () => loadAccountSettings(false));
+        byId('startMfaSetup').addEventListener('click', startMfaSetup);
+        byId('verifyMfaSetup').addEventListener('click', verifyMfaSetup);
+        byId('cancelMfaSetup').addEventListener('click', () => {
+            pendingMfaEnrollmentId = null;
+            byId('mfaSetupPanel').hidden = true;
+        });
+        byId('disableMfa').addEventListener('click', disableMfa);
+        byId('securityResetPassword').addEventListener('click', handleSecurityPasswordReset);
+        byId('signOutAllDevices').addEventListener('click', handleGlobalSignOut);
+        byId('clearLocalBrowserData').addEventListener('click', handleClearLocalBrowserData);
+        byId('clearPrivateCardData').addEventListener('click', handleClearPrivateCardData);
         byId('supabaseSignOut').addEventListener('click', handleSignOut);
         bindButtonActivation('.button-user-logout', handleSignOut);
         bindButtonActivation('.button-user-account', goToAccount);

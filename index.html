@@ -33,6 +33,25 @@
             </div>
             <div class="updates-log-list">
                 <article class="updates-log-entry latest">
+                    <div><strong>v0.13.0</strong><span>June 2026</span></div>
+                    <h6>Protected data access</h6>
+                    <ul>
+                        <li>Added Supabase RLS policies that require a verified 2FA session for sensitive financial tables.</li>
+                        <li>Locked statement uploads, synced account state, transactions, budgets, and bank-statement storage behind aal2 protection.</li>
+                        <li>Updated the app flow so users without 2FA are sent to Account Security before protected data is loaded.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
+                    <div><strong>v0.12.0</strong><span>June 2026</span></div>
+                    <h6>Account security</h6>
+                    <ul>
+                        <li>Added Google Authenticator compatible two-factor authentication.</li>
+                        <li>Added stronger password rules for signup and password reset.</li>
+                        <li>Added session controls, sign out all devices, and local browser data cleanup.</li>
+                        <li>Stopped saving CVV values and added card private-data clearing.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
                     <div><strong>v0.11.0</strong><span>June 2026</span></div>
                     <h6>Public signup and onboarding</h6>
                     <ul>
@@ -264,7 +283,7 @@
                 </label>
                 <label class="settings-field">
                     <span>CVV</span>
-                    <input type="password" id="cardEditorCvv" inputmode="numeric" autocomplete="off" placeholder="CVV">
+                    <input type="password" id="cardEditorCvv" inputmode="numeric" autocomplete="off" placeholder="Not saved">
                 </label>
                 <label class="settings-field">
                     <span>Cardholder name</span>
@@ -330,12 +349,17 @@
                 <input type="password" id="signupConfirmPassword" autocomplete="new-password" placeholder="Confirm password" aria-label="Confirm password">
                 <button type="submit" class="tf-button f12-bold">Create account</button>
             </form>
+            <form class="auth-form" id="mfaChallengeForm" hidden>
+                <input type="text" id="mfaChallengeCode" inputmode="numeric" autocomplete="one-time-code" placeholder="Authenticator code" aria-label="Authenticator code">
+                <button type="submit" class="tf-button f12-bold">Verify 2FA</button>
+                <button type="button" class="tf-button style-4 f12-bold" id="mfaChallengeSignOut">Use another account</button>
+            </form>
             <form class="auth-form" id="passwordRecoveryForm" hidden>
                 <input type="password" id="newPassword" autocomplete="new-password" placeholder="New password" aria-label="New password">
                 <input type="password" id="confirmPassword" autocomplete="new-password" placeholder="Confirm password" aria-label="Confirm password">
                 <button type="submit" class="tf-button f12-bold">Save new password</button>
             </form>
-            <p class="auth-note">Your dashboard data is saved to your own BankDash account and synced only after you sign in.</p>
+            <p class="auth-note">Use a unique 12+ character password. Your dashboard data is tied to your own BankDash account.</p>
         </div>
     </div>
     <div id="wrapper">
@@ -412,9 +436,9 @@
                             </div>
                             <div class="version-controls">
                                 <div class="version-info f12-regular text-Gray">
-                                    <span>Version: <span class="version-number">v0.11.0</span></span>
+                                    <span>Version: <span class="version-number">v0.13.0</span></span>
                                     <br>
-                                    <span>Latest Update: <button type="button" class="latest-pushed-date" id="updatesLogToggle">Public Signup <i class="fa-solid fa-up-right-from-square"></i></button></span>
+                                    <span>Latest Update: <button type="button" class="latest-pushed-date" id="updatesLogToggle">Protected Data Access <i class="fa-solid fa-up-right-from-square"></i></button></span>
                                 </div>
                             </div>
                         </div>
@@ -707,9 +731,9 @@
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-openai" data-priority-key="openai">
-                                                        <i class="fa-solid fa-robot"></i>
+                                                        <i class="fa-brands fa-openai"></i>
                                                         <strong class="priority-name">ChatGPT</strong>
-                                                        <span class="priority-transaction-name">AI subscription</span>
+                                                        <span class="priority-transaction-name">OpenAI</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-google" data-priority-key="google">
@@ -784,9 +808,9 @@
                                                 </div>
                                                 <div class="account-layout">
                                                     <div class="account-profile-card">
-                                                        <div class="account-avatar" id="accountInitials">BU</div>
+                                                        <div class="account-avatar" id="accountInitials">JD</div>
                                                         <div>
-                                                            <h4 id="accountDisplayName">Account User</h4>
+                                                            <h4 id="accountDisplayName">User</h4>
                                                             <p id="accountEmail">Signed in email</p>
                                                         </div>
                                                     </div>
@@ -877,6 +901,54 @@
                                                                     <span>Statement password hint</span>
                                                                     <input type="text" id="accountPasswordHint" placeholder="Do not store the actual password">
                                                                 </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="account-section account-security-section">
+                                                            <div>
+                                                                <h6>Account Security</h6>
+                                                                <p class="f14-regular text-Gray">Protect sign-in, sessions, and local browser data.</p>
+                                                            </div>
+                                                            <div class="security-grid">
+                                                                <div class="security-card">
+                                                                    <span>Two-factor authentication</span>
+                                                                    <strong id="mfaStatus">Checking...</strong>
+                                                                    <p class="f12-regular text-Gray">Use Google Authenticator or any TOTP authenticator app.</p>
+                                                                    <div class="account-actions">
+                                                                        <button type="button" class="tf-button f12-bold" id="startMfaSetup">Set up 2FA</button>
+                                                                        <button type="button" class="tf-button style-4 f12-bold" id="disableMfa">Disable 2FA</button>
+                                                                    </div>
+                                                                    <div class="mfa-setup-panel" id="mfaSetupPanel" hidden>
+                                                                        <div id="mfaQrCode" class="mfa-qr-code"></div>
+                                                                        <p class="f12-regular text-Gray" id="mfaSecretText"></p>
+                                                                        <label class="settings-field">
+                                                                            <span>Authenticator code</span>
+                                                                            <input type="text" id="mfaSetupCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code">
+                                                                        </label>
+                                                                        <div class="account-actions">
+                                                                            <button type="button" class="tf-button f12-bold" id="verifyMfaSetup">Verify and enable</button>
+                                                                            <button type="button" class="tf-button style-4 f12-bold" id="cancelMfaSetup">Cancel</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="security-card">
+                                                                    <span>Password and sessions</span>
+                                                                    <strong>Session controls</strong>
+                                                                    <p class="f12-regular text-Gray">Reset your password by email or sign out active sessions.</p>
+                                                                    <div class="account-actions">
+                                                                        <button type="button" class="tf-button style-4 f12-bold" id="securityResetPassword">Send reset email</button>
+                                                                        <button type="button" class="tf-button style-4 f12-bold" id="signOutAllDevices">Sign out all devices</button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="security-card">
+                                                                    <span>Local browser data</span>
+                                                                    <strong>Private on this device</strong>
+                                                                    <p class="f12-regular text-Gray">Card private fields stay local and CVV is never saved.</p>
+                                                                    <div class="account-actions">
+                                                                        <button type="button" class="tf-button style-4 f12-bold" id="clearPrivateCardData">Clear saved card details</button>
+                                                                        <button type="button" class="tf-button style-4 f12-bold" id="clearLocalBrowserData">Clear local browser data</button>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
 

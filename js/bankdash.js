@@ -47,23 +47,23 @@
     const essentialRules = [
         {
             label: 'Internet provider',
-            matcher: (item) => /internet|wifi|fibre|isp/i.test(`${item.merchant} ${item.description}`),
+            matcher: (item) => /internet provider|fibre|fiber|isp/i.test(item.description),
         },
         {
             label: 'Vehicle finance',
-            matcher: (item) => /vehicle|car finance|installment/i.test(`${item.merchant} ${item.description}`),
+            matcher: (item) => /vehicle finance|car finance|vehicle repayment/i.test(item.description),
         },
         {
             label: 'Loan provider',
-            matcher: (item) => /loan|credit provider|repayment/i.test(`${item.merchant} ${item.description}`),
+            matcher: (item) => /loan provider|loan repayment|personal loan/i.test(item.description),
         },
         {
             label: 'Gym',
-            matcher: (item) => /gym|fitness/i.test(`${item.merchant} ${item.description}`),
+            matcher: (item) => /gym|fitness/i.test(item.description),
         },
         {
             label: 'Rent payment',
-            matcher: (item) => /rent|landlord/i.test(`${item.merchant} ${item.description}`),
+            matcher: (item) => /rent payment|monthly rent|landlord/i.test(item.description),
         },
     ];
     const allowedGoogleRules = [
@@ -71,20 +71,20 @@
         { label: 'YouTube Premium', amount: 81.99, matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
     ];
     const priorityItemDefinitions = [
-        { key: 'rent', label: 'Rent', detail: 'Rent payment', fallback: 1500, icon: 'fa-house', matcher: (item) => /rent|landlord/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'vehicle', label: 'Vehicle', detail: 'Vehicle finance', fallback: 3000, icon: 'fa-car', matcher: (item) => /vehicle|car finance|installment/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'rent', label: 'Rent', detail: 'Rent payment', fallback: 1514, icon: 'fa-house', matcher: (item) => /rent payment|monthly rent|landlord/i.test(item.description) },
+        { key: 'vehicle', label: 'Vehicle', detail: 'Vehicle finance', fallback: 2953, icon: 'fa-car', matcher: (item) => /vehicle finance|car finance|vehicle repayment/i.test(item.description) },
         { key: 'petrol', label: 'Petrol', detail: 'Multiple Stations', fallback: 1500, icon: 'fa-gas-pump', category: 'Fuel/transport' },
-        { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1500, icon: 'fa-globe', matcher: (item) => /internet|wifi|fibre|isp/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 650, icon: 'fa-building-columns', matcher: (item) => /loan|credit provider|repayment/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'internet', label: 'Internet & Fibre', detail: 'Internet provider', fallback: 1476, icon: 'fa-globe', matcher: (item) => /internet provider|fibre|fiber|isp/i.test(item.description) },
+        { key: 'loans', label: 'Loans', detail: 'Loan provider', fallback: 657, icon: 'fa-building-columns', matcher: (item) => /loan provider|loan repayment|personal loan/i.test(item.description) },
         { key: 'payjustnow', label: 'PayJustNow', detail: 'Account payment', fallback: 0, icon: 'fa-money-check-dollar', matcher: (item) => /pay\s*just\s*now|payjustnow/i.test(`${item.merchant} ${item.description}`) },
-        { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 250, icon: 'fa-dumbbell', matcher: (item) => /gym|fitness/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'gym', label: 'Gym', detail: 'Fitness provider', fallback: 241, icon: 'fa-dumbbell', matcher: (item) => /gym|fitness/i.test(item.description) },
         { key: 'groceries', label: 'Groceries', detail: 'Multiple Stores', fallback: 1500, icon: 'fa-cart-shopping', category: 'Groceries' },
         { key: 'airtime', label: 'Airtime/Data', detail: 'Mobile & data', fallback: 450, icon: 'fa-mobile-screen-button', category: 'Mobile/data' },
         { key: 'lunch', label: 'Lunch', detail: 'Food & work meals', fallback: 0, icon: 'fa-utensils', matcher: (item) => /lunch|kfc|mcdonald|steers|nando|burger|restaurant|takealot foods|uber eats|mr d|food/i.test(`${item.merchant} ${item.description}`) },
         { key: 'leisure', label: 'Leisure', detail: 'Various', fallback: 1500, icon: 'fa-beer-mug-empty', categories: ['Leisure', 'Dining & coffee'] },
-        { key: 'coffee', label: 'Coffee', detail: 'Coffee shops', fallback: 0, icon: 'fa-mug-saucer', matcher: (item) => /coffee|cafe|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'coffee', label: 'Coffee', detail: 'Coffee shops', fallback: 0, icon: 'fa-mug-saucer', matcher: (item) => /coffee|seattle|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`) },
         { key: 'savings', label: 'Savings', detail: 'GoalSave', fallback: 1500, icon: 'fa-vault', savings: true },
-        { key: 'openai', label: 'ChatGPT', detail: 'AI subscription', fallback: 400, icon: 'fa-solid fa-robot', matcher: (item) => /openai|chatgpt|ai subscription/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'openai', label: 'ChatGPT', detail: 'OpenAI', fallback: 399, icon: 'fa-brands fa-openai', matcher: (item) => /OPENAI|ChatGPT/i.test(`${item.merchant} ${item.description}`) },
         { key: 'google', label: 'Google', detail: 'Google One', fallback: 34.99, icon: 'fa-brands fa-google', matcher: (item) => /Google One/i.test(`${item.merchant} ${item.description}`) },
         { key: 'youtube', label: 'YouTube', detail: 'YouTube Premium', fallback: 81.99, icon: 'fa-brands fa-youtube', matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
         { key: 'electricity', label: 'Electricity', detail: 'Power utilities', fallback: 0, icon: 'fa-bolt', defaultActive: false, matcher: (item) => /electricity|prepaid|easypay/i.test(`${item.merchant} ${item.description}`) },
@@ -793,8 +793,8 @@
         return groupEssentialPayments(transactions).reduce((sum, item) => roundMoney(sum + item.amount), 0);
     }
 
-    function coffeeShopTransactions(transactions) {
-        return transactions.filter((item) => /coffee|cafe|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`));
+    function seattleTransactions(transactions) {
+        return transactions.filter((item) => /seattle/i.test(`${item.merchant} ${item.description}`));
     }
 
     function cycleIndex(cycles, start) {
@@ -1209,7 +1209,7 @@
         if (!Number(manual.salary || manual.availableUntilSalary || 0)) alerts.push({ label: 'Salary not set', detail: 'Add your salary in the current cycle setup', type: 'warn' });
         if (overBudgetItems.length) alerts.push({ label: 'Priority overspend', detail: overBudgetItems.map((item) => item.label).join(', '), type: 'danger' });
         if (unpaidKnown.length) alerts.push({ label: 'Money still reserved', detail: `${unpaidKnown.length} priority items still have remaining target`, type: 'warn' });
-        if (inactive.length) alerts.push({ label: 'Inactive costs appeared', detail: `${inactive.length} Strava, Patreon, Google Ads, Coffee, or Vehicle finance entries`, type: 'danger' });
+        if (inactive.length) alerts.push({ label: 'Inactive costs appeared', detail: `${inactive.length} Strava, Patreon, Google Ads, Coffee, or vehicle finance entries`, type: 'danger' });
         if (unapprovedGoogle.length) alerts.push({ label: 'Unapproved Google charge', detail: `${unapprovedGoogle.length} Google payment needs review`, type: 'danger' });
         if (overspent.length) alerts.push({ label: 'Budget overrun', detail: overspent.map((item) => item.label).join(', '), type: 'danger' });
         if (netSavingsDrawn > 0) alerts.push({ label: 'GoalSave drawdown', detail: `${moneyHtml(netSavingsDrawn)} net drawn from savings`, type: 'warn' });
@@ -1254,7 +1254,7 @@
 
     function isInactiveJuneCost(item) {
         const text = `${item.merchant} ${item.description}`;
-        return /Strava|Patreon|Google Ads|Coffee shops|Coffee|Vehicle finance/i.test(text);
+        return /Strava|Patreon|Google Ads|Seattle|Coffee|Vehicle finance/i.test(text);
     }
 
     function renderSubscriptionDetector() {
@@ -1263,7 +1263,7 @@
         cycles.forEach((cycle) => {
             cycle.transactions
                 .filter((item) => !isInactiveJuneCost(item))
-                .filter((item) => item.category === 'Subscriptions/software' || /GOOGLE|AI subscription|DISCORD|Steam|PLAYTOMIC|OPUS|Netflix|Spotify|Apple|Adobe|Canva/i.test(item.description))
+                .filter((item) => item.category === 'Subscriptions/software' || /GOOGLE|OPENAI|DISCORD|Steam|PLAYTOMIC|OPUS|Netflix|Spotify|Apple|Adobe|Canva/i.test(item.description))
                 .forEach((item) => {
                     const current = groups.get(item.merchant) || { merchant: item.merchant, cycles: new Map(), count: 0 };
                     current.cycles.set(cycle.start, roundMoney((current.cycles.get(cycle.start) || 0) + item.amount));
@@ -1321,8 +1321,8 @@
     function renderCoffeeTracker() {
         const tracker = byId('coffeeTracker');
         if (!tracker) return;
-        const currentRows = coffeeShopTransactions(currentData.transactions);
-        const previousRows = comparisonCycles().flatMap((cycle) => coffeeShopTransactions(cycle.transactions));
+        const currentRows = seattleTransactions(currentData.transactions);
+        const previousRows = comparisonCycles().flatMap((cycle) => seattleTransactions(cycle.transactions));
         const currentTotal = roundMoney(currentRows.reduce((sum, item) => sum + item.amount, 0));
         const previousAverage = previousRows.length && comparisonCycles().length
             ? roundMoney(previousRows.reduce((sum, item) => sum + item.amount, 0) / comparisonCycles().length)
@@ -1371,16 +1371,16 @@
             target.innerHTML = '<div class="list-row"><span>No previous period to compare.</span></div>';
             return;
         }
-        const currentCoffee = roundMoney(coffeeShopTransactions(currentData.transactions).reduce((sum, item) => sum + item.amount, 0));
+        const currentSeattle = roundMoney(seattleTransactions(currentData.transactions).reduce((sum, item) => sum + item.amount, 0));
         const previousTransactions = previous.flatMap((cycle) => cycle.transactions);
-        const previousCoffee = roundMoney(coffeeShopTransactions(previousTransactions).reduce((sum, item) => sum + item.amount, 0));
+        const previousSeattle = roundMoney(seattleTransactions(previousTransactions).reduce((sum, item) => sum + item.amount, 0));
         target.innerHTML = [
             deltaRow('Salary', currentData.totals.income, sumCycles(previous, 'income')),
             deltaRow('Expenses', currentData.totals.expenses, sumCycles(previous, 'expenses')),
             deltaRow('Priority', currentData.totals.priority, sumCycles(previous, 'priority')),
             deltaRow('Non-priority', currentData.totals.nonPriority, sumCycles(previous, 'nonPriority')),
             deltaRow('Essential payments', essentialTotal(currentData.transactions), essentialTotal(previousTransactions)),
-            deltaRow('Coffee shops', currentCoffee, previousCoffee),
+            deltaRow('Seattle', currentSeattle, previousSeattle),
         ].join('');
     }
 
@@ -2156,7 +2156,8 @@
         const savedBanks = Array.isArray(saved.banks) ? saved.banks : [];
         const customBanks = savedBanks.filter((bank) => bank?.id && !preloadedIds.has(bank.id));
         const banks = [...preloadedBanks, ...customBanks];
-        const cards = Array.isArray(saved.cards) && saved.cards.length ? saved.cards : defaultBankingSettings.cards;
+        const cards = (Array.isArray(saved.cards) && saved.cards.length ? saved.cards : defaultBankingSettings.cards)
+            .map((card) => ({ ...card, cvv: '' }));
         return {
             ...defaultBankingSettings,
             ...saved,
@@ -2168,7 +2169,11 @@
     }
 
     function saveBankingSettings(settings, options = {}) {
-        localStorage.setItem('bankdash.banking', JSON.stringify(settings));
+        const safeSettings = {
+            ...settings,
+            cards: (settings.cards || []).map((card) => ({ ...card, cvv: '' })),
+        };
+        localStorage.setItem('bankdash.banking', JSON.stringify(safeSettings));
         if (options.sync !== false) markAppStateChanged(options.source || 'banking');
     }
 
@@ -2340,7 +2345,7 @@
             logo: byId('cardEditorLogo').value.trim(),
             number: byId('cardEditorNumber').value.trim() || baseCard.number || '',
             expiry: byId('cardEditorExpiry').value.trim() || baseCard.expiry || '',
-            cvv: byId('cardEditorCvv').value.trim() || baseCard.cvv || '',
+            cvv: '',
             holder: byId('cardEditorHolder').value.trim() || baseCard.holder || '',
             type: byId('cardEditorType').value.trim() || 'VISA',
             color: byId('cardEditorColor').value || '#212121',
@@ -2351,7 +2356,22 @@
         editingCardId = null;
         closeVirtualCardEditor();
         renderBankingPanel();
-        showLocalToast('success', 'Virtual card saved', `${name} is now available in your virtual card list.`);
+        showLocalToast('success', 'Virtual card saved', `${name} is now available. CVV was not saved for security.`);
+    }
+
+    function clearPrivateCardData() {
+        const settings = bankingSettings();
+        settings.cards = settings.cards.map((card) => ({
+            ...card,
+            number: '',
+            expiry: '',
+            cvv: '',
+            holder: '',
+        }));
+        cardDetailsUnlocked = false;
+        saveBankingSettings(settings, { source: 'clear-private-card-data' });
+        renderBankingPanel();
+        return true;
     }
 
     function closeCardUnlock() {
@@ -2729,6 +2749,7 @@
         localAppStateUpdatedAt: appStateUpdatedAt,
         prepareForUser: prepareLocalAppStateForUser,
         resetLocalAppStateForUser,
+        clearPrivateCardData,
     };
 
     rolloverManualCycleIfNeeded();
