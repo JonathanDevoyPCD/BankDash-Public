@@ -315,6 +315,31 @@ body:not(.bankdash-authenticated) #wrapper {
     gap: 12px;
 }
 
+.auth-mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 8px;
+    background: var(--Gainsboro);
+}
+
+.auth-mode-tab {
+    min-height: 38px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--Gray);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.auth-mode-tab.active {
+    background: var(--White);
+    color: var(--Black);
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
+}
+
 .auth-form input {
     min-height: 46px;
     border: 1px solid var(--Stroke);
@@ -322,6 +347,13 @@ body:not(.bankdash-authenticated) #wrapper {
     padding: 0 14px;
     background: var(--White);
     color: var(--Black);
+}
+
+.auth-note {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--Gray);
 }
 
 .toast-stack {

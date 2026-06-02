@@ -82,9 +82,9 @@
         { key: 'airtime', label: 'Airtime/Data', detail: 'Mobile & data', fallback: 450, icon: 'fa-mobile-screen-button', category: 'Mobile/data' },
         { key: 'lunch', label: 'Lunch', detail: 'Food & work meals', fallback: 0, icon: 'fa-utensils', matcher: (item) => /lunch|kfc|mcdonald|steers|nando|burger|restaurant|takealot foods|uber eats|mr d|food/i.test(`${item.merchant} ${item.description}`) },
         { key: 'leisure', label: 'Leisure', detail: 'Various', fallback: 1500, icon: 'fa-beer-mug-empty', categories: ['Leisure', 'Dining & coffee'] },
-        { key: 'coffee', label: 'Coffee', detail: 'Coffee shops', fallback: 0, icon: 'fa-mug-saucer', matcher: (item) => /coffee|seattle|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'coffee', label: 'Coffee', detail: 'Coffee shops', fallback: 0, icon: 'fa-mug-saucer', matcher: (item) => /coffee|cafe|starbucks|vida|mugg|roast/i.test(`${item.merchant} ${item.description}`) },
         { key: 'savings', label: 'Savings', detail: 'GoalSave', fallback: 1500, icon: 'fa-vault', savings: true },
-        { key: 'openai', label: 'ChatGPT', detail: 'AI subscription', fallback: 400, icon: 'fa-brands fa-openai', matcher: (item) => /openai|chatgpt|ai subscription/i.test(`${item.merchant} ${item.description}`) },
+        { key: 'openai', label: 'ChatGPT', detail: 'AI subscription', fallback: 400, icon: 'fa-solid fa-robot', matcher: (item) => /openai|chatgpt|ai subscription/i.test(`${item.merchant} ${item.description}`) },
         { key: 'google', label: 'Google', detail: 'Google One', fallback: 34.99, icon: 'fa-brands fa-google', matcher: (item) => /Google One/i.test(`${item.merchant} ${item.description}`) },
         { key: 'youtube', label: 'YouTube', detail: 'YouTube Premium', fallback: 81.99, icon: 'fa-brands fa-youtube', matcher: (item) => /YouTubePremium|YouTube Premium/i.test(`${item.merchant} ${item.description}`) },
         { key: 'electricity', label: 'Electricity', detail: 'Power utilities', fallback: 0, icon: 'fa-bolt', defaultActive: false, matcher: (item) => /electricity|prepaid|easypay/i.test(`${item.merchant} ${item.description}`) },
@@ -204,6 +204,36 @@
 
     function appStateUpdatedAt() {
         return localStorage.getItem('bankdash.syncUpdatedAt') || '';
+    }
+
+    const localAppStateKeys = [
+        'bankdash.planningVersion',
+        'bankdash.budgets',
+        'bankdash.merchantOverrides',
+        'bankdash.categoryOverrides',
+        'bankdash.priorityChecklist',
+        'bankdash.manualOverview',
+        'bankdash.shoppingList',
+        'bankdash.banking',
+        'bankdash.syncUpdatedAt',
+    ];
+
+    function resetLocalAppStateForUser(userId) {
+        localAppStateKeys.forEach((key) => localStorage.removeItem(key));
+        if (userId) localStorage.setItem('bankdash.localOwner', userId);
+        userSettings = loadSettings();
+        populateManualCycleControls();
+        renderBankingPanel();
+        renderDashboard();
+        applyPrivacyState();
+        return true;
+    }
+
+    function prepareLocalAppStateForUser(userId) {
+        if (!userId) return false;
+        const owner = localStorage.getItem('bankdash.localOwner');
+        if (owner && owner === userId) return false;
+        return resetLocalAppStateForUser(userId);
     }
 
     function markAppStateChanged(source) {
@@ -1179,7 +1209,7 @@
         if (!Number(manual.salary || manual.availableUntilSalary || 0)) alerts.push({ label: 'Salary not set', detail: 'Add your salary in the current cycle setup', type: 'warn' });
         if (overBudgetItems.length) alerts.push({ label: 'Priority overspend', detail: overBudgetItems.map((item) => item.label).join(', '), type: 'danger' });
         if (unpaidKnown.length) alerts.push({ label: 'Money still reserved', detail: `${unpaidKnown.length} priority items still have remaining target`, type: 'warn' });
-        if (inactive.length) alerts.push({ label: 'Inactive costs appeared', detail: `${inactive.length} subscription, ads, coffee, or vehicle finance entries`, type: 'danger' });
+        if (inactive.length) alerts.push({ label: 'Inactive costs appeared', detail: `${inactive.length} Strava, Patreon, Google Ads, Coffee, or Vehicle finance entries`, type: 'danger' });
         if (unapprovedGoogle.length) alerts.push({ label: 'Unapproved Google charge', detail: `${unapprovedGoogle.length} Google payment needs review`, type: 'danger' });
         if (overspent.length) alerts.push({ label: 'Budget overrun', detail: overspent.map((item) => item.label).join(', '), type: 'danger' });
         if (netSavingsDrawn > 0) alerts.push({ label: 'GoalSave drawdown', detail: `${moneyHtml(netSavingsDrawn)} net drawn from savings`, type: 'warn' });
@@ -1224,7 +1254,7 @@
 
     function isInactiveJuneCost(item) {
         const text = `${item.merchant} ${item.description}`;
-        return /Strava|Patreon|Google Ads|Coffee|Vehicle finance/i.test(text);
+        return /Strava|Patreon|Google Ads|Coffee shops|Coffee|Vehicle finance/i.test(text);
     }
 
     function renderSubscriptionDetector() {
@@ -2079,7 +2109,7 @@
         },
         {
             id: 'absa-bank',
-            name: 'Absa',
+            name: 'ABSA',
             logo: 'images/banks/AbsaBank/ABSABank-Logo.png',
             color: '#a90c2b',
         },
@@ -2098,14 +2128,14 @@
     ];
 
     const defaultBankingSettings = {
-        selectedBankId: 'Primary Bank-bank',
-        selectedCardId: 'Primary Bank-virtual',
+        selectedBankId: 'gotyme-bank',
+        selectedCardId: 'gotyme-virtual',
         banks: preloadedBanks,
         cards: [
             {
-                id: 'Primary Bank-virtual',
-                name: 'Virtual Card',
-                logo: 'images/virtual-banks/Primary BankVirtual/Primary Bank-Virtual-Logo.webp',
+                id: 'gotyme-virtual',
+                name: 'GoTyme Virtual',
+                logo: 'images/virtual-banks/GoTymeVirtual/GoTymeBank-Virtual-Logo.webp',
                 number: '',
                 expiry: '',
                 cvv: '',
@@ -2618,6 +2648,7 @@
     function captureAppState() {
         return {
             schemaVersion: 1,
+            userId: localStorage.getItem('bankdash.localOwner') || '',
             localUpdatedAt: appStateUpdatedAt() || '1970-01-01T00:00:00.000Z',
             settings: {
                 planningVersion: localStorage.getItem('bankdash.planningVersion') || planningVersion,
@@ -2679,6 +2710,7 @@
         }
 
         localStorage.setItem('bankdash.syncUpdatedAt', syncedAt || state.localUpdatedAt || syncedAtNow());
+        if (state.userId) localStorage.setItem('bankdash.localOwner', state.userId);
         userSettings = loadSettings();
         populateManualCycleControls();
         renderBankingPanel();
@@ -2695,6 +2727,8 @@
         captureAppState,
         applyAppState: applySyncedAppState,
         localAppStateUpdatedAt: appStateUpdatedAt,
+        prepareForUser: prepareLocalAppStateForUser,
+        resetLocalAppStateForUser,
     };
 
     rolloverManualCycleIfNeeded();

@@ -231,6 +231,19 @@
         });
     }
 
+    function setAuthMode(mode) {
+        const isSignup = mode === 'signup';
+        const isRecovery = mode === 'recovery';
+        if (!isRecovery) isPasswordRecovery = false;
+        byId('authGateForm').hidden = isSignup || isRecovery;
+        byId('signupForm').hidden = !isSignup || isRecovery;
+        byId('passwordRecoveryForm').hidden = !isRecovery;
+        document.querySelectorAll('[data-auth-mode]').forEach((button) => {
+            button.classList.toggle('active', button.dataset.authMode === (isSignup ? 'signup' : 'signin'));
+        });
+        setText('authStatus', isRecovery ? 'Create a new password' : isSignup ? 'Create your BankDash account' : 'Sign in to continue');
+    }
+
     function showToast(type, title, message) {
         const stack = byId('toastStack');
         if (!stack) return;
@@ -259,7 +272,7 @@
             .eq('id', user.id)
             .maybeSingle();
         if (fetchError) throw fetchError;
-        if (existing) return;
+        if (existing) return false;
 
         const firstName = firstNameFor(user);
         const { error } = await client.from('profiles').insert({
@@ -274,6 +287,7 @@
             timezone: 'Africa/Johannesburg',
         });
         if (error) throw error;
+        return true;
     }
 
     async function ensureAccount(userId) {
@@ -529,6 +543,7 @@
             : state.localUpdatedAt;
         const nextState = {
             ...state,
+            userId: currentUser.id,
             localUpdatedAt: syncedAt,
         };
 
@@ -555,7 +570,7 @@
         }
 
         const syncedAt = remote.client_updated_at || remote.updated_at;
-        const applied = window.BankDashData?.applyAppState?.(remote.state, syncedAt);
+        const applied = window.BankDashData?.applyAppState?.({ ...remote.state, userId: currentUser.id }, syncedAt);
         if (applied && !options.quiet) showToast('success', 'Account synced', 'Latest saved data was loaded into this browser.');
         return Boolean(applied);
     }
@@ -573,7 +588,7 @@
         }, 900);
     }
 
-    async function checkAppStateOnLogin() {
+    async function checkAppStateOnLogin(options = {}) {
         if (!currentUser || appStatePromptedForUserId === currentUser.id) return;
         appStatePromptedForUserId = currentUser.id;
 
@@ -585,6 +600,14 @@
 
             if (!remote) {
                 showToast('info', 'Sync not set up yet', 'Click Sync Account to save this browser data to your account.');
+                return;
+            }
+            if (remote.state?.userId && remote.state.userId !== currentUser.id) {
+                showToast('error', 'Sync blocked', 'Synced data belongs to a different account and was not loaded.');
+                return;
+            }
+            if (options.localStateReset && !remote.state?.userId) {
+                showToast('warning', 'Sync needs review', 'Older synced data exists for this account but is not user-verified. Use Force New Sync from this clean browser if this is a new account.');
                 return;
             }
 
@@ -618,6 +641,16 @@
                 }
                 return;
             }
+            if (remote.state?.userId && remote.state.userId !== currentUser.id) {
+                showToast('error', 'Sync blocked', 'Synced data belongs to a different account and was not loaded.');
+                return;
+            }
+            if (!remote.state?.userId && !localAt) {
+                if (window.confirm('Older synced data exists but is not user-verified. Force New Sync from this clean browser to replace it?')) {
+                    await pushAppStateToSupabase({ force: true });
+                }
+                return;
+            }
 
             if (remoteAt > localAt) {
                 await pullAppStateFromSupabase(remote);
@@ -642,10 +675,10 @@
     }
 
     async function loadAccountSettings(quiet = false) {
-        if (!currentUser) return;
+        if (!currentUser) return { profileCreated: false };
 
         try {
-            await ensureProfile(currentUser);
+            const profileCreated = await ensureProfile(currentUser);
             const [{ data: profile, error: profileError }, { data: accounts, error: accountError }] = await Promise.all([
                 client
                     .from('profiles')
@@ -690,8 +723,10 @@
             setText('userFirstName', firstName);
 
             if (!quiet) showToast('basic', 'Account loaded', 'Your saved account settings are shown.');
+            return { profileCreated, profile };
         } catch (error) {
             showToast('error', 'Account load failed', error.message || 'Could not load your account settings.');
+            return { profileCreated: false };
         }
     }
 
@@ -753,7 +788,7 @@
                 primaryAccountId = data.id;
             }
 
-            await client.auth.updateUser({ data: { first_name: firstName, full_name: displayName } });
+            await client.auth.updateUser({ data: { first_name: firstName, full_name: displayName, bankdash_onboarded: true } });
             setText('accountDisplayName', displayName);
             setText('accountEmail', currentUser.email);
             setText('accountInitials', initialsFor(firstName, lastName, currentUser.email));
@@ -1017,10 +1052,21 @@
         if (importButton) importButton.disabled = !signedIn;
         await refreshDbStats();
         if (signedIn) {
-            await loadAccountSettings(true);
+            window.BankDashData?.setData(emptyDashboardData());
+            const localStateReset = window.BankDashData?.prepareForUser?.(currentUser.id);
+            if (localStateReset) {
+                showToast('info', 'Clean account workspace', 'Local dashboard data was reset because a different account is signed in on this browser.');
+            }
+            const accountLoad = await loadAccountSettings(true);
             await refreshUploadHistory();
-            await checkAppStateOnLogin();
             await loadDashboardFromSupabase();
+            if (accountLoad?.profileCreated) {
+                await pushAppStateToSupabase({ force: true, quiet: true });
+                goToAccount();
+                showToast('info', 'Finish account setup', 'Set your profile, currency, cycle day, and dashboard defaults before using BankDash.');
+            } else {
+                await checkAppStateOnLogin({ localStateReset });
+            }
         } else {
             appStatePromptedForUserId = null;
             window.BankDashData?.setData(emptyDashboardData());
@@ -1050,6 +1096,61 @@
         showToast('success', 'Signed in', `Welcome back, ${firstNameFor(data.session.user)}.`);
     }
 
+    async function handleSignUpSubmit(event) {
+        event.preventDefault();
+        const firstName = byId('signupFirstName').value.trim();
+        const email = byId('signupEmail').value.trim();
+        const password = byId('signupPassword').value;
+        const confirmPassword = byId('signupConfirmPassword').value;
+        if (!firstName || !email || !password || !confirmPassword) {
+            setText('authStatus', 'Complete all signup fields.');
+            showToast('warning', 'Signup incomplete', 'Enter your first name, email address, and password.');
+            return;
+        }
+        if (password !== confirmPassword) {
+            setText('authStatus', 'Passwords do not match.');
+            showToast('warning', 'Passwords do not match', 'Confirm password must match the password field.');
+            return;
+        }
+        if (password.length < 8) {
+            setText('authStatus', 'Password must be at least 8 characters.');
+            showToast('warning', 'Password too short', 'Use at least 8 characters for your password.');
+            return;
+        }
+
+        setText('authStatus', 'Creating account...');
+        showToast('basic', 'Creating account', 'Setting up your BankDash login.');
+        const { data, error } = await client.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: window.location.href.split('#')[0],
+                data: {
+                    first_name: firstName,
+                    full_name: firstName,
+                },
+            },
+        });
+        if (error) {
+            setText('authStatus', error.message);
+            showToast('error', 'Signup failed', error.message || 'Could not create your account.');
+            return;
+        }
+
+        byId('signupForm').reset();
+        if (data.session) {
+            await updateSession(data.session);
+            goToAccount();
+            showToast('success', 'Account created', 'Finish your account setup before using BankDash.');
+            return;
+        }
+
+        setAuthMode('signin');
+        setText('authStatus', 'Check your email to confirm your account, then sign in.');
+        setValue('authEmail', email);
+        showToast('success', 'Confirm your email', 'Supabase sent a confirmation link. Use it before signing in.');
+    }
+
     async function handlePasswordReset() {
         const email = byId('authEmail').value.trim();
         if (!email) {
@@ -1072,11 +1173,9 @@
 
     function showPasswordRecoveryForm(show) {
         isPasswordRecovery = show;
-        byId('authGateForm').hidden = show;
-        byId('passwordRecoveryForm').hidden = !show;
+        setAuthMode(show ? 'recovery' : 'signin');
         document.body.classList.toggle('bankdash-authenticated', false);
         document.body.classList.toggle('supabase-signed-in', false);
-        setText('authStatus', show ? 'Create a new password' : 'Sign in to continue');
     }
 
     function isPasswordRecoveryUrl() {
@@ -1293,6 +1392,9 @@
         setText('supabaseLocalStats', `${sourceData.transactions.length} expenses, ${sourceData.salaryTransactions.length} salaries, ${sourceData.savingsTransfers.length} GoalSave transfers ready`);
 
         byId('authGateForm').addEventListener('submit', handleAuthSubmit);
+        byId('signupForm').addEventListener('submit', handleSignUpSubmit);
+        byId('showSignIn').addEventListener('click', () => setAuthMode('signin'));
+        byId('showSignUp').addEventListener('click', () => setAuthMode('signup'));
         byId('authResetPassword').addEventListener('click', handlePasswordReset);
         byId('passwordRecoveryForm').addEventListener('submit', handlePasswordRecoverySubmit);
         byId('supabaseImport').addEventListener('click', importLocalData);

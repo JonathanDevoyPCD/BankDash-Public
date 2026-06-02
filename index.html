@@ -33,6 +33,15 @@
             </div>
             <div class="updates-log-list">
                 <article class="updates-log-entry latest">
+                    <div><strong>v0.11.0</strong><span>June 2026</span></div>
+                    <h6>Public signup and onboarding</h6>
+                    <ul>
+                        <li>Added a create-account flow for new BankDash users.</li>
+                        <li>Added email confirmation messaging for Supabase signup.</li>
+                        <li>Added first-login account setup routing so new users can configure profile and dashboard defaults.</li>
+                    </ul>
+                </article>
+                <article class="updates-log-entry">
                     <div><strong>v0.10.0</strong><span>June 2026</span></div>
                     <h6>Public layout cleanup</h6>
                     <ul>
@@ -206,8 +215,8 @@
                     <span>FNB</span>
                 </button>
                 <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="absa-bank" data-bank-brand="absa" aria-pressed="false">
-                    <img src="images/banks/AbsaBank/ABSABank-Logo.png" alt="Absa Bank logo" class="bank-logo-absa">
-                    <span>Absa</span>
+                    <img src="images/banks/AbsaBank/ABSABank-Logo.png" alt="ABSA Bank logo" class="bank-logo-absa">
+                    <span>ABSA</span>
                 </button>
                 <button type="button" class="btn btn-outline-primary bank-option" data-bank-option="standard-bank" data-bank-brand="standardbank" aria-pressed="false">
                     <img src="images/banks/StandardBank/StandardBank-Logo.png" alt="Standard Bank logo" class="bank-logo-standardbank">
@@ -304,17 +313,29 @@
                 <h3>BankDash</h3>
                 <p id="authStatus">Sign in to continue</p>
             </div>
+            <div class="auth-mode-tabs" role="tablist" aria-label="Account access">
+                <button type="button" class="auth-mode-tab active" id="showSignIn" data-auth-mode="signin">Sign in</button>
+                <button type="button" class="auth-mode-tab" id="showSignUp" data-auth-mode="signup">Create account</button>
+            </div>
             <form class="auth-form" id="authGateForm">
                 <input type="email" id="authEmail" autocomplete="email" placeholder="Email address" aria-label="Email address">
                 <input type="password" id="authPassword" autocomplete="current-password" placeholder="Password" aria-label="Password">
                 <button type="submit" class="tf-button f12-bold" id="authSubmit">Sign in</button>
                 <button type="button" class="tf-button style-4 f12-bold" id="authResetPassword">Reset password</button>
             </form>
+            <form class="auth-form" id="signupForm" hidden>
+                <input type="text" id="signupFirstName" autocomplete="given-name" placeholder="First name" aria-label="First name">
+                <input type="email" id="signupEmail" autocomplete="email" placeholder="Email address" aria-label="Email address">
+                <input type="password" id="signupPassword" autocomplete="new-password" placeholder="Password" aria-label="Password">
+                <input type="password" id="signupConfirmPassword" autocomplete="new-password" placeholder="Confirm password" aria-label="Confirm password">
+                <button type="submit" class="tf-button f12-bold">Create account</button>
+            </form>
             <form class="auth-form" id="passwordRecoveryForm" hidden>
                 <input type="password" id="newPassword" autocomplete="new-password" placeholder="New password" aria-label="New password">
                 <input type="password" id="confirmPassword" autocomplete="new-password" placeholder="Confirm password" aria-label="Confirm password">
                 <button type="submit" class="tf-button f12-bold">Save new password</button>
             </form>
+            <p class="auth-note">Your dashboard data is saved to your own BankDash account and synced only after you sign in.</p>
         </div>
     </div>
     <div id="wrapper">
@@ -391,9 +412,9 @@
                             </div>
                             <div class="version-controls">
                                 <div class="version-info f12-regular text-Gray">
-                                    <span>Version: <span class="version-number">v0.10.0</span></span>
+                                    <span>Version: <span class="version-number">v0.11.0</span></span>
                                     <br>
-                                    <span>Latest Update: <button type="button" class="latest-pushed-date" id="updatesLogToggle">Public Layout Cleanup <i class="fa-solid fa-up-right-from-square"></i></button></span>
+                                    <span>Latest Update: <button type="button" class="latest-pushed-date" id="updatesLogToggle">Public Signup <i class="fa-solid fa-up-right-from-square"></i></button></span>
                                 </div>
                             </div>
                         </div>
@@ -627,7 +648,7 @@
                                                     </div>
                                                     <div class="priority-item priority-internet" data-priority-key="internet">
                                                         <i class="fa-solid fa-globe"></i>
-                                                        <strong class="priority-name">Internet & internet|wifi|fibre</strong>
+                                                        <strong class="priority-name">Internet & Fibre</strong>
                                                         <span class="priority-transaction-name">Internet provider</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
@@ -646,7 +667,7 @@
                                                     <div class="priority-item priority-gym" data-priority-key="gym">
                                                         <i class="fa-solid fa-dumbbell"></i>
                                                         <strong class="priority-name">Gym</strong>
-                                                        <span class="priority-transaction-name">gym|fitness provider</span>
+                                                        <span class="priority-transaction-name">Fitness provider</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-groceries" data-priority-key="groceries">
@@ -686,7 +707,7 @@
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
                                                     </div>
                                                     <div class="priority-item priority-openai" data-priority-key="openai">
-                                                        <i class="fa-brands fa-openai"></i>
+                                                        <i class="fa-solid fa-robot"></i>
                                                         <strong class="priority-name">ChatGPT</strong>
                                                         <span class="priority-transaction-name">AI subscription</span>
                                                         <span class="priority-amount money-value"><span>Pending</span></span>
@@ -882,8 +903,8 @@
                                                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="bankDropdownList"></ul>   
                                                                 </div>
                                                             </div>
-                                                            <div class="banking-choice bank-color Primary Bank">
-                                                                <img src="images/banks/Primary Bank/Primary Bank-Logo.webp" alt="Primary Bank" class="bank-logo" data-bank="Primary Bank">
+                                                            <div class="banking-choice bank-color gotymebank">
+                                                                <img src="images/banks/GoTymeBank/GoTymeBank-Logo.webp" alt="GoTymeBank" class="bank-logo" data-bank="gotyme">
                                                             </div>
                                                         </div>
                                                         <br>
@@ -910,10 +931,10 @@
                                                                     <ul class="dropdown-menu" aria-labelledby="virtualCardDropdown" id="virtualCardDropdownList"></ul>
                                                                 </div>
                                                             </div>
-                                                            <div class="virtual-card-choice bank-color Primary Bank">
+                                                            <div class="virtual-card-choice bank-color gotymebank">
                                                                 <div class="virtual-card-details">
-                                                                    <img src="images/virtual-banks/Primary BankVirtual/Primary Bank-Virtual-Logo.webp" alt="Virtual Card Card" class="virtual-bank-logo" data-bank="Primary Bank">
-                                                                    <span class="virtual-card-name">Virtual Card</span>
+                                                                    <img src="images/virtual-banks/GoTymeVirtual/GoTymeBank-Virtual-Logo.webp" alt="GoTyme Virtual Card" class="virtual-bank-logo" data-bank="gotyme">
+                                                                    <span class="virtual-card-name">GoTyme Virtual</span>
                                                                     <div class="virtual-card-info">
                                                                         <div class="virtual-private">
                                                                             <span class="virtual-card-number secure-card-value">**** **** **** ****</span>
