@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>BankDash - Account Confirmed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" href="font/fonts.css">
+    <link rel="stylesheet" href="css/bankdash.css">
+    <link rel="shortcut icon" href="images/favicon.png">
+    <style>
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background: var(--Gainsboro);
+        }
+
+        .confirm-card {
+            width: min(520px, 100%);
+            display: grid;
+            gap: 18px;
+            padding: 32px;
+            border: 1px solid var(--Stroke);
+            border-radius: 8px;
+            background: var(--White);
+            box-shadow: 0 12px 34px rgba(16, 24, 40, 0.08);
+            text-align: center;
+        }
+
+        .confirm-card h1 {
+            margin: 0;
+            color: var(--Black);
+            font-size: 28px;
+        }
+
+        .confirm-card p {
+            margin: 0;
+            color: var(--Gray);
+            line-height: 1.6;
+        }
+
+        .confirm-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <main class="confirm-card" aria-live="polite">
+        <div>
+            <h1 id="confirmTitle">Thank you for confirming your account</h1>
+            <p id="confirmMessage">Please wait as you are automatically logged in.</p>
+        </div>
+        <p id="confirmCountdown">Redirecting in 5 seconds...</p>
+        <div class="confirm-actions">
+            <a class="tf-button f12-bold" id="loginLink" href="index.html">Login</a>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/bankdash-supabase-config.js"></script>
+    <script>
+        (async function () {
+            const config = window.BANKDASH_SUPABASE || {};
+            const title = document.getElementById('confirmTitle');
+            const message = document.getElementById('confirmMessage');
+            const countdown = document.getElementById('confirmCountdown');
+            const loginLink = document.getElementById('loginLink');
+            const dashboardUrl = config.authRedirectUrl || new URL('index.html', window.location.href).href;
+            loginLink.href = dashboardUrl;
+
+            function fail(text) {
+                title.textContent = 'Confirmation needs attention';
+                message.textContent = text || 'Your account could not be confirmed automatically.';
+                countdown.textContent = 'Use Login below to try signing in.';
+            }
+
+            function startRedirect() {
+                let seconds = 5;
+                countdown.textContent = `Redirecting in ${seconds} seconds...`;
+                const timer = window.setInterval(() => {
+                    seconds -= 1;
+                    countdown.textContent = `Redirecting in ${seconds} second${seconds === 1 ? '' : 's'}...`;
+                    if (seconds > 0) return;
+                    window.clearInterval(timer);
+                    window.location.href = dashboardUrl;
+                }, 1000);
+            }
+
+            try {
+                if (!config.url || !config.publishableKey || !window.supabase) {
+                    fail('BankDash could not load the account confirmation service.');
+                    return;
+                }
+
+                const client = window.supabase.createClient(config.url, config.publishableKey);
+                const query = new URLSearchParams(window.location.search);
+                const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+
+                if (query.get('error_description') || hash.get('error_description')) {
+                    fail(query.get('error_description') || hash.get('error_description'));
+                    return;
+                }
+
+                if (query.has('code')) {
+                    const { error } = await client.auth.exchangeCodeForSession(query.get('code'));
+                    if (error) throw error;
+                } else if (hash.has('access_token') && hash.has('refresh_token')) {
+                    const { error } = await client.auth.setSession({
+                        access_token: hash.get('access_token'),
+                        refresh_token: hash.get('refresh_token'),
+                    });
+                    if (error) throw error;
+                } else {
+                    const { data, error } = await client.auth.getSession();
+                    if (error) throw error;
+                    if (!data.session) {
+                        fail('Your email may already be confirmed. Use Login below to continue.');
+                        return;
+                    }
+                }
+
+                window.history.replaceState({}, document.title, window.location.pathname);
+                startRedirect();
+            } catch (error) {
+                fail(error.message || 'Your account could not be confirmed automatically.');
+            }
+        })();
+    </script>
+</body>
+</html>

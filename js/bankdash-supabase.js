@@ -203,7 +203,9 @@
         return { year: Number(match[1]), month: Number(match[2]) };
     }
 
-    function authRedirectUrl() {
+    function authRedirectUrl(type = 'default') {
+        if (type === 'signup') return config.signupRedirectUrl || config.authRedirectUrl || window.location.href.split('#')[0].split('?')[0];
+        if (type === 'password') return config.passwordRedirectUrl || config.authRedirectUrl || window.location.href.split('#')[0].split('?')[0];
         return config.authRedirectUrl || window.location.href.split('#')[0].split('?')[0];
     }
 
@@ -1128,7 +1130,7 @@
             email,
             password,
             options: {
-                emailRedirectTo: authRedirectUrl(),
+                emailRedirectTo: authRedirectUrl('signup'),
                 data: {
                     first_name: firstName,
                     full_name: firstName,
@@ -1164,7 +1166,7 @@
         }
 
         const { error } = await client.auth.resetPasswordForEmail(email, {
-            redirectTo: authRedirectUrl(),
+            redirectTo: authRedirectUrl('password'),
         });
         if (error) {
             setText('authStatus', error.message);
